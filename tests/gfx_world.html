@@ -131,9 +131,16 @@
     },
     drawTileGallery, drawCharGallery,
   };
+  // show galleries at 2x (draw 1x into offscreen, then scale up with nearest neighbour)
+  function scale2(id) {
+    const cv = document.getElementById(id), off = document.createElement('canvas');
+    off.width = cv.width; off.height = cv.height; off.getContext('2d').drawImage(cv, 0, 0);
+    cv.width *= 2; cv.height *= 2;
+    const c = cv.getContext('2d'); c.imageSmoothingEnabled = false; c.drawImage(off, 0, 0, cv.width, cv.height);
+  }
   const tg = performance.now();
-  drawTileGallery();
-  drawCharGallery();
+  drawTileGallery(); scale2('tiles');
+  drawCharGallery(); scale2('chars');
   log('[gfx_test] galleries built in', (performance.now() - tg).toFixed(0), 'ms');
 })();
 </script>

@@ -421,7 +421,7 @@
   function scheduleStep(inst, s, t) {
     const S = inst.S, T = inst.T, C = inst.C, sd = inst.sd;
     const i = s % C.L, bar = i >> 4, ii = i & 15;
-    const sc = SCALES[T.scale || 'major'], n = sc.length;
+    const n = SCALES[T.scale || 'major'].length;
     const ct = chordAt(T, bar), root = ct[0];
     for (const ly of C.layers) {
       switch (ly.t) {
@@ -470,7 +470,6 @@
         default: break;
       }
     }
-    void sc;
   }
 
   // schedule every step whose start time is < until (look-ahead pump)
@@ -682,7 +681,6 @@
   });
   SFX.select = SFX.cursor;
   SFX.confirm = SFX.ok;
-  SFX.boing = SFX.buzzer;
 
   // ---------------------------------------------------------------- public API (CONTRACT §7)
   G.audio = {

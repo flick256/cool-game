@@ -216,5 +216,187 @@
     }, { if: () => !flag('ch5_started') });
   }
 
+  // ==================================================================
+  // MAP: spire_hall_1 — the Spire's lower halls (Order remnants, Hale)
+  // ==================================================================
+  const h1 = G.maps.build('spire_hall_1', 30, 26, {
+    name: 'Spire Lower Halls', bgm: 'spire', spawn: { x: 14, y: 23, dir: 'up' }, ground: 'g', interior: true,
+  });
+  h1.border('objects', '7', 1);
+  h1.rect('ground', 1, 1, 28, 24, 'g');
+  h1.rect('ground', 1, 1, 8, 16, 'm').rect('ground', 21, 1, 8, 16, 'm');
+  h1.vline('objects', 9, 1, 16, '7').vline('objects', 20, 1, 16, '7');
+  h1.set('objects', 9, 6, ' ').set('objects', 20, 11, ' ');
+  h1.blob('ground', 4, 20, 3, 3, 'h').blob('ground', 24, 20, 3, 2, 'h');
+  h1.vline('objects', 2, 2, 13, 'P').vline('objects', 27, 2, 13, 'P');
+  h1.set('objects', 4, 3, 'M').set('objects', 25, 3, 'J').set('objects', 3, 9, 'J').set('objects', 26, 9, 'M');
+  h1.set('objects', 6, 13, 'e').set('objects', 23, 13, 'e');
+  h1.set('objects', 24, 15, 'z').set('objects', 5, 15, 'z');
+  h1.set('objects', 12, 6, 'Q').set('objects', 17, 6, 'Q').set('objects', 12, 12, 'Q').set('objects', 17, 12, 'Q');
+  h1.set('objects', 12, 20, 'Q').set('objects', 17, 20, 'Q');
+  h1.set('objects', 14, 3, 's').set('objects', 11, 2, 'L').set('objects', 18, 2, 'L');
+  h1.set('objects', 14, 0, 'u');                 // stairs north, to the second hall
+  h1.set('objects', 14, 25, 'D');                // the way back out to the gate
+  h1.set('objects', 6, 22, ' ');
+  h1.ev([
+    H.save('hall1_entry', 12, 22),
+    H.save('hall1_mid', 14, 9),
+    H.chest('hall1_chest_a', 3, 4, 'ether', 1),
+    H.chest('hall1_chest_b', 26, 13, { gold: 140 }),
+    H.chest('hall1_chest_c', 6, 22, 'hi_potion', 2),
+    H.transfer(14, 0, 'spire_hall_2', 14, 23, 'up', { id: 'hall1_north' }),
+    H.transfer(14, 25, 'spire_gate', 18, 9, 'down', { id: 'hall1_south' }),
+    {
+      id: 'hale_hall', x: 15, y: 5, sprite: 'hale', trigger: 'action', solid: true, dir: 'left',
+      if: () => !flag('ch5_hale_done'),
+      run: async (c) => {
+        await c.say('Hale', 'You don\'t need to say anything, {name}. I rehearsed my lines all week. Every one ends in an apology I can\'t finish.', { face: 'hale', expr: 'worried' });
+        await c.say('Hale', 'My lamp-brand feels cold since Lumen Vale. Like someone let my wick out, very politely, and walked away.', { face: 'hale', expr: 'sad' });
+        await c.say('Hale', 'The Warden will know you were here. He always knows. I can keep my mouth shut for an hour, if you give me a reason.', { face: 'hale' });
+        const i = await c.choice(['"Give me the key to the Foundry."', '"Let me pass. You don\'t have to do this."'], { prompt: 'Hale waits.' });
+        await companionsSay(c, {
+          caspian: ['Inquisitor. You let me walk away once. I haven\'t forgotten it, sir.', 'Hale. Sir. You kept your word to the lamps longer than you should have. Thank you for stopping.', 'Hale. We both know what it cost to stop. Thank you for stopping.'],
+          rook: ['Officer, you have a lovely face for surrender. Keep the key warm, won\'t you.', 'Hale, you\'ve got the look of a man who finally lost something he wanted to lose.', 'You know, Hale, the lamp-brand reads better as a bruise. Go on, be honest about it.'],
+        });
+        if (i === 0) {
+          await c.addItem('spire_key', 1);
+          await c.say('Hale', 'The lantern-key opens the Foundry lock. Don\'t let Claret carry it. She\'ll lose it in a drawer and blame the drawer.', { face: 'hale', expr: 'smirk' });
+          G.setFlag('ch5_hale_key');
+        } else {
+          G.setFlag('ch5_hale_pass');
+          await c.say('Hale', 'Then go. I lost you in the fog. I\'m better at losing than winning, it turns out.', { face: 'hale', expr: 'smirk' });
+        }
+        G.setFlag('ch5_hale_done');
+      },
+    },
+  ]);
+  h1.encounters({ steps: [16, 28], troops: [{ id: 'spire_1', weight: 3 }, { id: 'spire_2', weight: 2 }] });
+  h1.finish();
+
+  // ==================================================================
+  // MAP: spire_hall_2 — the Cold Foundry halls: valves, the lock, Bram
+  // ==================================================================
+  const h2 = G.maps.build('spire_hall_2', 30, 26, {
+    name: 'Spire Cold Foundry', bgm: 'spire', spawn: { x: 14, y: 23, dir: 'up' }, ground: 'g', interior: true,
+  });
+  h2.border('objects', '7', 1);
+  h2.rect('ground', 1, 1, 28, 24, 'g');
+  h2.rect('ground', 1, 1, 8, 16, 'm').rect('ground', 21, 1, 8, 16, 'm');
+  h2.vline('objects', 9, 1, 16, '7').vline('objects', 20, 1, 16, '7');
+  h2.set('objects', 9, 8, ' ');
+  h2.set('objects', 20, 13, 'D');               // the Foundry door (locked by the touch-lock below)
+  h2.blob('ground', 24, 18, 3, 2, 'h').blob('ground', 13, 19, 2, 2, 'h');
+  h2.vline('objects', 2, 10, 5, 'P').hline('objects', 21, 2, 8, 'P');
+  h2.set('objects', 3, 4, 'M').set('objects', 5, 8, 'M').set('objects', 7, 4, 'M');
+  h2.set('objects', 4, 12, 'S');                // a shelf of old tools, decor beside the valve sign
+  h2.set('objects', 25, 12, 'M').set('objects', 22, 15, 'J').set('objects', 27, 15, 'J');
+  h2.set('objects', 23, 5, 'e').set('objects', 27, 5, 'e').set('objects', 23, 9, 'e');
+  h2.set('objects', 12, 6, 'Q').set('objects', 17, 6, 'Q').set('objects', 12, 16, 'Q').set('objects', 17, 16, 'Q');
+  h2.set('objects', 14, 0, 'u');                // stairs north to the Spire's upper hall
+  h2.set('objects', 14, 25, 'D');               // back down to the lower halls
+  h2.set('objects', 11, 2, 'L').set('objects', 18, 2, 'L');
+  h2.set('objects', 16, 9, 'L');
+  const valve = (id, x, y, order, label) => ({
+    id, x, y, sprite: 'obj_beacon', trigger: 'action', solid: true,
+    if: () => !flag('ch5_valves_done'),
+    run: async (c) => {
+      const step = (G.state.flags.ch5_valve_step | 0);
+      if (step === order) {
+        G.setFlag('ch5_valve_step', step + 1);
+        c.sfx('lantern');
+        await c.say(null, label + ' turns with a long, warm sigh. Steam slides into the pipes like a held breath let go.');
+        if (step + 1 === 3) {
+          G.setFlag('ch5_valves_done');
+          c.sfx('heal');
+          await c.toast('The Foundry valves are open. The core is breathing.', 'good');
+          await c.say(null, 'Three valves, three turns. The Foundry\'s core has lost its grip on the steam.');
+        }
+      } else {
+        G.setFlag('ch5_valve_step', 0);
+        c.sfx('buzzer');
+        await c.say(null, 'A jet of cold steam hisses out of the wrong valve and locks it shut. Start again from the beginning.');
+      }
+    },
+  });
+  h2.ev([
+    H.save('hall2_entry', 16, 22),
+    H.save('hall2_upper', 14, 4),
+    H.chest('hall2_chest_a', 6, 14, 'elixir', 1),
+    H.chest('hall2_chest_b', 12, 14, 'sweet_bun', 1),
+    H.chest('hall2_chest_foundry', 27, 20, 'lucky_coin', 1),
+    H.chest('hall2_secret', 4, 2, 'charm_focus', 1),
+    H.transfer(14, 0, 'spire_upper', undefined, undefined, 'up', { id: 'hall2_north' }),
+    H.transfer(14, 25, 'spire_hall_1', 14, 2, 'down', { id: 'hall2_south' }),
+    {
+      id: 'valve_sign', x: 4, y: 12, sprite: 'obj_sign', trigger: 'action', solid: true,
+      run: async (c) => { await c.say(null, 'VALVES.\nWarmth rises from the left, crests in the middle and falls to the right. Turn them in that order.'); },
+    },
+    valve('valve_left', 3, 4, 0, 'The left valve'),
+    valve('valve_mid', 5, 8, 1, 'The middle valve'),
+    valve('valve_right', 7, 4, 2, 'The right valve'),
+    {
+      id: 'foundry_lock', x: 19, y: 13, w: 1, h: 1, sprite: null, trigger: 'touch', solid: false,
+      if: () => !flag('ch5_foundry_open') && !hasSpireKey(),
+      run: async (c) => {
+        await c.say(null, 'The Foundry door is sealed. A brass lock in the shape of a lantern, faintly cold. It wants a key.');
+        await c.walk('player', ['left']);
+      },
+    },
+    {
+      id: 'foundry_key', x: 19, y: 13, w: 1, h: 1, sprite: null, trigger: 'touch', solid: false,
+      if: () => !flag('ch5_foundry_open') && hasSpireKey(),
+      run: async (c) => {
+        G.setFlag('ch5_foundry_open');
+        c.sfx('door');
+        if ((G.state.inventory.spire_key || 0) > 0) await c.removeItem('spire_key', 1);
+        await c.say(null, 'You fit the lantern-key into the lock. The Foundry door unseals with a sigh of cold steam.');
+      },
+    },
+    {
+      id: 'bram_foundry', x: 25, y: 13, sprite: 'bram', trigger: 'action', solid: true, dir: 'left', move: 'still',
+      run: async (c) => { await bramScene(c); },
+    },
+  ]);
+  h2.encounters({ steps: [16, 28], troops: [{ id: 'spire_3', weight: 3 }, { id: 'spire_4', weight: 2 }, { id: 'spire_5', weight: 2 }] });
+  h2.finish();
+
+  // Bram in the Cold Foundry: Claret-centred, no battle, tier-aware choice, then the regulator is sabotaged.
+  async function bramScene(c) {
+    if (flag('ch5_bram_done')) {
+      await c.say('Bram', 'Still here. Still humming. I never could sing, Clary. You got that from your mother.', { face: 'bram', expr: 'worried' });
+      return;
+    }
+    c.bgm('sad');
+    await c.narrate('The Foundry is loud with cold machinery. At the central console, a thin man in a scorched shipwright\'s apron hums something tender and out of tune. He does not turn around.');
+    await c.say('Bram', 'Pressure\'s at four, lovely. Thirty more turns and the Engine will have stopped every tear in Auren. Nobody will ever cry again.', { face: 'bram', expr: 'happy' });
+    await c.say('Claret', 'Dad.', { face: 'claret', expr: 'surprised' });
+    await c.say('Bram', 'Clary? No. No, you\'re in Brasshaven. The ship needs you. I\'ve been following the reports. You fixed the boiler by yourself, didn\'t you? Of course you did.', { face: 'bram', expr: 'surprised' });
+    await c.say('Claret', 'The ship is fine. I am not. Dad, what did they do to you?', { face: 'claret', expr: 'worried' });
+    await c.say('Bram', 'They gave me a laboratory and a reason. I haven\'t been this happy in years, Clary. It\'s terrible, isn\'t it?', { face: 'bram', expr: 'sad' });
+    const i = await c.choice([
+      '"Stop. Please. Look at me."',
+      '"You\'re scaring me, Dad."',
+      '"Then I\'ll break it myself."',
+    ], { prompt: 'Claret steps closer.' });
+    await c.affection('claret', i === 0 ? 4 : i === 1 ? 2 : 1, 'Dad, in the Foundry');
+    if (i === 0) await c.say('Claret', 'Dad. Look at me. You taught me to read a gauge before I could read a book. Read me now.', { face: 'claret', expr: 'sad' });
+    else if (i === 1) await c.say('Claret', 'You\'re scaring me. You never scared me. Not when the boiler blew, not when you vanished. Don\'t start now.', { face: 'claret', expr: 'angry' });
+    else await c.say('Claret', 'Then I\'ll break it myself, with a spanner and no pity. That\'s how you taught me, remember? Everything you build holds weight.', { face: 'claret', expr: 'angry' });
+    await c.say('Bram', 'I built it to stop your tears, Clary. Every wick it puts out is one less grief in the world. When you cried for a week over a busted kettle, I thought...', { face: 'bram', expr: 'sad' });
+    await c.say('Claret', 'You don\'t end suffering by ending people. Ships don\'t stop breaking by sinking. Don\'t touch that. It\'s load-bearing.', { face: 'claret', expr: 'sad' });
+    await c.say('Bram', 'It is, isn\'t it. I designed it that way.', { face: 'bram', expr: 'sad' });
+    await c.wait(40);
+    c.sfx('shatter');
+    c.shake(4, 30);
+    await c.say(null, 'Bram\'s hand comes down on the core regulator, and then, very carefully, he turns the wheel the wrong way. Alarms wail. The Engine coughs and loses its rhythm.');
+    await c.say('Bram', 'Seven turns to the left and the Engine stops listening to me. Now they\'ll have to come down here and talk to me about it. Like you did.', { face: 'bram', expr: 'happy' });
+    await c.say('Claret', 'Come with me. Right now. I can fix you. I can fix anything that\'s broken, you taught me that too.', { face: 'claret', expr: 'sad' });
+    await c.say('Bram', 'Not yet, Clary. Someone has to stand guard over the thing I made. Go up. Make them sorry. Then come and fetch me.', { face: 'bram', expr: 'smirk' });
+    await c.say('Claret', 'I\'m fine. The ship is not fine.', { face: 'claret', expr: 'worried' });
+    G.setFlag('ch5_bram_done');
+    G.setFlag('ch5_core_sabotaged');
+    c.bgm('spire');
+  }
+
   // @@NEXT@@
 })();

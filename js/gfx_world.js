@@ -31,11 +31,12 @@
     const w = src.width, h = src.height, o = mk(w, h), c = o.getContext('2d');
     const sd = src.getContext('2d').getImageData(0, 0, w, h).data;
     const od = c.createImageData(w, h); const d = od.data;
-    const hasA = (x, y) => x >= 0 && y >= 0 && x < w && y < h && sd[(y * w + x) * 4 + 3] > 0;
+    // only solid pixels (alpha >= 128) take part: faint glows must not be outlined
+    const hasA = (x, y) => x >= 0 && y >= 0 && x < w && y < h && sd[(y * w + x) * 4 + 3] >= 128;
     const [r, g, b] = hex2rgb(col);
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
       const i = (y * w + x) * 4;
-      if (sd[i + 3] > 0) continue;
+      if (sd[i + 3] >= 128) continue;
       if (hasA(x - 1, y) || hasA(x + 1, y) || hasA(x, y - 1) || hasA(x, y + 1)) { d[i] = r; d[i + 1] = g; d[i + 2] = b; d[i + 3] = 255; }
     }
     c.putImageData(od, 0, 0); c.drawImage(src, 0, 0); return o;

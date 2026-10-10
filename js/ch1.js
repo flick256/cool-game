@@ -362,3 +362,147 @@
     return m.finish({ onEnter: null });
   }
   buildWickholm();
+
+  // ============================================================ MAP 3 — Mossgrave Wood (field, boss_stag)
+  function buildMossgrave() {
+    const m = G.maps.build('mossgrave_wood', 45, 32, {
+      name: 'Mossgrave Wood', bgm: 'forest', ground: '.', spawn: { x: 2, y: 15, dir: 'right' },
+    });
+    // ---- meadow variety
+    m.blob('ground', 8, 24, 6, 4, 'v');
+    m.blob('ground', 30, 24, 7, 4, 'v');
+    m.blob('ground', 40, 20, 4, 3, 'v');
+    m.blob('ground', 16, 26, 5, 3, ',');
+    m.blob('ground', 24, 4, 4, 2, 'v');
+    // ---- branching paths
+    m.path([[0, 15], [20, 15]], ':', 2);                 // main trail east
+    m.path([[12, 15], [12, 4], [31, 4]], ':', 2);        // north branch (to the bee tree)
+    m.path([[24, 15], [24, 26], [43, 26]], ':', 2);      // south branch (to the sea road)
+    m.path([[20, 15], [36, 15], [36, 14]], ':', 2);      // trail to the stag clearing
+    m.path([[4, 14], [4, 16]], ':', 2);                  // the entrance nook
+    // ---- ponds & stream dressing
+    m.blob('ground', 17, 8, 4, 3, 'w');
+    m.pond(17, 8, 3, 2);
+    m.blob('ground', 30, 28, 3, 2, 'w');
+    m.pond(30, 28, 2, 1);
+    m.set('ground', 40, 28, 'w');
+    // ---- the Hollow stag clearing (x35..43 y4..13) fenced by a ring of trees with a gap at 36,14
+    m.rect('ground', 35, 4, 9, 10, 'h');
+    m.blob('ground', 39, 8, 3, 2, 'y');
+    m.box('objects', 34, 3, 11, 12, 'T');
+    m.set('objects', 36, 14, ' ');
+    m.tiles('objects', [[38, 4], [41, 4], [39, 13]], 'd');
+    m.tiles('objects', [[35, 5], [43, 11]], 'F');
+    // ---- scatter greenery (keep the lanes free)
+    const lanes = [
+      { x: 0, y: 12, w: 45, h: 7 }, { x: 10, y: 2, w: 4, h: 14 }, { x: 10, y: 2, w: 22, h: 4 },
+      { x: 22, y: 17, w: 4, h: 11 }, { x: 22, y: 25, w: 24, h: 4 }, { x: 33, y: 2, w: 12, h: 14 },
+      { x: 2, y: 3, w: 5, h: 12 }, { x: 14, y: 4, w: 6, h: 9 },
+    ];
+    m.scatter('objects', 'T', 46, { seed: 21, on: '.v,', avoid: lanes });
+    m.scatter('objects', 'N', 22, { seed: 22, on: '.v,', avoid: lanes });
+    m.scatter('objects', 'd', 6, { seed: 23, on: '.v,', avoid: lanes });
+    m.scatter('objects', 'B', 28, { seed: 24, on: '.v,', avoid: lanes });
+    m.scatter('objects', 'G', 60, { seed: 25, on: '.v,', avoid: lanes });
+    m.scatter('objects', 'F', 26, { seed: 26, on: '.v,', avoid: lanes });
+    m.scatter('objects', 'R', 10, { seed: 27, on: '.v', avoid: lanes });
+    m.scatter('objects', 'r', 4, { seed: 28, on: '.v', avoid: lanes });
+    // ---- secret glade (tall grass path hides it; a chest waits under the big tree)
+    m.vline('objects', 4, 6, 9, 'G');
+    m.rect('ground', 1, 2, 7, 4, 'v');
+    m.tiles('objects', [[2, 3], [6, 2]], 'T');
+    m.set('objects', 4, 4, ' ');
+    // ---- entrance dressing
+    m.tiles('objects', [[1, 13], [2, 18]], 'R');
+    m.tiles('objects', [[3, 12]], 'T');
+    // ---- forest rim (edges are dense woods)
+    m.vline('objects', 0, 0, 12, 'T').vline('objects', 0, 17, 15, 'T');
+    m.vline('objects', 44, 0, 12, 'N').vline('objects', 44, 17, 6, 'N');
+    m.hline('objects', 0, 0, 45, 'T').hline('objects', 0, 31, 45, 'N');
+    m.set('objects', 0, 14, ' ').set('objects', 0, 15, ' ').set('objects', 0, 16, ' ');
+    m.set('objects', 44, 26, ' ').set('objects', 44, 27, ' ');
+    m.set('objects', 1, 14, ' ');
+    m.tiles('ground', [[0, 14], [0, 15], [0, 16]], ':');
+    m.tiles('ground', [[44, 26], [44, 27]], ':');
+    m.tiles('objects', [[12, 2], [14, 2]], 'T');
+    // ---- a few above-layer canopies for depth
+    m.tiles('above', [[1, 8], [8, 10], [28, 17]], '^');
+
+    // ---- encounters
+    m.encounters({ steps: [18, 34], troops: [{ id: 'wood_1', weight: 3 }, { id: 'wood_2', weight: 3 }, { id: 'wood_3', weight: 2 }, { id: 'wood_4', weight: 1 }] });
+
+    // ---- portals, healing points, treasure
+    m.ev([
+      H.transfer(0, 14, 'wickholm', 37, 14, 'left', { id: 'wood_to_wh', h: 3 }),
+      H.transfer(44, 26, 'brasshaven', undefined, undefined, 'left', { id: 'wood_to_brass', h: 2, if: () => !!G.flag('ch0_stag_done') }),
+      H.save('wood_save_1', 3, 12),
+      H.save('wood_save_2', 32, 12),
+      H.sign('wood_sign_1', 2, 20, 'MOSSGRAVE WOOD\nThe paths branch here. Only one of them goes home.'),
+      H.sign('wood_sign_2', 20, 17, 'Bee tree (north). Sweet. Dangerous. Mostly sweet.'),
+    ]);
+    m.ev(H.chest('wood_honey', 30, 3, 'wild_honey', 1));
+    m.ev(H.chest('wood_potion', 19, 17, 'hi_potion', 2));
+    m.ev(H.chest('wood_gold', 40, 25, { gold: 80 }));
+    m.ev(H.chest('wood_glade', 4, 4, 'moonpetal', 1));
+
+    // ---- wood folk
+    m.ev([
+      H.npc('wood_wend', 8, 19, 'villager_m2', [
+        'Oh! A lamp-kid on the road! The wood\'s been asking for one. Politely, mind. In a whisper, through the ferns.',
+        'The stag up at the clearing used to guard us. Now it just stands there, weeping light the colour of old bruises.',
+        'If you go up there, be gentle. It\'s not the stag\'s fault it forgot how to be warm.',
+      ], { name: 'Wend the Woodcutter' }),
+      H.npc('wood_hollow_child', 25, 9, 'hollow', [
+        'The shape of a child, blank as paper, watches you. It holds out a hand, then drops it. "...light?" it whispers.',
+      ], { name: null }),
+      H.npc('wood_fawn', 14, 17, 'dog', [
+        'A small fawn stands perfectly still, looking at you with the earnest respect of a creature who does not own a map.',
+      ], { name: null }),
+      H.npc('wood_bee', 29, 2, 'villager_f2', [
+        'The bees know you\'re not dangerous. They keep looking at your coat and then deciding not to sting you. It\'s very polite.',
+      ], { name: 'Bee-keeper Lenna' }),
+    ]);
+
+    // ---- the boss: the Hollowed guardian (sad, not evil)
+    m.ev([{
+      id: 'stag_boss', x: 39, y: 8, sprite: 'hollow', trigger: 'action', solid: true, dir: 'down', name: 'Hollow Stag',
+      if: () => !G.flag('ch0_stag_done'),
+      run: async (c) => {
+        await nar(c, 'A great stag stands at the centre of the clearing. Violet cracks run through its antlers like broken glass. It does not charge. It only looks at you with wet, tired eyes.');
+        await who(c, 'Hollow Stag', 'hollow', 'You... carry a light. I have not seen one for so long. Does it hurt, to be warm?', 'sad');
+        await me(c, 'It hurts a little, when you share it. It\'s also the best thing I know. I\'m sorry you forgot.', 'worried');
+        await who(c, 'Hollow Stag', 'hollow', 'I guarded this wood. The lamps asked me to stop the blight... and I did, and I forgot who I was guarding.', 'sad');
+        const r = await c.battle('boss_stag', {
+          canEscape: false, loseOk: true, bg: 'forest', bgm: 'boss',
+          intro: async (c) => {
+            await c.hint('Bosses cannot be escaped from. Find WEAK POINTS: a broken shield means a turn lost for the stag, and a big hit while it is BROKEN.');
+          },
+          onHalf: async (c) => {
+            c.flash('#f4c26a', 30); c.shake(3, 30);
+            await who(c, 'Hollow Stag', 'hollow', 'Stop. Please. That light... it is in my chest too. Let it out. I have been holding it in for years.', 'sad');
+          },
+          outro: async (c) => {
+            await nar(c, 'The stag bows its head. The violet cracks fade like frost in a warm room. A single antler, glowing soft gold, drops into the moss.');
+          },
+        });
+        if (r === 'win') {
+          G.setFlag('ch0_stag_done', true);
+          c.sfx('victory'); c.flash('#ffd27a', 40); await c.wait(30);
+          await who(c, 'Hollow Stag', 'hollow', 'Walk south-east. Follow the compass. It will guide you to the workshop of the Vane.', 'normal');
+          await nar(c, 'In your pocket, the Ember Compass warms. Its needle swings past the trees and points straight toward the sea. It is glowing like it has been waiting for you.');
+          c.sfx('lantern');
+          c.toast('The Ember Compass glows toward the sea', 'good');
+        } else {
+          await nar(c, 'The stag\'s light is too bright for you. You stumble back to the path. It watches you go, patient and sad, and lets you live.');
+        }
+      },
+    }]);
+
+    m.ev(H.auto('wood_intro', async (c) => {
+      c.titleCard('Mossgrave Wood', 'Where the trees keep secrets', 120);
+      await c.wait(30);
+    }, { once: true }));
+
+    return m.finish({ onEnter: null });
+  }
+  buildMossgrave();
