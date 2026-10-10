@@ -137,23 +137,23 @@
       await c.chapter(2);
       await c.fade('in', 30);
       await c.titleCard(G.story.chapters[2].title, G.story.chapters[2].subtitle, 110);
-      await c.say('Claret', 'Gladius. Sand in the teeth, sun on the stones, and a sky that looks like it wants to sell us a nap.', 'claret', 'normal');
-      await c.say('Claret', "Don't laugh. I'm sky-sick again. Ten minutes on the ground and my ears still think they're in a cloud.", 'claret', 'worried');
+      await say(c, 'Claret', 'Gladius. Sand in the teeth, sun on the stones, and a sky that looks like it wants to sell us a nap.', 'claret', 'normal');
+      await say(c, 'Claret', "Don't laugh. I'm sky-sick again. Ten minutes on the ground and my ears still think they're in a cloud.", 'claret', 'worried');
       const i = await c.choice(['Earnest: "It\'s warm. People here look... happy?"', 'Teasing: "Just say you missed the Marigold."', 'Brave: "Then we walk. Fast."'], { prompt: 'How do you answer?' });
-      if (i === 0) await c.say('{name}', 'It\'s warm. Everyone here looks happy, almost.', null);
-      if (i === 1) { await c.say('{name}', 'You missed the Marigold. Admit it.', null); await c.say('Claret', "Shut up. I'm not admitting anything with a sky like that watching.", 'claret', 'smirk'); }
-      if (i === 2) { await c.say('{name}', 'Then we walk, fast, and get you somewhere with a roof.', null); await c.say('Claret', "Hm. You're not wrong. Lead, Kindler.", 'claret', 'happy'); }
+      if (i === 0) await say(c, '{name}', 'It\'s warm. Everyone here looks happy, almost.', null);
+      if (i === 1) { await say(c, '{name}', 'You missed the Marigold. Admit it.', null); await say(c, 'Claret', "Shut up. I'm not admitting anything with a sky like that watching.", 'claret', 'smirk'); }
+      if (i === 2) { await say(c, '{name}', 'Then we walk, fast, and get you somewhere with a roof.', null); await say(c, 'Claret', "Hm. You're not wrong. Lead, Kindler.", 'claret', 'happy'); }
       await c.affection('claret', i === 1 ? 2 : 1, 'Gladius arrival banter');
       await c.narrate('Gladius is crowded and quiet at once. A vendor yawns over a crate of figs. A dicing crowd stares at the dice without rolling them. A child drags a stick along the cobbles and forgets to finish the line.');
-      await c.say('Claret', 'Look at the lamps. Every one of them is burning, and nobody in this city looks warm.', 'claret', 'worried');
-      await c.say('{name}', "Something's draining them. Like the lamps are eating the warmth. I can almost see it.", null);
-      await c.say('Claret', "Let's keep our eyes open and our hands near our pockets. Rule one of any city with a colosseum: somebody is always selling something.", 'claret', 'smirk');
+      await say(c, 'Claret', 'Look at the lamps. Every one of them is burning, and nobody in this city looks warm.', 'claret', 'worried');
+      await say(c, '{name}', "Something's draining them. Like the lamps are eating the warmth. I can almost see it.", null);
+      await say(c, 'Claret', "Let's keep our eyes open and our hands near our pockets. Rule one of any city with a colosseum: somebody is always selling something.", 'claret', 'smirk');
     }, { once: true, if: () => !flag('ch2_started') }));
 
     // ---- Rook's pickpocket on the fountain steps (once, after arrival) ----
     m.ev(H.auto('cit_pickpocket', async (c) => {
       await c.narrate('A red-haired man in a green coat bumps into you on the fountain steps, apologising far too loudly. His hand is already at your belt pouch.');
-      await c.say('Rook', "Oh! Sorry, sorry, lovely day for it. Gladius is full of hazards. Mostly me.", 'rook', 'smirk');
+      await say(c, 'Rook', "Oh! Sorry, sorry, lovely day for it. Gladius is full of hazards. Mostly me.", 'rook', 'smirk');
       const i = await c.choice([
         'Earnest: "Give it back, please."',
         'Teasing: "Is that how you say hello here?"',
@@ -161,24 +161,24 @@
         'Brave: "Nice try. Hand it over."',
       ], { prompt: 'Catch the thief...' });
       if (i === 0) {
-        await c.say('{name}', 'Give it back, please. It has an important compass in it.', null);
-        await c.say('Rook', 'Oh, a compass! Nobody ever trusts a man with a compass. Here, a deal: I keep the pouch, you keep your face.', 'rook', 'smirk');
+        await say(c, '{name}', 'Give it back, please. It has an important compass in it.', null);
+        await say(c, 'Rook', 'Oh, a compass! Nobody ever trusts a man with a compass. Here, a deal: I keep the pouch, you keep your face.', 'rook', 'smirk');
       } else if (i === 1) {
-        await c.say('{name}', 'Is that how you say hello in Gladius? By robbing people?', null);
-        await c.say('Rook', 'Only the pretty ones, sweetheart. You should see the ones I hand back.', 'rook', 'smirk');
+        await say(c, '{name}', 'Is that how you say hello in Gladius? By robbing people?', null);
+        await say(c, 'Rook', 'Only the pretty ones, sweetheart. You should see the ones I hand back.', 'rook', 'smirk');
         await c.affection('rook', 2, 'Teasing Rook back');
       } else if (i === 2) {
-        await c.say('{name}', 'Wh-what are you doing?! That is not your pocket!', null);
-        await c.say('Rook', "Ooh, and they blush! Don't worry, I only steal things I actually want. And I don't want anything from you. Yet.", 'rook', 'smirk');
+        await say(c, '{name}', 'Wh-what are you doing?! That is not your pocket!', null);
+        await say(c, 'Rook', "Ooh, and they blush! Don't worry, I only steal things I actually want. And I don't want anything from you. Yet.", 'rook', 'smirk');
         await c.affection('rook', 1, 'Flustered in front of Rook');
       } else {
-        await c.say('{name}', 'Nice try. Hand it over before I make you hand over your boots.', null);
-        await c.say('Rook', 'Ha! Brave one. I like brave. Brave is expensive to lift from.', 'rook', 'happy');
+        await say(c, '{name}', 'Nice try. Hand it over before I make you hand over your boots.', null);
+        await say(c, 'Rook', 'Ha! Brave one. I like brave. Brave is expensive to lift from.', 'rook', 'happy');
         await c.affection('rook', 2, 'Brave face for Rook');
       }
-      await c.say('Claret', "He had the pouch open, genius. You're lucky it's not my wallet, I'd have broken his fingers.", 'claret', 'angry');
-      await c.say('Rook', "Tell your friend I'm not a thief. I'm a freelancer. And I just want to say, the tavern across the plaza has the best dice in the Vale.", 'rook', 'smirk');
-      await c.say('Rook', "I'm called Rook, by the way. Rook Calloway. If you want your compass back, you'll find me at the Gilded Dice. Bring something to bet.", 'rook', 'happy');
+      await say(c, 'Claret', "He had the pouch open, genius. You're lucky it's not my wallet, I'd have broken his fingers.", 'claret', 'angry');
+      await say(c, 'Rook', "Tell your friend I'm not a thief. I'm a freelancer. And I just want to say, the tavern across the plaza has the best dice in the Vale.", 'rook', 'smirk');
+      await say(c, 'Rook', "I'm called Rook, by the way. Rook Calloway. If you want your compass back, you'll find me at the Gilded Dice. Bring something to bet.", 'rook', 'happy');
       G.setFlag('ch2_met_rook', true);
       G.setFlag('rook_seen_citadel', true);
       await c.toast('Met Rook Calloway', 'heart');
@@ -272,7 +272,7 @@
               await c.removeItem('whetstone', 1);
               await c.addItem('charm_focus', 1);
               G.setFlag('ch2_sharpened', true);
-              await c.say(null, 'Your weapon hums like a fresh bell. Mede hands you a Focus Charm, clinking.');
+              await say(c, null, 'Your weapon hums like a fresh bell. Mede hands you a Focus Charm, clinking.');
             } else {
               await say(c, 'Smith Mede', 'I\'d sharpen it for you, but I need a whetstone. Gladius hides its good things in bushes. Have a look in the south-west corner.', 'unknown', 'normal');
             }
@@ -337,43 +337,43 @@
       if: () => !inParty('rook'),
       run: async (c) => {
         if (!flag('ch2_met_rook')) {
-          await c.say('Rook', 'Oh? You found the Dice! Sit down, Kindler, the house always wins, but I make it a fun way to lose.', 'rook', 'smirk');
+          await say(c, 'Rook', 'Oh? You found the Dice! Sit down, Kindler, the house always wins, but I make it a fun way to lose.', 'rook', 'smirk');
           G.setFlag('ch2_met_rook', true);
         }
         const first = !flag('ch2_dice_played');
-        if (first) await c.say('Rook', "Dice, not cards. Cards are for cheats, dice are for honest liars. Now, what's your bet?", 'rook', 'happy');
-        else await c.say('Rook', "Back for more? I like a regular. It makes my dice feel loved.", 'rook', 'smirk');
+        if (first) await say(c, 'Rook', "Dice, not cards. Cards are for cheats, dice are for honest liars. Now, what's your bet?", 'rook', 'happy');
+        else await say(c, 'Rook', "Back for more? I like a regular. It makes my dice feel loved.", 'rook', 'smirk');
         const pick = await c.choice(['Bet 10 gold', 'Bet 30 gold', 'Ask Rook about his coin', 'Just watch'], { prompt: 'Roll the dice' });
-        if (pick === 3) { await c.say('Rook', 'Watching is free. Lovely of you. Hold my drink, would you?', 'rook', 'smirk'); return; }
+        if (pick === 3) { await say(c, 'Rook', 'Watching is free. Lovely of you. Hold my drink, would you?', 'rook', 'smirk'); return; }
         if (pick === 2) {
-          await c.say('{name}', 'Your coin. Where did you get it?', null);
-          await c.say('Rook', "From my mum. She said the luckiest coins are the ones you give away. I keep giving it back to myself, so I'm very lucky.", 'rook', 'smirk');
+          await say(c, '{name}', 'Your coin. Where did you get it?', null);
+          await say(c, 'Rook', "From my mum. She said the luckiest coins are the ones you give away. I keep giving it back to myself, so I'm very lucky.", 'rook', 'smirk');
           await c.affection('rook', 1, 'Asked about the lucky coin');
           return;
         }
         const bet = pick === 0 ? 10 : 30;
         if (G.state.gold < bet) {
-          await c.say('Rook', "Rowan, your pouch is lighter than my rent. Come back with the coin and we'll play.", 'rook', 'worried');
+          await say(c, 'Rook', "Rowan, your pouch is lighter than my rent. Come back with the coin and we'll play.", 'rook', 'worried');
           return;
         }
         await c.gold(-bet);
-        await c.say('Rook', 'Call it: high roll or low roll.', 'rook', 'smirk');
+        await say(c, 'Rook', 'Call it: high roll or low roll.', 'rook', 'smirk');
         const call = await c.choice(['High roll', 'Low roll'], { prompt: 'Your call' });
         c.sfx('ok');
         const roll = Math.random() < 0.5 ? 'high' : 'low';
         const won = (roll === 'high') === (call === 0);
-        await c.say(null, 'The dice rattle across the felt... ' + roll.toUpperCase() + ' roll.');
+        await say(c, null, 'The dice rattle across the felt... ' + roll.toUpperCase() + ' roll.');
         if (won) {
           await c.gold(bet * 2);
-          await c.say('Rook', 'Oh! The dice fell in your favour. How unfair. Next time, I rig the table, just for you.', 'rook', 'happy');
+          await say(c, 'Rook', 'Oh! The dice fell in your favour. How unfair. Next time, I rig the table, just for you.', 'rook', 'happy');
           await c.affection('rook', bet >= 30 ? 2 : 1, 'Won a dice round with Rook');
           if (!hasItemState('lucky_coin') && !flag('ch2_rook_coin')) {
             G.setFlag('ch2_rook_coin', true);
-            await c.say('Rook', 'Here. Take my lucky coin. Keep it. Luck is better when it is shared, and I have never once been lucky alone.', 'rook', 'smirk');
+            await say(c, 'Rook', 'Here. Take my lucky coin. Keep it. Luck is better when it is shared, and I have never once been lucky alone.', 'rook', 'smirk');
             await c.addItem('lucky_coin', 1);
           }
         } else {
-          await c.say('Rook', 'Ouch. Losing is just winning someone else a rest. Want to try again? Only one of us is nervous, and it\'s not me.', 'rook', 'smirk');
+          await say(c, 'Rook', 'Ouch. Losing is just winning someone else a rest. Want to try again? Only one of us is nervous, and it\'s not me.', 'rook', 'smirk');
           await c.affection('rook', 1, 'Lost a round, but stayed to laugh');
         }
         G.setFlag('ch2_dice_played', true);
@@ -388,7 +388,7 @@
       after: async (c) => {
         if (!flag('ch2_wine_given')) {
           G.setFlag('ch2_wine_given', true);
-          await c.say('Mirela', 'And one for the road, on the house. Ember wine. Don\'t tell the Warden I had it made in a bathtub.', null);
+          await say(c, 'Mirela', 'And one for the road, on the house. Ember wine. Don\'t tell the Warden I had it made in a bathtub.', null);
           await c.addItem('ember_wine', 1);
         }
       },
@@ -443,25 +443,434 @@
     // corridor lamps (walkway)
     [[9, 9], [35, 9], [9, 19], [35, 19]].forEach(([x, y]) => m.set('objects', x, y, 'L'));
     // a palm-ish decor beyond the rings (outside the stands)
-    m.scatter('objects', 'T', 8, { seed: 21, on: '.', avoid: [{ x: 0, y: 0, w: 44, h: 27 }] });
+    m.scatter('objects', 'T', 8, { seed: 21, on: '.', avoid: [{ x: 4, y: 2, w: 37, h: 24 }] });
     arenaEvents(m);
     return m.finish();
   }
 
+  // tournament text per bout (1..3). Bout n is battle 'arena_n'; ch2_round = bouts won so far.
+  const BOUTS = {
+    1: {
+      ann: 'Bout One! Two recruits from the drill yards, still smelling of the parade! Show us some sand!',
+      tor: "Don't look at the crowd, friend. They only bite when you look back.",
+      win: "A clean win! Torvald's heart is doing a jig. Next bout in five minutes. Drink some water.",
+      lose: 'Ach, you bounced off them like a cart off a wall. Up you get. The crowd loves a comeback.',
+    },
+    2: {
+      ann: 'Bout Two! Arena hounds, savage and hungry, and one recruit who bites! The crowd is hungry too!',
+      tor: "Hounds aren't evil, friend. They run until somebody falls over. Be the somebody who doesn't.",
+      win: "Hounds down! You're better than the Ashgrove champion. Don't tell him, he cries easily.",
+      lose: 'The hounds did not even break a sweat. Get your breath back. Round three waits for nobody.',
+    },
+    3: {
+      ann: 'Bout Three! Sand bandits from the dune camps! Three of them, and a taste for purses!',
+      tor: 'Bandits take your purse, your boots, and sometimes your dignity. Keep the dignity.',
+      win: "That's three bouts! The Champion's Pass is nearly in your hands. Nearly.",
+      lose: 'The bandits stole your breath, not your place in the bracket. Stand up. I will pretend you did not squeal.',
+    },
+  };
+
+  // runs bout n (1..3). Returns true when the bout was won.
+  async function runBout(c, n) {
+    const B = BOUTS[n];
+    await say(c, 'Announcer Quill', B.ann, 'unknown');
+    await say(c, 'Torvald', B.tor, 'torvald', 'smirk');
+    c.bgm('arena');
+    const r = await c.battle('arena_' + n, { canEscape: false, bgm: 'battle', bg: 'arena', loseOk: true });
+    if (r === 'win') {
+      G.setFlag('ch2_round', n);
+      await say(c, 'Torvald', B.win, 'torvald', 'happy');
+      return true;
+    }
+    await say(c, 'Torvald', B.lose, 'torvald', 'worried');
+    return false;
+  }
+
+  // the Champion finale: the Grey Lion steps onto the sand, the battle, the Pass, and the Order's standoff
+  async function runFinale(c) {
+    await say(c, 'Announcer Quill', 'The final bout! The Gladius Champion, undefeated since the Frost Fair, and three of his finest recruits!', 'unknown');
+    await say(c, 'Torvald', 'Bring me his scalp and I will sell you a statue of yourself. Wait... is that the Grey Lion?', 'torvald', 'surprised');
+    const r = await c.battle('boss_champion', {
+      canEscape: false, bgm: 'boss', bg: 'arena', loseOk: true,
+      intro: async (c) => {
+        if (!flag('ch2_finale_intro')) {
+          G.setFlag('ch2_finale_intro', true);
+          await say(c, 'Announcer Quill', 'The Lion is stepping down from the walkway! The crowd is on its feet!', 'unknown');
+          await c.emote('arena_caspian', 'exclaim');
+          await say(c, 'Caspian', 'Champion. Step aside. The bout you want is not the one you have. I have stood in the shade for eleven years. I would like to try the sun.', 'caspian', 'normal');
+          await say(c, '{name}', 'You are going to fight beside us? Caspian, you could be arrested for this.', null);
+          await say(c, 'Caspian', 'Arrested is a fair price. I have been called worse by better men, and some of them were Wardens.', 'caspian', 'happy');
+          await c.affection('caspian', 2, 'Caspian stepped onto the sand for you');
+        }
+        await c.join('caspian');
+      },
+      onHalf: async (c) => {
+        await say(c, 'Caspian', 'He is tiring. Good. Watch his left foot. He leads with it when he is angry, which is always.', 'caspian', 'smirk');
+      },
+    });
+    if (r !== 'win') {
+      await say(c, 'Torvald', 'The Champion is a brute. Rest. Come back and let the sand have another try.', 'torvald', 'worried');
+      return;
+    }
+
+    // ---- the Pass, the crowd, the Order's standoff ----
+    G.setFlag('ch2_round', 4);
+    G.setFlag('ch2_tournament_won', true);
+    await say(c, 'Torvald', 'THE CHAMPION! The sand loves you! Here, the Pass, the Champion\'s Pass. It opens the old lamp-vault under my arena. Don\'t tell the Order.', 'torvald', 'happy');
+    await c.addItem('gladius_pass', 1);
+    await say(c, null, 'The Pass is a brass disc, stamped with a lantern. It is warm to the touch, the way a sleeping cat is warm.');
+
+    await c.wait(20);
+    await say(c, 'Warden Sorrel', 'Caspian Thorne. Knight-Lantern of the Hearth Order. You have worn the Lion for eleven years, and under the dust your sigil is still there.', 'unknown');
+    await say(c, 'Caspian', 'Sorrel. I scratched the sigil out because I could not bear to look at it. Yes, I know what I did.', 'caspian', 'sad');
+    await say(c, 'Warden Sorrel', 'You were sent to Ashmere. You put out their lamps, and four hundred people slept in the dark. You refused the order too late. The Order requires the Lion back.', 'unknown');
+    const pick = await c.choice([
+      'Earnest: "He is not yours to take."',
+      'Teasing: "Your lantern is crooked, Warden."',
+      'Brave: "Then you will have to ask me."',
+    ], { prompt: 'Stand between them' });
+    if (pick === 0) {
+      await say(c, '{name}', 'He is not yours to take. He is standing here, which is more than your lamps did for Ashmere.', null);
+      await c.affection('caspian', 2, 'Stood up for Caspian');
+    } else if (pick === 1) {
+      await say(c, '{name}', 'Your lantern is crooked, Warden. Your whole Order is crooked, if you ask the people in these stands.', null);
+      await c.affection('caspian', 1, 'Teased the Warden');
+    } else {
+      await say(c, '{name}', 'Then you will have to ask me. Politely, if you can manage it. Caspian is not your property.', null);
+      await c.affection('caspian', 2, 'Brave for Caspian');
+    }
+    await say(c, 'Caspian', pick === 2 ? 'You should not stand for me. You barely know me.' : 'You should not do this for me. You barely know me.', 'caspian', 'sad');
+    await say(c, '{name}', 'Then let me get to know you. Starting with the part where you stop apologising.', null);
+    await say(c, 'Caspian', '...Thank you. I will try. It is a very old habit.', 'caspian', 'blush');
+    await say(c, 'Warden Sorrel', 'Then the vault is closed to you, Thorne, and to your friends. The Order does not forget a lamp that goes out.', 'unknown');
+    await say(c, null, 'The Warden turns on his heel and marches for the gate. The crowd sees the Wardens leave and boos, then stops booing when they realise the sand is quiet.');
+
+    // Rook drops in from the stands
+    await say(c, null, 'A familiar laugh drifts down from the upper stands, and a green coat drops onto the sand beside you.');
+    await c.join('rook');
+    await say(c, 'Rook', 'Ha! Sorrel marched out like a man with a stick up his coat. And I lifted his pocket watch while he was busy being dramatic. Look at this!', 'rook', 'smirk');
+    await say(c, 'Rook', "The Order's vault is under this sand, under the old Gladius aqueduct. The gate's guarded, but a gate is just a door that someone didn't want opened.", 'rook', 'happy');
+    await say(c, 'Caspian', 'The old aqueduct. It still carries water from the hills, and it runs beneath the arena to the lamp-vault. I used to inspect it, once, long ago.', 'caspian', 'normal');
+    await say(c, 'Claret', "Water, pipes, and a pressure valve, Captain's favourite. I'll handle the valves. You two handle being charming.", 'claret', 'smirk');
+    await say(c, 'Rook', "Oh, I do charm very well. It's the being-caught I'm rubbish at.", 'rook', 'happy');
+    G.setFlag('ch2_standoff_done', true);
+    G.setFlag('ch2_heist_go', true);
+    await c.toast('Gladius Pass, Lion and Rook joined', 'good');
+    await say(c, 'Torvald', 'Go! Get out of my arena before you break the sand. And leave me a seat on the sand when you come back.', 'torvald', 'happy');
+  }
+
   function arenaEvents(m) {
     m.ev(H.transfer(22, 26, 'gladius_citadel', 21, 12, 'down', { id: 'arena_to_cit' }));
+
+    // ---- Torvald: enter the tournament, run bouts, then the finale ----
+    m.ev({
+      id: 'arena_torvald', x: 27, y: 22, sprite: 'torvald', trigger: 'action', solid: true, dir: 'left', name: 'Torvald',
+      run: async (c) => {
+        if (flag('ch2_tournament_won')) {
+          await say(c, 'Torvald', "Champion! My favourite kind of trouble. The sand loves you. Don't get used to the sand loving you.", 'torvald', 'happy');
+          return;
+        }
+        if (!flag('ch2_entered')) {
+          await say(c, 'Torvald', 'Welcome to Gladius Arena! I am Torvald, the loudest man in the Vale and the only honest promoter. Want to fight?', 'torvald', 'happy');
+          const i = await c.choice(['Enter the tournament (20 gold)', 'Just looking'], { prompt: 'Torvald' });
+          if (i === 1) { await say(c, 'Torvald', 'Looking is free! Sand is not. Come back when you are brave or bored.', 'torvald', 'smirk'); return; }
+          if (G.state.gold < 20) { await say(c, 'Torvald', 'Twenty gold, friend, or a sword that looks expensive. Come back when you have the coin.', 'torvald', 'worried'); return; }
+          await c.gold(-20);
+          G.setFlag('ch2_entered', true);
+          await say(c, 'Torvald', "Three bouts. Win them all and I'll give you the Champion's Pass: the old lamp-vault under my sand. Trust me, it's a terrible place to keep a lamp.", 'torvald', 'smirk');
+        }
+        const won = G.flag('ch2_round') || 0;
+        if (won < 3) {
+          const n = won + 1;
+          const ok = await runBout(c, n);
+          if (ok && n === 3) await say(c, 'Torvald', 'Three bouts, the crowd is in tears, and the Champion is waiting. Oh, come on, you are going to win this too.', 'torvald', 'smirk');
+        } else {
+          await runFinale(c);
+        }
+      },
+    });
+
+    // ---- the Grey Lion, resting on the walkway; joins at the finale ----
+    m.ev({
+      id: 'arena_caspian', x: 9, y: 18, sprite: 'caspian', trigger: 'action', solid: true, dir: 'right', name: 'Grey Lion',
+      if: () => !inParty('caspian'),
+      run: async (c) => {
+        if (!flag('ch2_met_caspian')) {
+          G.setFlag('ch2_met_caspian', true);
+          await say(c, 'Caspian', 'You are standing in my shade. It is a habit I am trying to break. Forgive me, I am told I apologise far too often.', 'caspian', 'normal');
+          await say(c, '{name}', 'You are the Grey Lion? You look more like a kind librarian.', null);
+          const i = await c.choice([
+            'Earnest: "I heard you never lose."',
+            'Teasing: "A librarian with a sword?"',
+            'Flustered: "You are very tall, sorry."',
+          ], { prompt: 'Talk to the Lion' });
+          if (i === 0) {
+            await say(c, 'Caspian', 'I have lost plenty. I just do not like to lose where people are watching. It is a vanity, and it is also a penance.', 'caspian', 'sad');
+            await c.affection('caspian', 2, 'Earnest talk with Caspian');
+          } else if (i === 1) {
+            await say(c, 'Caspian', 'I was a librarian of sorts, once. Of lamps. Lanterns, Knight-Lantern work, the old ledgers. Books are the kindest thing I know.', 'caspian', 'smirk');
+            await c.affection('caspian', 1, 'Teased Caspian about books');
+          } else {
+            await say(c, 'Caspian', 'I am told the height is a family trait, and so is the apologising. Please do not mind either.', 'caspian', 'blush');
+            await c.affection('caspian', 1, 'Flustered, and Caspian noticed');
+          }
+          await say(c, 'Caspian', 'Once, I was a Knight-Lantern of the Hearth Order. My sigil is under the dust on my shoulder. Ask me about it another day, when I am braver.', 'caspian', 'normal');
+          return;
+        }
+        if (!flag('ch2_caspian_sigil')) {
+          await say(c, 'Caspian', 'Win your bouts. The Champion is Order-trained, and he will not say what he saw in the Frost Fair. I would rather you hear it from me.', 'caspian', 'normal');
+          const j = await c.choice(['Ask about the sigil', 'Tell him you will win'], { prompt: 'Caspian' });
+          if (j === 0) {
+            G.setFlag('ch2_caspian_sigil', true);
+            await say(c, 'Caspian', 'I was ordered to snuff the lamps of Ashmere, a village in the hills. For the star, they said. The star needs warmth, and the lamps take it from the people. I did it, for three nights. On the fourth I refused, and it was too late for the children.', 'caspian', 'sad');
+            await say(c, '{name}', 'You stopped. That counts.', null);
+            await say(c, 'Caspian', 'It counts for me, a little. It does not count for Ashmere. Thank you for not pretending it does.', 'caspian', 'blush');
+            await c.affection('caspian', 2, 'Caspian shared his sigil story');
+          } else {
+            await say(c, 'Caspian', 'Then I shall stand at the gate and believe you. It is a foolish thing, but I find I want to.', 'caspian', 'happy');
+            await c.affection('caspian', 1, 'Promised to win');
+          }
+        } else {
+          await say(c, 'Caspian', 'You are kind to listen to an old oath. Take the Pass when it is given, and do not let the Warden make you feel small.', 'caspian', 'normal');
+        }
+      },
+    });
+
+    // ---- the Warden's reinforcements' sentinel is absent; crowd & announcer ----
+    m.ev(H.npc('arena_announcer', 22, 4, 'villager_m1', [
+      { who: 'Announcer Quill', text: "Welcome to Gladius Arena! Tickets are sold out, and so are the Wardens' seats. Lovely to have you, everyone!", face: 'unknown' },
+      { who: 'Announcer Quill', text: 'The Grey Lion fights at dusk, folks, and he has never once looked at the crowd. Good manners in a gladiator. Terrible for ratings.', face: 'unknown' },
+    ], { name: 'Announcer Quill' }));
+    m.ev(H.npc('arena_kid', 12, 20, 'child2', [
+      { who: 'Tomas', text: 'Are you the Grey Lion\'s friend? You look like you could be a Lion too. Can I touch your sword? Only the hilt.' },
+    ], { name: 'Tomas' }));
+    m.ev(H.npc('arena_spectator', 32, 8, 'villager_f2', [
+      { who: 'Spectator', text: 'I came for the Lion and I got a sunburn. Worth it. The sand smells like warm bread and rust.' },
+    ], { name: 'Spectator' }));
+    m.ev(H.npc('arena_gladiator', 35, 18, 'gladiator', [
+      { who: 'Gladiator', text: 'Stand near the ring and the wind howls. Stand in the stands and everybody sings. Sand gets in your teeth either way.' },
+    ], { name: 'Gladiator' }));
+
+    // ---- the back gate: locked until the Pass is won, then it opens to the aqueduct ----
+    m.ev({
+      id: 'arena_gate_sign', x: 5, y: 14, sprite: null, trigger: 'action', solid: false,
+      if: () => !flag('ch2_tournament_won'),
+      run: async (c) => { await say(c, null, 'An iron gate hums with cold lantern-light. A brass Order seal reads: CHAMPIONS ONLY. The Pass, or the sand.'); },
+    });
+    m.ev({
+      id: 'arena_gate_warm', x: 5, y: 14, sprite: null, trigger: 'action', solid: false,
+      if: () => !!flag('ch2_tournament_won'),
+      run: async (c) => { await say(c, null, 'The gate is warm to the touch. Beyond it, water runs and the old walls breathe. The aqueduct, and the vault beneath it.'); },
+    });
+    m.ev(H.transfer(4, 14, 'aqueduct_1', undefined, undefined, 'left', { id: 'arena_to_aq', if: () => !!flag('ch2_tournament_won') }));
+
+    // ---- prize chest by the walkway (the old champion's cup) ----
+    m.ev(H.chest('g_arena_prize', 30, 6, 'hi_potion', 2));
     // @@ARENA_EV@@
   }
 
   // ===================================================================
   // AQUEDUCT (see chapter 2 pass to the Lantern Vault)  — stubs are replaced below
   // ===================================================================
-  function buildAqueducts() { return null; }
+  function buildAqueduct1() {
+    const m = G.maps.build('aqueduct_1', 36, 26, {
+      name: 'Old Gladius Aqueduct', bgm: 'undercroft', ground: 'k', spawn: { x: 2, y: 13, dir: 'right' },
+    });
+    m.rect('objects', 0, 0, 36, 26, '8');                      // living rock
+    m.rect('objects', 1, 12, 34, 3, ' ');                      // main corridor
+    m.rect('ground', 1, 12, 34, 3, 't');
+    m.rect('ground', 12, 2, 2, 22, '~');                       // the old water channel
+    m.rect('ground', 12, 13, 2, 1, 'b');                       // bridge across the channel
+    m.rect('objects', 2, 3, 9, 8, ' ');                        // north room
+    m.rect('ground', 2, 3, 9, 8, 't');
+    m.rect('objects', 5, 11, 1, 1, ' ');                       // opening south to corridor
+    m.rect('objects', 15, 3, 16, 7, ' ');                      // north-east room
+    m.rect('ground', 15, 3, 16, 7, 't');
+    m.rect('objects', 21, 10, 1, 2, ' ');                      // opening to the corridor
+    m.rect('objects', 15, 16, 12, 6, ' ');                     // south room
+    m.rect('objects', 20, 15, 1, 1, ' ');                      // opening to the corridor
+    [[4, 3], [14, 3], [26, 22]].forEach(([x, y]) => m.set('objects', x, y, 'U'));
+    m.set('objects', 3, 4, 'C'); m.set('objects', 7, 8, 'R');  // scattered crates & rubble
+    m.set('objects', 24, 19, 'U');
+    m.set('objects', 25, 5, 'r'); m.set('objects', 29, 6, 'r');
+    m.set('objects', 33, 12, 'L'); m.set('objects', 1, 14, 'L');
+    m.scatter('objects', 'R', 6, { seed: 31, on: 'k', avoid: [{ x: 0, y: 11, w: 36, h: 4 }] });
+    m.ev(H.transfer(1, 13, 'gladius_arena', 5, 14, 'right', { id: 'aq1_to_arena' }));
+    m.ev(H.transfer(34, 13, 'aqueduct_2', undefined, undefined, 'right', { id: 'aq1_to_aq2' }));
+    m.ev(H.save('aq1_save_a', 4, 14));
+    m.ev(H.save('aq1_save_b', 17, 14));
+    m.ev(H.chest('aq1_north', 3, 4, 'ether', 1));
+    m.ev(H.chest('aq1_ne', 27, 4, 'old_book', 1));
+    m.ev(H.chest('aq1_south', 24, 20, { gold: 90 }));
+    m.ev(H.sign('aq1_sign', 9, 13, 'OLD GLADIUS AQUEDUCT\nBuilt by the first Lampwrights to carry water from the hills.\nNow it carries something else.'));
+    m.ev(H.auto('aq1_banter', async (c) => {
+      await say(c, 'Rook', 'Ah, the old aqueduct. Water, bad lighting, and a man who has been splashed in one of these before. Lovely.', 'rook', 'smirk');
+      await say(c, 'Caspian', 'I was not splashed. The reservoir had an accident and I was briefly near it. There is a difference, and it is very large.', 'caspian', 'normal');
+      await say(c, 'Rook', 'Oh, the Lion protests too much. Don\'t worry, Lion, I forgive you for being tall and expensive to hide.', 'rook', 'happy');
+      const i = await c.choice([
+        'Earnest: "Can we please focus?"',
+        'Teasing: "Caspian, you are blushing."',
+        'Flustered: "Could you both stop bickering?"',
+      ], { prompt: 'Keep the peace' });
+      if (i === 0) {
+        await say(c, '{name}', 'Can we please focus? The Anchor is down there, and the people in the city are tired.', null);
+        await c.affection('rook', 1, 'Asked the crew to focus');
+        await c.affection('caspian', 1, 'Asked the crew to focus');
+      } else if (i === 1) {
+        await say(c, '{name}', 'Caspian, you are blushing. Rook, you are thrilled. I am in the middle of two very silly men.', null);
+        await c.affection('caspian', 2, 'Teased Caspian');
+        await c.affection('rook', 1, 'Rook laughed at the tease');
+      } else {
+        await say(c, '{name}', 'Could you both stop? I am trying to be brave down here and you are making it very hard.', null);
+        await c.affection('rook', 1, 'Rook felt bad, then softened');
+        await c.affection('caspian', 1, 'Caspian apologised');
+      }
+      await say(c, 'Claret', 'Can we go? I want to see the valves before this whole place sinks.', 'claret', 'angry');
+    }, { once: true, if: () => !!flag('ch2_heist_go') && !flag('ch2_aq1_banter') }));
+    return m.finish();
+  }
+
+  function buildAqueduct2() {
+    const m = G.maps.build('aqueduct_2', 36, 26, {
+      name: 'Lantern Vault', bgm: 'tense', ground: 'k', spawn: { x: 2, y: 13, dir: 'right' },
+    });
+    m.rect('objects', 0, 0, 36, 26, '8');
+    m.rect('objects', 1, 12, 24, 3, ' ');                      // corridor
+    m.rect('ground', 1, 12, 24, 3, 't');
+    m.rect('ground', 8, 2, 2, 22, '~');                        // channel
+    m.rect('ground', 8, 13, 2, 1, 'b');                        // bridge
+    m.rect('objects', 14, 3, 9, 6, ' ');                       // north cache room
+    m.rect('ground', 14, 3, 9, 6, 't');
+    m.rect('objects', 15, 9, 1, 2, ' ');
+    m.rect('objects', 14, 16, 9, 5, ' ');                      // south cache room
+    m.rect('ground', 14, 16, 9, 5, 't');
+    m.rect('objects', 15, 15, 1, 1, ' ');
+    m.rect('objects', 25, 8, 10, 11, ' ');                     // the vault
+    m.rect('ground', 25, 8, 10, 11, 'g');
+    m.rect('objects', 30, 11, 3, 5, 'M');                      // the Colosseum Anchor's cradle
+    m.set('objects', 29, 13, ' ');                             // the Anchor sits at (29,13)
+    m.set('objects', 27, 9, 'J'); m.set('objects', 27, 17, 'J');
+    m.set('objects', 33, 9, 'P'); m.set('objects', 33, 10, 'P'); m.set('objects', 33, 16, 'P');
+    m.set('objects', 26, 14, 'E');                             // the ledger desk
+    m.set('objects', 18, 11, ' ');
+    m.set('objects', 9, 10, 'C'); m.set('objects', 1, 11, 'C');
+    m.scatter('objects', 'R', 4, { seed: 41, on: 'k', avoid: [{ x: 0, y: 11, w: 24, h: 4 }] });
+    m.ev(H.transfer(1, 13, 'aqueduct_1', 33, 13, 'left', { id: 'aq2_to_aq1' }));
+    m.ev(H.save('aq2_save_a', 4, 14));
+    m.ev(H.save('aq2_save_b', 21, 14));
+    m.ev(H.chest('aq2_north', 20, 4, 'elixir', 1));
+    m.ev(H.chest('aq2_south', 22, 20, 'hi_ether', 2));
+    m.ev(H.sign('aq2_sign', 12, 13, 'LANTERN VAULT: the Order\'s Tithe. Warmth in, warmth out. Please keep your hands in your pockets.'));
+    aqueduct2Events(m);
+    return m.finish();
+  }
+
+  function aqueduct2Events(m) {
+    // Claret cranks the sluice valve in the alcove north of the corridor
+    m.ev({
+      id: 'aq2_valve', x: 18, y: 11, sprite: 'obj_marigold_wheel', trigger: 'action', solid: true, dir: 'down', name: 'Valve',
+      run: async (c) => {
+        if (flag('ch2_valve_done')) { await say(c, null, 'The valve is open. Water hisses through the sluice, cold and clean.'); return; }
+        G.setFlag('ch2_valve_done', true);
+        await say(c, 'Claret', 'Right, a valve. Do not touch that, it is load-bearing. Hold this, Rook. No, the other end.', 'claret', 'smirk');
+        await say(c, 'Rook', 'I am holding the valve, Captain, you cannot blame me for the water.', 'rook', 'smirk');
+        await say(c, 'Claret', 'Watch the gauge. When it hits the red, step back. I hate it when a valve sings.', 'claret', 'normal');
+        await c.shake(3, 30);
+        c.sfx('shatter');
+        await say(c, null, 'Claret throws her weight into the wheel. The sluice groans, the old gears judder and then sing, and the water drops away from the vault\'s floor-gutters.');
+        await say(c, 'Caspian', 'I used to inspect this valve. It was stuck then. You have a gift with metal, Captain Vane.', 'caspian', 'happy');
+        await say(c, 'Claret', 'Gifts are for people who have spare time. Just keep walking, Lion, and stop being impressive.', 'claret', 'smirk');
+        await c.affection('claret', 2, 'Claret opened the sluice with a grin');
+        await c.toast('The sluice is open', 'info');
+      },
+    });
+
+    // the vault's ledger desk: Rook lifts the Tithe ledger
+    m.ev({
+      id: 'aq2_ledger', x: 26, y: 14, sprite: 'obj_sign', trigger: 'action', solid: true, dir: 'right', name: 'Ledger',
+      run: async (c) => {
+        if (flag('ch2_ledger_taken')) { await say(c, null, 'A blank desk. Rook has already lifted the Tithe ledger, and he is very pleased with himself.'); return; }
+        G.setFlag('ch2_ledger_taken', true);
+        await say(c, null, 'A ledger of the Tithe lies open on the desk. Rows of towns, columns of warmth. Each row ends with a single word: spent.');
+        await say(c, 'Rook', 'Oh, look. The Order keeps its books beautifully. Warmth in, warmth out, and every citizen in one neat little line. Written like candles.', 'rook', 'worried');
+        await say(c, 'Rook', 'I am taking this. Don\'t look at me like that. Nobody reads the books in a vault. It is practically a crime to leave them behind.', 'rook', 'smirk');
+        await say(c, 'Caspian', 'Take it. And if anyone asks, you are a thief with a conscience. It is a rare and expensive combination.', 'caspian', 'happy');
+        await c.affection('rook', 1, 'Rook lifted the ledger for good reasons');
+        await c.toast('Tithe Ledger acquired', 'item');
+      },
+    });
+
+    // Order Wardens guarding the vault (they retreat after the Anchor is dealt with)
+    m.ev({
+      id: 'vault_warden1', x: 27, y: 10, sprite: 'guard', trigger: 'action', solid: true, dir: 'down', name: 'Order Warden',
+      if: () => !flag('ch2_vault_done'),
+      run: async (c) => { await say(c, 'Order Warden', 'Halt! The Tithe is not for visitors. The Lion has no business in the vault, and neither do his thieves.', 'unknown', 'angry'); },
+    });
+    m.ev({
+      id: 'vault_warden2', x: 27, y: 16, sprite: 'guard', trigger: 'action', solid: true, dir: 'up', name: 'Order Warden',
+      if: () => !flag('ch2_vault_done'),
+      run: async (c) => { await say(c, 'Order Warden', 'Get back, Thorne. The Order will have your sigil back, one way or another.', 'unknown', 'angry'); },
+    });
+
+    // the Colosseum Anchor: the finale of the chapter
+    m.ev({
+      id: 'vault_anchor', x: 29, y: 13, sprite: 'obj_beacon', trigger: 'action', solid: true, dir: 'right', name: 'Colosseum Anchor',
+      if: () => !flag('ch2_vault_done'),
+      run: async (c) => {
+        if (!flag('ch2_ledger_taken')) {
+          await say(c, null, 'The Anchor hums, and a clerk\'s voice in your head says the ledger first. Maybe Rook has the right idea about the books.');
+          return;
+        }
+        c.bgm('tense');
+        await say(c, null, 'A lamp taller than two men sits in a cradle of brass pipes. Its glass heart pulses slow, like breathing, and every pipe runs back out under the arena to the city. Every pipe is drinking.');
+        await say(c, 'Caspian', 'The Colosseum Anchor. In Ashmere, my lamp was a child\'s lamp. This one is the whole city, and I did not know it was this big.', 'caspian', 'sad');
+        await say(c, 'Claret', "I can shut the valves. But it'll scream louder, and the pipes will burst. It needs a decision, Rowan. Not a wrench.", 'claret', 'worried');
+        const i = await c.choice([
+          'Kindle it: turn the flow around and give the warmth back',
+          'Silence it: cut every pipe and let the lamp go dark',
+        ], { prompt: 'The Anchor' });
+        await c.flash(i === 0 ? '#ffd27a' : '#c8dcff', 30);
+        await c.shake(4, 40);
+        if (i === 0) {
+          await say(c, '{name}', 'Turn it around. Give everything back to the people who are paying for it.', null);
+          await say(c, 'Caspian', 'Yes. Give it back. We were never meant to be the star, only the hearth.', 'caspian', 'happy');
+          await c.affection('caspian', 2, 'Kindled the Anchor together');
+          await say(c, 'Rook', 'Oh, that is so much nicer than stealing things. I am moved. Also sweating a little, but moved.', 'rook', 'smirk');
+          await c.affection('rook', 2, 'Kindled the Anchor');
+        } else {
+          await say(c, '{name}', 'Silence it. Nobody should be drained again, even by a lamp that means well.', null);
+          await say(c, 'Claret', 'Good. Cutting it is cleaner. Nobody likes a lamp that talks back.', 'claret', 'smirk');
+          await c.affection('claret', 2, 'Silenced the Anchor');
+          await say(c, 'Rook', 'Dark lamp, bright ideas. Fine by me. I think this is the most heroic I have ever been, and I am not comfortable with it.', 'rook', 'worried');
+          await c.affection('rook', 1, 'Silenced the Anchor with a joke');
+        }
+        c.sfx('heal');
+        await c.wait(20);
+        await c.narrate('Far above, the city breathes out. Lamps brighten. A child shrieks with laughter in the plaza, and the dice finally roll on the tavern felt.');
+        await c.flash('#fff3c4', 40);
+        await say(c, 'Order Warden', 'The Order will hear of this. The Order hears everything, eventually.', 'unknown', 'worried');
+        await say(c, 'Caspian', 'Then let them listen. The Lion is done with the Order.', 'caspian', 'normal');
+        G.setFlag('ch2_vault_done', true);
+        G.setFlag('ch2_done', true);
+        await c.toast('The warmth returns to Gladius', 'good');
+        await c.chapterEnd(2);
+      },
+    });
+  }
 
   // ===================================================================
   // registration & chapter card
   // ===================================================================
   G.story.chapters[2] = { title: 'Sand & Oath', subtitle: 'The Grey Lion of Gladius' };
+
+  // ===================================================================
+  // build every chapter-2 map at load time
+  // ===================================================================
+  buildCitadel();
+  buildTavern();
+  buildArena();
+  buildAqueduct1();
+  buildAqueduct2();
 
   // @@APPEND@@
   G.provide('ch2');

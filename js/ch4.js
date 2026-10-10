@@ -129,6 +129,10 @@
   function lumenValeEvents(m) {
     const H = G.maps.helpers;
 
+    // -- the ship pad (spawn is just north of it) and a Lantern Waypoint on the west side of the square
+    m.ev(H.shipPad(21, 33));
+    m.ev(H.save('ch4_vale_save', 12, 18));
+
     // -- arrival: the Marigold lands, Maren and Pip reunite with Rowan (once)
     m.ev(H.auto('ch4_arrival', async (c) => {
       setF('ch4_started'); c.chapter(4); c.bgm('festival');
@@ -319,5 +323,411 @@
     return m.finish();
   }
 
-  // @@NEXT@@
+  // ------------------------------------------------------------ LUMEN INN (16 x 12 interior)
+  function finishLumenInn() {
+    const H = G.maps.helpers;
+    const m = G.maps.build('lumen_inn', 16, 12, {
+      name: 'The Lantern Inn', bgm: 'tavern', interior: true, spawn: { x: 7, y: 10, dir: 'up' },
+    });
+    m.room(0, 0, 16, 12, { floor: 'f', wall: 'X', topWall: 2 });
+    m.rect('ground', 5, 8, 6, 2, 'c');                     // carpet by the hearth
+    m.rect('objects', 2, 2, 5, 1, 'S');                    // shelves behind the counter
+    m.rect('objects', 2, 4, 5, 1, 'E');                    // counter
+    m.set('objects', 1, 5, 'Y'); m.set('objects', 1, 6, 'Y');   // bookshelves on the west wall
+    m.set('objects', 12, 2, 'I');                          // hearth
+    m.set('objects', 13, 6, 'Z'); m.set('objects', 13, 7, 'Z');  // a bed
+    m.set('objects', 9, 7, 'E'); m.set('objects', 10, 7, 'E');   // a table
+    m.set('objects', 9, 8, 'H'); m.set('objects', 10, 8, 'H');   // chairs
+    m.set('objects', 1, 9, 'U'); m.set('objects', 1, 10, 'U');   // barrels
+    m.set('objects', 14, 9, 'F'); m.set('objects', 14, 10, 'F'); // flowers
+    m.set('objects', 3, 10, 'L');                          // lamp post
+    m.set('objects', 7, 11, 'D');                          // exit door
+    m.hline('above', 2, 1, 12, '*');                       // paper lanterns strung along the ceiling
+    m.ev([
+      H.innkeeper('ch4_innkeeper', 4, 3, 'innkeeper', 30, 'Brindle'),
+      H.npc('ch4_inn_couple', 6, 9, 'villager_f2', [
+        'We came for the lanterns and stayed for the bread. Don\'t tell the baker we said so.',
+        'Our daughter keeps asking if her wick will be bright enough. I told her the lamps are just for looking at, love.',
+      ], { name: 'Tamsin' }),
+      H.npc('ch4_inn_traveler', 11, 9, 'noble', [
+        'Every lamp in Auren hums the same tune, you know. I used to think it was lovely. Now I think it sounds like someone breathing hard.',
+      ], { name: 'Hollis' }),
+      ...H.chest('lumen_inn', 14, 4, 'hi_potion', 1),
+      H.transfer(7, 11, 'lumen_vale', 30, 30, 'up', { id: 'ch4_inn_exit' }),
+    ]);
+    return m.finish();
+  }
+
+  // ------------------------------------------------------------ LUMEN LAKE (28 x 20 shoreline, night)
+  const LAKE_CAND_SPOTS = { claret: [5, 14], caspian: [6, 15], rook: [14, 15], seraphine: [15, 14], wren: [17, 15] };
+  function lumenLakeLayout() {
+    const m = G.maps.build('lumen_lake', 28, 20, {
+      name: 'Lumen Lake', bgm: 'festival', spawn: { x: 10, y: 14, dir: 'up' }, tint: 'rgba(8,14,46,0.42)',
+    });
+    m.rect('ground', 0, 0, 22, 10, '~');                  // lake
+    m.rect('ground', 0, 10, 22, 2, 'w');                  // shallows
+    m.rect('ground', 0, 12, 28, 2, '_');                  // sand shore
+    m.rect('ground', 9, 4, 3, 10, 'b');                   // release pier, runs out into the lake
+    // the hill on the east side with its single old tree
+    m.set('objects', 24, 3, 'T'); m.set('objects', 25, 4, 'B'); m.set('objects', 23, 6, 'B');
+    m.set('objects', 22, 8, 'R'); m.set('objects', 26, 7, 'R'); m.set('objects', 24, 8, 'R');
+    m.set('objects', 26, 2, 'G'); m.set('objects', 23, 2, 'G');
+    // lantern stands and lamps on the shore
+    m.set('objects', 8, 13, 'L'); m.set('objects', 12, 13, 'L');
+    m.set('objects', 5, 13, 'C'); m.set('objects', 16, 13, 'C'); m.set('objects', 14, 16, 'U');
+    m.set('objects', 1, 16, 'T'); m.set('objects', 3, 18, 'T'); m.set('objects', 25, 15, 'T');
+    m.set('objects', 26, 18, 'N'); m.set('objects', 20, 18, 'N'); m.set('objects', 22, 16, 'B');
+    m.set('objects', 1, 12, 'R'); m.set('objects', 20, 13, 'R');
+    m.scatter('objects', 'G', 12, { seed: 21, on: 'w_', avoid: [{ x: 2, y: 13, w: 23, h: 3 }] });
+    m.scatter('objects', 'F', 14, { seed: 22, on: '.', avoid: [{ x: 2, y: 13, w: 23, h: 4 }, { x: 8, y: 0, w: 4, h: 14 }] });
+    m.hline('above', 4, 8, 14, '*');                      // lantern strings across the shore
+    return m;
+  }
+
+  function lumenLakeEvents(m) {
+    const H = G.maps.helpers; // eslint-disable-line no-unused-vars
+    // candidates standing on the shore during Lantern Night (only the ones travelling with Rowan)
+    for (const id of CANDS) {
+      const p = LAKE_CAND_SPOTS[id];
+      m.ev({
+        id: 'ch4_lk_' + id, x: p[0], y: p[1], sprite: id, dir: 'right', trigger: 'action', solid: false, move: 'still',
+        if: () => flag('ch4_lantern_night') && inParty(id),
+        run: async (c) => {
+          await c.say(SPEAK[id], 'Whatever you choose tonight, Rowan, I am glad you\'re here to choose it.', { face: id });
+        },
+      });
+    }
+    m.ev({
+      id: 'ch4_lk_maren', x: 8, y: 14, sprite: 'maren', dir: 'right', trigger: 'action', solid: false, move: 'still',
+      if: () => flag('ch4_lantern_night'),
+      run: async (c) => { await c.say('Maren', 'Don\'t you dare cry before the lanterns go up. I\'m not wiping your nose twice.', { face: 'maren' }); },
+    });
+    m.ev({
+      id: 'ch4_lk_pip', x: 13, y: 14, sprite: 'pip', dir: 'left', trigger: 'action', solid: false, move: 'still',
+      if: () => flag('ch4_lantern_night'),
+      run: async (c) => { await c.say('Pip', 'Pip is holding the lantern string. Pip is not letting go. Pip is very serious.', { face: 'pip' }); },
+    });
+    // ambush cast: hidden until the lanterns turn cold
+    m.ev({
+      id: 'ch4_lk_vael', x: 5, y: 10, sprite: 'vael', dir: 'down', trigger: 'action', solid: false, move: 'still',
+      if: () => flag('ch4_vael_on'),
+      run: async (c) => { await c.say('Warden Vael', 'Please, stay where you are. The lanterns are only the beginning, and they do so enjoy an audience.', { face: 'vael' }); },
+    });
+    m.ev({
+      id: 'ch4_lk_hale', x: 16, y: 12, sprite: 'hale', dir: 'left', trigger: 'action', solid: false, move: 'still',
+      if: () => flag('ch4_ambush'),
+      run: async (c) => { await c.say('Inquisitor Hale', 'I told the others you would look up when they shouted. You didn\'t. I am, I confess, impressed.', { face: 'hale' }); },
+    });
+    m.ev({
+      id: 'ch4_lk_g1', x: 12, y: 12, sprite: 'guard', dir: 'right', trigger: 'action', solid: false, move: 'still',
+      if: () => flag('ch4_ambush'),
+      run: async (c) => { await c.say(null, 'An Order guard in white and gold, raising a lantern-rifle with a face that has clearly been told this is necessary.'); },
+    });
+    m.ev({
+      id: 'ch4_lk_g2', x: 19, y: 12, sprite: 'guard', dir: 'left', trigger: 'action', solid: false, move: 'still',
+      if: () => flag('ch4_ambush'),
+      run: async (c) => { await c.say(null, 'The second guard does not look up from the glow of his lantern. The light on his face is very cold.'); },
+    });
+    return m;
+  }
+
+  function finishLumenLake() {
+    const m = lumenLakeLayout();
+    lumenLakeEvents(m);
+    // the Lantern Night set piece (auto, runs once when the cue is set)
+    m.ev(G.maps.helpers.auto('ch4_lantern_night', async (c) => { await lanternNight(c); },
+      { if: () => flag('ch4_night_cue') }));
+    return m.finish();
+  }
+
+  // ------------------------------------------------------------ LANTERN NIGHT (lumen_lake set piece)
+  const ASK = {
+    claret: ['Right. Don\'t say anything. I calculated how these lanterns drift, and they float prettier with two people on the string.',
+      'So. Share one with me? I\'m fine. The lantern is not fine. It keeps wobbling.'],
+    caspian: ['Rowan. I have rehearsed this for an hour and I am still not prepared in the slightest.',
+      'Would you share a lantern with me? I would be honoured. I would also very much like it to mean something.'],
+    rook: ['Don\'t laugh. I have lost every bet I placed tonight, and now I\'m betting everything on this.',
+      '"Share a lantern with me, cherub?" Say no and I\'ll pretend I was joking the whole time. I\'m very good at that.'],
+    seraphine: ['I sang a hymn over my lantern. Then I sang a different one, because the first one was about somebody else.',
+      'Will you share mine? I think it wants to be shared. And, I think, so do I.'],
+    wren: ['I want to share a lantern with you. I\'m told the correct phrase is "would you". Would you?',
+      'I didn\'t bring moss. I brought a wish and a small fox that won\'t stop following me. You can have the wish.'],
+  };
+  const REJECT = {
+    claret: 'Claret exhales through her nose and smiles, a little crooked. "Fine. I\'ll stop calculating. That was a good sky, anyway."',
+    caspian: '"Then I am glad you have so many people to hold your light, Rowan. Truly. Go on. I will still be proud to stand beside you."',
+    rook: '"Ha! Knew it. Don\'t worry, cherub. I\'m far too pretty to be left alone for long. Watch me try."',
+    seraphine: '"Then we keep one lantern for the whole circle. I like the sound of everyone laughing at once."',
+    wren: '"Okay. That is fine. The moths were going to be rude about it anyway." They shrug, and somehow look relieved.',
+  };
+  const FRIENDS = {
+    claret: '"Oh, fine. Hold it up. Higher. I\'m going to fix that wobble, I\'ve decided. Don\'t argue with me, I\'m emotional."',
+    caspian: '"Shoulder to shoulder, my friends. This is a finer use of an evening than any oath I ever swore."',
+    rook: '"Crowded, warm, ridiculous. Honestly the best con I\'ve ever pulled off. Everyone here is my accomplice."',
+    seraphine: '"We\'ll sing one line together. Just one. It is the only hymn I ever truly believed."',
+    wren: '"Many people in one small space. The foxes would like this. I am, very reluctantly, glad."',
+  };
+  const AMBUSH_SPOTS = [[9, 11], [11, 11], [9, 9], [11, 9], [10, 12]];
+
+  // one candidate walks up to the pier and asks, shyly
+  async function askFrom(c, id, idx) {
+    const spot = AMBUSH_SPOTS[idx % AMBUSH_SPOTS.length];
+    const eid = 'ch4_lk_' + id;
+    await c.camera(spot[0], spot[1], 30);
+    await c.walkTo(eid, spot[0], spot[1]);
+    await c.emote(eid, 'heart');
+    if (flag('ch4_wrote_for') === id) {
+      await c.say(SPEAK[id], 'You wrote something on a lantern today. I saw it. Let me say the rest out loud before I lose my nerve.', { face: id, expr: 'blush' });
+    }
+    for (const ln of ASK[id]) await c.say(SPEAK[id], ln, { face: id, expr: 'blush' });
+    await c.camReset(30);
+  }
+
+  // the warm 'everyone together' beat (no single confession)
+  async function friendsNight(c, ids) {
+    await c.say('Maren', 'Oi, all of you, out onto the pier! Nobody sits this one out. I\'m not spending my lantern on a single soul.', { face: 'maren' });
+    await c.say('Pip', 'Pip is sharing with EVERYBODY! That is the rule! Pip made the rule just now and it is a very good rule!', { face: 'pip' });
+    await c.say(null, 'You hold one lantern and four hands close around it. It is the most ordinary wonderful thing you have ever done.');
+    for (const id of ids) {
+      await c.say(SPEAK[id], FRIENDS[id], { face: id, expr: 'happy' });
+    }
+  }
+
+  async function lanternNight(c) {
+    setF('ch4_lantern_night');
+    c.follow(false);
+    c.bgm('festival');
+    await c.setPos('player', 10, 10, 'up');
+    await c.wait(40);
+    await c.camera(10, 8, 60);
+    await c.say(null, 'The lake is a mirror of paper lights: gold, rose, a few green ones Pip insists on. Thousands of wishes, waiting for the first breath of wind.');
+    await c.say('Maren', 'Lantern Night. My word. I haven\'t seen this lake lit like this since before the Order turned every lamp all the way up.', { face: 'maren' });
+
+    // -- pre-scene: earlier choices show up here (writing booth, ring toss, the tone at the arrival)
+    await c.say('Pip', flag('ch4_wrote_for')
+      ? 'Pip saw what you wrote on your lantern! Pip won\'t say who. Pip is just watching you very, very closely.'
+      : 'Pip wrote a lantern about Pip. It is a very important lantern. Pip is not asking you to read it.', { face: 'pip' });
+    const nerveLines = ['Ready. Let\'s do this.', 'Give me a minute to breathe.', 'Maybe I should hide in the reeds.'];
+    const nerve = await c.choice(nerveLines.map((l) => '"' + l + '"'), { prompt: 'Are you ready?' });
+    setF('ch4_nerve', nerve);
+    await c.say(rowanName(), nerveLines[nerve], { face: 'rowan' });
+    if (nerve === 2) await c.say('Maren', 'Hide in the reeds and I\'ll haul you out by the collar, Rowan. Stand up straight.', { face: 'maren' });
+    else if (nerve === 1) await c.say('Pip', 'Pip will hold your lantern while you breathe. Pip is very good at holding things.', { face: 'pip' });
+    else await c.say('Maren', 'That\'s my kid. Pip, shove over. Let them have the good spot.', { face: 'maren' });
+    await c.say('Maren', 'We\'ll be right over here, trying very hard not to watch.', { face: 'maren' });
+    c.bgm('romance');
+    await c.wait(20);
+
+    // -- the staged asks, then one choice
+    const els = lakeEligible();
+    let chosen = null;
+    if (!els.length) {
+      const pres = presentCands();
+      await friendsNight(c, pres);
+      for (const id of pres) await heart(c, id, 2, 'Lantern Night with friends');
+    } else {
+      for (let i = 0; i < els.length; i++) await askFrom(c, els[i], i);
+      const labels = els.map((id) => SPEAK[id]).concat(['Stay with everyone']);
+      const pick = await c.choice(labels, { prompt: 'Who do you share your lantern with?' });
+      chosen = pick < els.length ? els[pick] : null;
+      setF('ch4_lantern_choice', chosen || 'all');
+      if (chosen) {
+        await c.camera(10, 10, 40);
+        await c.runScene(chosen + '_confession');
+      } else {
+        await friendsNight(c, els);
+      }
+      // the ones who were not chosen take it graciously
+      for (const id of els) {
+        if (id === chosen) continue;
+        await c.emote('ch4_lk_' + id, 'heart');
+        await c.say(SPEAK[id], REJECT[id], { face: id, expr: 'smirk' });
+        await heart(c, id, 2, 'Kind words at the lake');
+      }
+    }
+    await c.flash('#ffd27a', 40);
+    await c.sfx('lantern');
+    await c.say(null, 'Then the first lantern goes up. Then a hundred more. The whole lake breathes gold, and for one long moment nothing in the world is cold.');
+    await c.camReset(40);
+    await c.wait(30);
+
+    // -- the ambush
+    await ambush(c);
+    c.follow(true);
+    await c.transfer('ashen_road_1');
+  }
+
+  async function ambush(c) {
+    setF('ch4_ambush');
+    c.bgm('tense');
+    await c.shake(3, 30);
+    await c.flash('#8fd6ff', 40);
+    await c.say(null, 'Every lantern on the lake flickers at once. The flames turn cold and blue and stream away across the water toward the great Anchor beacon on the far shore, the lamp that lights the whole vale.');
+    await c.shake(6, 60);
+    setF('ch4_vael_on');
+    await c.wait(40);
+    await c.say('Warden Vael', 'Good evening, Rowan. Please don\'t stand on my account. The lanterns are lovely, aren\'t they? Each one is a little wick, set adrift to be seen.', { face: 'vael' });
+    await c.say('Warden Vael', 'Every lamp in Auren drinks a little warmth from the people who live beneath it. The Order calls it a blessing. The Tithe.', { face: 'vael' });
+    await c.say('Warden Vael', 'It is a leash. The Hearthstar has been starving for a century, and the Order has been feeding it your warmth. You feel it, don\'t you? You\'ve always been a little cold.', { face: 'vael' });
+    await c.say('Warden Vael', 'And you, Rowan, without a wick. The Order called you an omen. I call you what you are. The Heart. The star\'s true core, hidden in a child.', { face: 'vael' });
+    await c.say('Warden Vael', 'The Anchors were never built to warm the world. They pour the Tithe into the star, and the star runs on the Heart. Come to the Spire willingly.', { face: 'vael' });
+    await c.say('Warden Vael', 'You have until dawn. After that I shall send my Inquisitor to fetch you. He is very thorough, and he does so dislike being disappointed.', { face: 'vael' });
+    await c.say(null, 'The image folds back into the lanterns like a bad dream. Somewhere on the shore a boot scrapes on stone.');
+    await c.shake(8, 40);
+    await c.flash('#c8f0ff', 20);
+    await c.say('Inquisitor Hale', 'Rowan. Forgive the interruption. Warden Vael has been patient, but patience is not my strength. Please come quietly. My soldiers are less courteous than I am.', { face: 'hale' });
+    await c.say(rowanName(), 'Not tonight, Inquisitor.', { face: 'rowan' });
+    await c.say(null, 'Hale lifts one gloved hand. Lanterns fall out of the sky like hail. The pier cracks under your feet, and the cold light closes in along the shore.');
+    await c.say('Maren', 'Go. I\'ve got Pip. GO, Rowan, and don\'t you look back at that man as if he\'s your friend!', { face: 'maren' });
+    await c.sfx('escape');
+    await c.say(null, 'You run. Behind you the lake blazes blue and the beacon swings its beam toward the Spire. Your legs are the only ship you have left tonight.');
+  }
+
+  // ------------------------------------------------------------ ASHEN ROAD (hollow-blighted road to the Spire)
+  const HAND = {
+    claret: '"Don\'t let go. If you fall I will be furious, and I will have to climb down after you, and I do not do stairs for anyone."',
+    caspian: '"I have you. Watch the rubble, not me. I will not let you fall, Rowan. Not while I am standing."',
+    rook: '"Lovely grip. Don\'t worry, I\'ve run from worse, and I\'m very fast when I\'m scared."',
+    seraphine: '"Your hand is cold. Give it here. I can warm it enough to get us the rest of the way."',
+    wren: '"You are shaking. The foxes do that too, sometimes. Hold on. It is only ash."',
+  };
+
+  function finishAshenRoad1() {
+    const H = G.maps.helpers;
+    const m = G.maps.build('ashen_road_1', 40, 24, {
+      name: 'The Ashen Road', bgm: 'ashen_road', ground: 'y', spawn: { x: 2, y: 12, dir: 'right' }, tint: 'rgba(30,10,40,0.12)',
+    });
+    m.blob('ground', 9, 5, 5, 3, 'h');
+    m.blob('ground', 27, 18, 6, 3, 'h');
+    m.blob('ground', 19, 19, 3, 2, 'h');
+    m.rect('ground', 0, 10, 40, 5, ':');                  // the packed road under the ash
+    m.set('objects', 8, 3, 'z'); m.set('objects', 30, 4, 'z'); m.set('objects', 14, 21, 'z'); m.set('objects', 33, 21, 'z');
+    m.rect('objects', 22, 8, 2, 1, 'r');
+    m.rect('objects', 16, 16, 1, 2, 'r');
+    const band = { x: 0, y: 9, w: 40, h: 7 };
+    m.scatter('objects', 'd', 16, { seed: 31, on: 'yh', avoid: [band] });
+    m.scatter('objects', 'r', 10, { seed: 32, on: 'yh', avoid: [band] });
+    m.ev([
+      H.sign('ch4_sign_r1', 6, 9, 'THE ASHEN ROAD\nBy order of the Hearth Order: no lantern shall be lit beyond this point.'),
+      H.save('ch4_save_r1a', 4, 9),
+      H.save('ch4_save_r1b', 19, 9),
+      ...H.chest('ashen_road_1_a', 14, 14, 'hi_potion', 1),
+      ...H.chest('ashen_road_1_b', 34, 16, 'ether', 1),
+      H.transfer(39, 12, 'ashen_road_2', undefined, undefined, 'right', { id: 'ch4_road_east' }),
+      H.auto('ch4_chase', async (c) => {
+        setF('ch4_chase_done');
+        c.bgm('tense');
+        await c.say(null, 'The Ashen Road runs east toward the Spire through a land that has forgotten its colours. Ash falls like soft snow. Wisps drift in the dead trees.');
+        await c.shake(4, 40);
+        await c.say(null, 'Behind you, Order soldiers come over the crest with lanterns raised. A cannon shot splits a dead tree in two. The Marigold is nowhere to be seen, and a damaged airship is no use under that kind of fire.');
+        await c.say(rowanName(), 'Keep moving. Don\'t stop for anything.', { face: 'rowan' });
+        const who = await pickPartner(c, 'Who takes your hand over the rubble?');
+        if (who) {
+          await heart(c, who, 3, 'Hands over the rubble');
+          await c.say(SPEAK[who], HAND[who], { face: who, expr: 'worried' });
+        } else {
+          await c.say(null, 'You scramble over the rubble alone, which is somehow worse. Nobody says anything. Everybody breathes.');
+        }
+        c.bgm('ashen_road');
+      }, { if: () => flag('ch4_ambush') && !flag('ch4_chase_done') }),
+    ]);
+    m.encounters({ steps: [14, 24], troops: [{ id: 'ash_1', weight: 3 }, { id: 'ash_2', weight: 3 }] });
+    return m.finish();
+  }
+
+  function finishAshenRoad2() {
+    const H = G.maps.helpers;
+    const m = G.maps.build('ashen_road_2', 40, 24, {
+      name: 'Ashen Road: the Gate Yard', bgm: 'ashen_road', ground: 'y', spawn: { x: 2, y: 12, dir: 'right' }, tint: 'rgba(30,10,40,0.16)',
+    });
+    m.blob('ground', 14, 4, 5, 3, 'h');
+    m.blob('ground', 22, 19, 6, 3, 'h');
+    m.blob('ground', 36, 4, 3, 2, 'h');
+    m.rect('ground', 0, 10, 39, 5, ':');                  // the road runs into the gate yard
+    m.rect('ground', 30, 6, 9, 13, 'h');                  // gate yard: corrupted ground
+    m.rect('objects', 30, 6, 10, 1, 'r');                 // rubble walls with the road opening at y10-14
+    m.rect('objects', 30, 18, 10, 1, 'r');
+    m.rect('objects', 39, 6, 1, 13, 'r');
+    m.rect('objects', 30, 6, 1, 4, 'r');
+    m.rect('objects', 30, 15, 1, 4, 'r');
+    m.set('objects', 6, 3, 'z'); m.set('objects', 25, 21, 'z'); m.set('objects', 35, 2, 'z');
+    const band = { x: 0, y: 9, w: 30, h: 7 };
+    m.scatter('objects', 'd', 14, { seed: 41, on: 'yh', avoid: [band] });
+    m.scatter('objects', 'r', 8, { seed: 42, on: 'yh', avoid: [band] });
+    m.ev([
+      H.save('ch4_save_r2a', 4, 9),
+      H.save('ch4_save_r2b', 27, 9),
+      ...H.chest('ashen_road_2_a', 12, 16, 'hi_ether', 1),
+      ...H.chest('ashen_road_2_b', 20, 6, 'elixir', 1),
+      ...H.chest('ashen_road_2_c', 36, 21, 'phoenix_down', 1),
+      // Hale stands in the gate yard; stepping into the road mouth starts the fight
+      { id: 'ch4_hale', x: 34, y: 12, sprite: 'hale', dir: 'left', trigger: 'action', solid: true, move: 'still',
+        if: () => !flag('ch4_hale_defeated'), run: async (c) => { await haleFight(c); } },
+      { id: 'ch4_gate', x: 29, y: 10, w: 1, h: 5, sprite: null, trigger: 'step', solid: false,
+        if: () => !flag('ch4_hale_defeated'), run: async (c) => { await haleFight(c); } },
+    ]);
+    m.encounters({ steps: [14, 22], troops: [{ id: 'ash_3', weight: 3 }, { id: 'ash_4', weight: 3 }] });
+    return m.finish();
+  }
+
+  // ------------------------------------------------------------ INQUISITOR HALE (boss_hale)
+  async function haleFight(c) {
+    if (flag('ch4_hale_defeated') || flag('ch4_hale_fight')) return;
+    setF('ch4_hale_fight');
+    const r = await c.battle('boss_hale', {
+      canEscape: false,
+      bgm: 'boss',
+      intro: async (c2) => {
+        await c2.say('Inquisitor Hale', 'You ran very well, Rowan. Truly. I have followed your lantern-trail for three days and I am genuinely tired of it.', { face: 'hale' });
+        await c2.say('Inquisitor Hale', 'So let us be courteous about this. I will not enjoy it. But I will be thorough, and I am very sorry in advance.', { face: 'hale' });
+      },
+      onHalf: async (c2) => {
+        await c2.say('Inquisitor Hale', 'Hm. You are stronger than your file said. Be careful, or I shall have to start admiring you.', { face: 'hale' });
+      },
+      outro: async (c2) => {
+        await c2.say('Inquisitor Hale', 'Enough. Stop, please. The lamps... the ones in the squares... they hurt people?', { face: 'hale' });
+        await c2.say('Inquisitor Hale', 'I was told they were a blessing. I hung one in my mother\'s kitchen when she got old. She said it made her tired. I thought she was simply old.', { face: 'hale' });
+        await c2.say('Inquisitor Hale', 'Go to the Spire, Rowan. I will think about what you showed me. That is all I can promise you tonight.', { face: 'hale' });
+        setF('ch4_hale_defeated');
+      },
+    });
+    if (r !== 'win') return;
+    if (!flag('ch4_hale_defeated')) setF('ch4_hale_defeated');
+    await haleAftermath(c);
+  }
+
+  // the Lantern Lake Anchor is quenched, the Lantern Token drops, the Marigold limps in, chapter ends
+  async function haleAftermath(c) {
+    await c.wait(30);
+    await c.say(null, 'Hale sits down heavily on a dead stump. His lantern-blade lies in the ash between you, its light going out like a tired eye.');
+    await c.camera(30, 6, 60);
+    await c.say(null, 'Far to the north-west, above the rooftops of Lumen Vale, the great Anchor beacon burns on the lake shore. Its beam is still turning toward the Spire, slow and patient, like something hungry.');
+    await c.say(rowanName(), 'It hurts them. All of them. Every single lamp.', { face: 'rowan' });
+    await c.say(null, 'The Heart in your chest answers. It is not like a flame. It is like being touched from the inside by someone who has been waiting a very long time to say hello.');
+    await c.flash('#ffd27a', 60);
+    await c.shake(5, 60);
+    await c.say(rowanName(), 'Then let it go out.', { face: 'rowan' });
+    await c.say(null, 'You lift your hand toward the far light and simply ask. The beacon gutters, coughs, and dies in one long gold sigh. Across the Vale a hundred windows go dark, then relight, one by one, with ordinary firelight.');
+    await c.sfx('shatter');
+    await c.say(null, 'Something drops from the beacon\'s cradle: a brass token shaped like a lantern, turning end over end through the dusk. It lands at your feet with a small, ordinary clink.');
+    await c.addItem('lantern_token', 1);
+    await c.camReset(40);
+    await c.say(null, 'Down the road a patched airship limps out of the dusk, one engine smoking, and sinks toward the ash as if it has been holding its breath the whole way.');
+    await c.say(null, 'A voice full of steam yells through a speaking tube, "Don\'t touch that, it\'s load-bearing!" The Marigold has come to fetch you.');
+    setF('ch4_started'); setF('ch4_lantern_night'); setF('ch4_ambush'); setF('ch4_done');
+    await c.chapterEnd(4);
+  }
+
+  // ------------------------------------------------------------ registration
+  G.story = G.story || { scripts: {}, chapters: {} };
+  G.story.chapters = G.story.chapters || {};
+  G.story.chapters[4] = { title: 'The Festival of Lanterns', subtitle: 'Lamps on the water, cold light on the road' };
+
+  finishLumenVale();
+  finishLumenInn();
+  finishLumenLake();
+  finishAshenRoad1();
+  finishAshenRoad2();
+
+  G.provide('ch4');
 })();

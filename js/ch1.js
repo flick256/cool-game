@@ -602,7 +602,7 @@
       H.npc('bh_nessa', 34, 11, 'child2', [
         "Clockwork mouse, look! He squeaks when the gears are warm. He's been silent for three days. I think he's sad.",
       ], { name: 'Nessa' }),
-      H.npc('bh_tired', 13, 18, 'villager_f1', [
+      H.npc('bh_tired', 17, 17, 'villager_f1', [
         "I work the night shift at the boilers. The lamps say I'm the lucky one because I'm still warm. I'm not, though. I'm just awake.",
       ], { name: 'Dorrit' }),
       H.npc('bh_tobin', 25, 21, 'villager_m1', [
@@ -618,7 +618,7 @@
       H.npc('bh_dog', 18, 25, 'dog', [
         "A stray dog wags at you and then gently sits on your foot. You feel very slightly more loved.",
       ], { name: null }),
-      H.npc('bh_pinta', 17, 9, 'villager_f2', [
+      H.npc('bh_pinta', 20, 10, 'villager_f2', [
         "Ever been in the Pipe & Pint? No? Well, they've got a bard in there who sings the Hearth Order's anthem. Very dull. Gets the bitter ones in trouble.",
       ], { name: 'Pinta' }),
     ]);
@@ -652,7 +652,7 @@
 
     // ---- hidden secret: the grating in the cistern alley reveals a drain with a chest (secret)
     m.ev([{
-      id: 'bh_grate', x: 5, y: 7, sprite: null, trigger: 'action', solid: false,
+      id: 'bh_grate', x: 4, y: 5, sprite: null, trigger: 'action', solid: false,
       run: async (c) => { await nar(c, 'A rusty grate, warm under your palm. Something below is humming a little tune, out of time with the city.'); },
     }]);
 
@@ -677,3 +677,176 @@
     return m.finish({ onEnter: null });
   }
   buildBrasshaven();
+
+  // ============================================================ MAP 5 — Claret's workshop (interior)
+  function buildWorkshop() {
+    const m = G.maps.build('brasshaven_workshop', 16, 12, {
+      name: "Claret's Workshop", bgm: 'workshop', interior: true, ground: 'm', spawn: { x: 6, y: 9, dir: 'up' },
+    });
+    m.room(0, 0, 16, 12, { floor: 'm', wall: '7', topWall: 2 });
+    m.set('objects', 6, 11, 'D');
+    m.set('objects', 3, 0, ' ');                              // a porthole in the top wall (decor only)
+    m.vline('objects', 14, 3, 6, 'P');                         // pipes along the east wall
+    m.tiles('objects', [[2, 2], [3, 2]], 'S');                 // parts shelves
+    m.tiles('objects', [[12, 2], [13, 2]], 'Y');               // manuals
+    m.tiles('objects', [[2, 5], [3, 5]], 'E');                 // bench with spanners
+    m.tiles('objects', [[1, 8], [2, 8]], 'C');                 // crates of spares
+    m.tiles('objects', [[13, 8]], 'U');
+    m.tiles('objects', [[1, 9], [1, 10]], 'J');                // boiler
+    m.tiles('objects', [[4, 9], [5, 9]], 'M');                 // lathe machine
+    m.tiles('objects', [[9, 9], [10, 9]], 'e');                // gears
+    m.tiles('objects', [[12, 5], [13, 5]], 'M');
+    m.set('objects', 5, 4, 'H');
+    m.set('objects', 9, 2, ' ');
+    m.set('objects', 7, 5, 'H');
+    m.rect('ground', 4, 3, 5, 3, 'f');                         // a rug of planks around the ship
+    m.ev([
+      H.transfer(6, 11, 'brasshaven', 31, 12, 'down', { id: 'ws_exit' }),
+      {
+        id: 'ws_marigold', x: 8, y: 4, sprite: 'obj_marigold_wheel', trigger: 'action', solid: true, name: 'Marigold model',
+        run: async (c) => {
+          await nar(c, 'A half-built model of the Marigold, the size of a dinner table. Its propeller is bent in three places, and a neat paper tag reads: "DO NOT FLY. (YET.)"');
+          if (G.flag('ch1_fixed')) { await nar(c, 'The model is shiny, straight, and clearly thrilled about its life choices now.'); }
+        },
+      },
+      {
+        id: 'ws_hatch', x: 12, y: 9, sprite: null, trigger: 'action', solid: false, dir: 'down',
+        if: () => !!G.flag('ch1_met_claret'),
+        run: async (c) => {
+          if (G.flag('ch1_boss_sentinel')) { await nar(c, 'The old lift hatch. The Order\'s bots came up through here with the Coil. Its brass rungs are still warm.'); return; }
+          c.sfx('door');
+          await who(c, 'Claret', 'claret', 'The hatch takes you down to the Clockwork Undercroft. Rusty old lift, hates everybody, don\'t talk to it.', 'normal');
+          const i = await c.choice(['Go down with Claret', 'Not yet'], { prompt: 'Descend into the Undercroft?' });
+          if (i !== 0) return;
+          await c.transfer('undercroft_1', 3, 21, 'up');
+        },
+      },
+    ]);
+
+    // ---- Claret, the meeting (runs once)
+    m.ev([{
+      id: 'claret_ws', x: 9, y: 7, sprite: 'claret', trigger: 'action', solid: true, dir: 'up', name: 'Claret',
+      run: async (c) => {
+        if (!G.flag('ch1_met_claret')) { await who(c, 'Claret', 'claret', 'Still here? I said I\'m not selling. Or sorry. Stop looking at my goggles.', 'angry'); return; }
+        if (G.flag('ch1_fixed')) { await who(c, 'Claret', 'claret', 'She flies, Rowan. She actually flies. Don\'t look at me like that, I\'m allowed to be happy about a propeller.', 'happy'); return; }
+        if (G.flag('ch1_boss_sentinel')) { await who(c, 'Claret', 'claret', 'Go and sleep. I\'ll fix the ship. I fixed three hundred other things, I can fix one more.', 'normal'); return; }
+        await who(c, 'Claret', 'claret', 'Don\'t touch that, it\'s load-bearing. I\'m fine. The ship is not fine. Coil first, then I\'ll be fine. Probably.', 'normal');
+      },
+    }]);
+
+    m.ev(H.auto('ws_meet', async (c) => {
+      c.sfx('blunt'); c.shake(2, 12);
+      await c.wait(20);
+      await who(c, 'Claret', 'claret', "Oi! Whoever's standing in my doorway: I'm not buying, I'm not selling, and I'm not sorry.", 'angry');
+      await me(c, "I'm not here to buy anything! I'm looking for a workshop. Big wheel on the sign?", 'worried');
+      await c.emote('claret_ws', 'exclaim');
+      await who(c, 'Claret', 'claret', "Then you found it. Congratulations. Don't touch that, it's load-bearing.", 'smirk');
+      c.sfx('lightning'); c.flash('#9fd8ff', 10);
+      await nar(c, 'A blue spark jumps from the lathe to the back of your hand. You hiss. Claret looks up, really looks at you, and goes very still.');
+      await me(c, "Ow. Okay. Maren Lampkeeper sent me. She said to show you this.", 'worried');
+      await me(c, 'It\'s a compass. It\'s been humming since the forest. It keeps pointing at you, which is rude.', 'smirk');
+      await who(c, 'Claret', 'claret', "That's an Ember Compass. Nobody's made one since my dad's day. Where did you get that? Nobody sends anybody to me. They send bailiffs.", 'surprised');
+      await who(c, 'Claret', 'claret', 'I\'m Claret Vane. Captain, engineer, and the only person in Brasshaven who will tell you the ship is broken to your face.', 'normal');
+      await me(c, 'What happened to her? To the ship?', 'normal');
+      await who(c, 'Claret', 'claret', 'I also found a bent propeller, worn-out struts, loose lug nuts and a giant gouge in the hull! This poor girl\'s been through the ringer!', 'angry');
+      await c.emote('claret_ws', 'sweat');
+      await who(c, 'Claret', 'claret', 'Three weeks ago the Order came with a warrant and a cart. They took my father, Bram Vane, to the Cold Foundry. Shipwright. Brilliant, stubborn, mine.', 'sad');
+      await who(c, 'Claret', 'claret', 'And they took the Aether Coil. The Marigold\'s heart. Their bots dragged it down the old lift into the undercroft. Nobody comes back from down there.', 'sad');
+      await c.bgm('tender');
+      await me(c, 'Then we get the Coil back. And we get your father back. If I\'m good for nothing else, I can at least carry things.', 'earnest');
+      await who(c, 'Claret', 'claret', 'Hmm. Deal, then. You get the Coil out of the undercroft, and I patch the Marigold and take you wherever that stupid compass wants to go.', 'smirk');
+      const i = await c.choice([
+        '"Your father isn\'t lost. We\'ll find him together."',
+        '"Deal. Though I\'d trust a ship with a gouge in it about as far as I\'d trust a goat."',
+        '"You don\'t have to do all of this alone, you know."',
+      ], { prompt: 'How do you answer Claret?' });
+      if (i === 0) {
+        await who(c, 'Claret', 'claret', "...Don't say things like that. Especially not in that voice. It's distracting, and I'm trying to be professional.", 'blush');
+        await c.affection('claret', 3, 'A warm promise');
+      } else if (i === 1) {
+        await who(c, 'Claret', 'claret', 'The ship is perfectly trustworthy. The gouge is cosmetic. Mostly. The goat is the one I wouldn\'t trust.', 'smirk');
+        await c.affection('claret', 2, 'A bit of a tease');
+      } else {
+        await who(c, 'Claret', 'claret', "I've been carrying everything since Dad went. Don't make me cry in front of a stranger. Give me a minute to glare at a spanner.", 'sad');
+        await c.affection('claret', 1, 'Honest and kind');
+      }
+      G.setFlag('ch1_met_claret', true);
+      await c.bgm('workshop');
+      await who(c, 'Claret', 'claret', 'Trapdoor\'s in the floor by the lathe. I\'m coming with you. I\'ve got a spanner and a terrible temper.', 'normal');
+    }, { once: true, if: () => !G.flag('ch1_met_claret') && !!G.flag('ch1_started') }));
+
+    // ---- overnight refit (after the Undercroft boss): the ship is fixed by morning
+    m.ev(H.auto('ws_refit', async (c) => {
+      c.bgm('workshop');
+      await who(c, 'Claret', 'claret', 'Right. Night shift. Get out of my way and hold this, no, not like that, hold it like you mean it.', 'normal');
+      await me(c, 'Like this?', 'smirk');
+      await c.fade('out', 60);
+      await c.wait(40);
+      await nar(c, 'Hours pass in a blur of sparks, hissing rivets, and Claret swearing at a propeller in three languages. You hold lamps. You fetch things. At one point you are asked to not breathe on the gears. You do not breathe on the gears.');
+      await c.fade('in', 60);
+      await who(c, 'Claret', 'claret', 'Propeller: straight. Struts: sound. Hull: patched with my second-best hat. And the Coil is in. She\'s ready, Rowan.', 'happy');
+      G.setFlag('ch1_fixed', true);
+      G.setFlag('marigold_ready', true);
+      c.sfx('levelup');
+      c.toast('The Marigold is ready to fly', 'good');
+      await who(c, 'Claret', 'claret', 'Now get some sleep. Inn, bed, pillow. I\'ll be fussing over the hull till dawn. Go on. Shoo.', 'normal');
+      await c.transfer('brasshaven_inn', 6, 8, 'up');
+    }, { once: false, if: () => !!G.flag('ch1_boss_sentinel') && !G.flag('ch1_fixed') }));
+
+    return m.finish({ onEnter: null });
+  }
+  buildWorkshop();
+
+  // ============================================================ MAP 6 — The Brass Kettle (inn)
+  function buildInn() {
+    const m = G.maps.build('brasshaven_inn', 12, 10, {
+      name: 'The Brass Kettle', bgm: 'tavern', interior: true, ground: 'f', spawn: { x: 6, y: 8, dir: 'up' },
+    });
+    m.room(0, 0, 12, 10, { floor: 'f', wall: '7', topWall: 2 });
+    m.set('objects', 6, 9, 'D');
+    m.tiles('objects', [[1, 3], [1, 4], [3, 3], [3, 4]], 'Z');  // beds along the west wall
+    m.tiles('objects', [[9, 3], [9, 4], [10, 3], [10, 4]], 'Z');
+    m.tiles('objects', [[11, 2]], 'I');                          // steam hearth
+    m.tiles('objects', [[5, 3], [6, 3], [7, 3]], 'S');           // shelves of mugs
+    m.tiles('objects', [[3, 7], [8, 7]], 'E');                   // tables
+    m.tiles('objects', [[2, 7], [4, 7], [7, 7], [9, 7]], 'H');   // chairs
+    m.tiles('objects', [[1, 8]], 'U');
+    m.set('objects', 5, 5, 'P').set('objects', 6, 5, 'P');
+    m.ev([
+      H.transfer(6, 9, 'brasshaven', 9, 10, 'down', { id: 'inn_exit' }),
+      H.innkeeper('inn_keeper', 10, 6, 'innkeeper', 30, 'Mother Gusset'),
+      {
+        id: 'claret_inn', x: 8, y: 8, sprite: 'claret', trigger: 'action', solid: true, dir: 'up', name: 'Claret',
+        run: async (c) => {
+          if (G.flag('ch1_fixed') && !G.flag('ch1_slept')) { await who(c, 'Claret', 'claret', 'Five more minutes. I\'m just checking the rivets in my sleep.', 'normal'); return; }
+          await who(c, 'Claret', 'claret', 'The Kettle\'s bread is hard, the beer is worse, and the bed is the only honest thing in Brasshaven. Sleep is for the lucky.', 'sad');
+        },
+      },
+      {
+        id: 'inn_patron', x: 3, y: 6, sprite: 'sailor', trigger: 'action', solid: true, dir: 'down', name: 'Drunk Sailor',
+        run: async (c) => {
+          await who(c, 'Sailor', 'unknown', 'Oi! The lamps are in my head, friend. They hum all the time. I drink to make them shut up. Then they hum at me from my cup.', 'sad');
+        },
+      },
+      {
+        id: 'inn_bard', x: 9, y: 6, sprite: 'noble', trigger: 'action', solid: true, dir: 'left', name: 'Pinta the Bard',
+        run: async (c) => {
+          await who(c, 'Pinta', 'unknown', 'Ah, a fresh ear! I wrote a ballad: "The Lamp That Ate My Grandmother." It rhymes. Mostly. The Order didn\'t like the ending.', 'happy');
+        },
+      },
+    ]);
+    m.ev(H.auto('inn_night', async (c) => {
+      c.bgm('tavern');
+      await c.fade('out', 50);
+      await c.wait(40);
+      await nar(c, 'Night in the Brass Kettle. The copper roof sings a little as it cools. Somewhere a lamp is humming a lullaby, badly. You sleep the sleep of the very tired and the very fixed.');
+      await c.fade('in', 50);
+      await who(c, 'Claret', 'claret', 'Morning, sleepyhead. I didn\'t sleep either. I just sat by the Coil and listened to it purr. Don\'t tell anyone I did that.', 'smirk');
+      await me(c, 'Your secret\'s safe. Thank you, Claret. For fixing her. For fixing... this.', 'earnest');
+      await who(c, 'Claret', 'claret', 'Shut up and go outside. The sky is doing something ridiculous. I want to see your face when the Marigold lifts.', 'blush');
+      G.setFlag('ch1_slept', true);
+      await c.transfer('brasshaven', undefined, undefined, 'down');
+    }, { once: false, if: () => !!G.flag('ch1_fixed') && !G.flag('ch1_slept') }));
+    return m.finish({ onEnter: null });
+  }
+  buildInn();

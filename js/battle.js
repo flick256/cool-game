@@ -710,11 +710,11 @@
   function enemySlot(i, n) {
     // left side layouts by count (x,y = bottom centre)
     const layouts = {
-      1: [[190, 280]],
-      2: [[150, 300], [236, 262]],
-      3: [[112, 296], [206, 300], [158, 246]],
-      4: [[100, 298], [190, 300], [70, 250], [226, 248]],
-      5: [[92, 300], [184, 304], [40, 262], [236, 262], [140, 246]],
+      1: [[190, 272]],
+      2: [[140, 288], [246, 258]],
+      3: [[84, 288], [198, 290], [142, 236]],
+      4: [[80, 290], [192, 292], [56, 244], [240, 240]],
+      5: [[78, 290], [186, 292], [34, 246], [242, 244], [136, 234]],
     };
     const L = layouts[Math.min(5, Math.max(1, n))] || layouts[3];
     return L[Math.min(i, L.length - 1)];
@@ -985,7 +985,7 @@
         const sk = act.skill;
         if (sk.kind === 'bond' && sk.partner) {
           const pn = (actorDef(sk.partner).name || sk.partner);
-          this.showBanner('Kindled Link — ' + pn + '!', '#ffb3d1');
+          this.showBanner('Kindled Link - ' + pn + '!', '#ffb3d1');
         } else this.showBanner(sk.name, sk.kind === 'bond' ? '#ffb3d1' : '#ffffff');
       } else if (act.kind === 'item') this.showBanner(itemDef(act.item).name, '#c9ffd9');
       else if (act.kind === 'attack') this.showBanner(cap(act.weaponType || 'Attack'), '#e8f1ff');
@@ -1228,7 +1228,7 @@
     drawEnemyHud(ctx, u, p) {
       const nameY = Math.max(46, p.y - p.h - 14);
       const label = u.name + (u.isBoss ? '' : '');
-      gText(ctx, label, p.x, nameY, { size: 12, bold: true, align: 'center', color: u.isBoss ? '#ffd27a' : '#ffffff' });
+      gText(ctx, label, p.x, nameY, { size: 11, bold: true, align: 'center', color: u.isBoss ? '#ffd27a' : '#ffffff' });
       // HP gauge (always shown for bosses; others when damaged or revealed)
       if (u.isBoss || u.hp < u.mhp || Object.keys(u.revealed).length) {
         gGauge(ctx, p.x - 26, nameY + 14, 52, 4, (u.dispHp || 0) / u.mhp, '#ff7a86', '#b3263a', { bg: '#1a0c24' });
@@ -1345,7 +1345,7 @@
       const t = m.cands[m.cursor];
       gWindow(ctx, 6, 280, 420, 40, { style: 'dark', alpha: 0.85 });
       if (!t) return;
-      gText(ctx, (m.label ? m.label + ' → ' : '') + t.name, 16, 288, { size: 14, bold: true, color: t.side === 'party' ? '#bfeaff' : '#ffffff' });
+      gText(ctx, (m.label ? m.label + ' > ' : '') + t.name, 16, 288, { size: 14, bold: true, color: t.side === 'party' ? '#bfeaff' : '#ffffff' });
       if (t.side === 'enemy') {
         if (t.shieldMax > 0) gShieldPips(ctx, 16, 306, t.shield, t.shieldMax, t.broken);
         gWeakIcons(ctx, 110, 306, t.weak, t.revealed);
@@ -1377,7 +1377,8 @@
       gWindow(ctx, 150, 120, 340, 230, { style: 'blue', alpha: 0.94 });
       gText(ctx, 'Battle Results', 320, 132, { size: 16, bold: true, align: 'center', color: '#ffe38a' });
       const lines = [];
-      lines.push('EXP  ' + this.party.map((u) => (r.exp[u.id] || 0)).join(' / ') + '  (per member)');
+      lines.push('EXP  ' + this.party.map((u) => u.name + ' +' + (r.exp[u.id] || 0)).join('   '));
+      lines.push('Benched members earn half the EXP.');
       lines.push('Gold  +' + r.gold);
       const drops = r.drops || [];
       if (drops.length) lines.push('Items  ' + drops.map((d) => itemDef(d).name).join(', '));
@@ -1487,7 +1488,7 @@
           return { actor: u, kind: 'skill', skill: sk, targets: tg, boost: this.boost, weaponType: sk.kind === 'phys' || sk.kind === 'bond' ? (sk.weapon || wtFallback(u)) : null };
         }
         if (cmd === 'item') {
-          const it = await this.menuPick({ mode: 'item', title: 'Items', items: usableItems().map((id) => ({ label: itemDef(id).name, value: id, right: '×' + ((G.state.inventory || {})[id] || 0), enabled: true, desc: itemDef(id).desc || '' })), onBoost: null });
+          const it = await this.menuPick({ mode: 'item', title: 'Items', items: usableItems().map((id) => ({ label: itemDef(id).name, value: id, right: 'x' + ((G.state.inventory || {})[id] || 0), enabled: true, desc: itemDef(id).desc || '' })), onBoost: null });
           if (!it) continue;
           const ef = itemDef(it).effect || {};
           const cands = ef.revive != null ? this.party.filter((p) => !p.alive) : this.party.filter((p) => p.alive);
