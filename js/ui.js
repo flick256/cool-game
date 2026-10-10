@@ -544,7 +544,7 @@
     const lines = D.wrap(r.text, 440, TSIZE);
     const w = 500, h = lines.length * 22 + 46;
     const above = ST.msg && !ST.msg.out;
-    const x = (W - w) / 2, y = above ? BOX_Y - h - 12 : 40;
+    const x = (W - w) / 2, y = above ? BOX_Y - h - 12 : H - h - 26;
     D.win(c, x, y, w, h, { style: 'blue', alpha: 0.95 });
     D.icon(c, 'star', x + 16, y + 14, 16);
     lines.forEach((l, i) => D.text(c, l, x + 42, y + 14 + i * 22, { color: '#fff' }));

@@ -96,7 +96,8 @@
         ['rowan', 'But do you ever sing it for someone? Not for the steps.', 'normal'],
         ['seraphine', 'Never. Not once. I sing for the Light, and the Light, as far as I can tell, has never once clapped.', 'smirk'],
         ['seraphine', "So this is new. I'm practising on a ship because the Marigold's lanterns are too honest to judge me.", 'blush'],
-        ['narr', 'She sings it through, very low, the way you would carry something fragile across a room. The crooked turns hang in the air like small bright birds.'],
+        ['narr', 'She sings it through, very low, the way you would carry something fragile across a room.'],
+        ['narr', 'The crooked turns hang in the air like small bright birds.'],
         ['narr', 'For a moment the deck is a nave and the lanterns are a congregation, and nobody is watching but you.'],
         ['narr', 'When she finishes, the sea goes on being the sea. Sera keeps her eyes on the lanterns instead of on you.'],
       ]);
@@ -268,7 +269,8 @@
         ['rowan', 'Corla sounds like something you would find in a stew.', 'smirk'],
         ['seraphine', "Stop it. You're ruining the one honest thing I've made.", 'happy'],
         ['narr', 'Far off across the water, the bell in Lumen Vale rings the hour. A lantern tips loose from the rail and rises between you, gold on black.'],
-        ['narr', 'Sera steps closer without seeming to decide to. Lavender and rain and warm wax. Her forehead is an inch from yours, and neither of you moves to close it.'],
+        ['narr', 'Sera steps closer without seeming to decide to. Lavender and rain and warm wax.'],
+        ['narr', 'Her forehead is an inch from yours, and neither of you moves to close it.'],
         ['seraphine', "It's a bad hymn, isn't it.", 'blush'],
         ['rowan', "It's the best one I've ever heard.", 'worried'],
       ]);
@@ -299,7 +301,8 @@
       ]);
       await play(c, [
         ['seraphine', "Ask me again at Lumen Vale. There's a lake, and everybody sets a lantern on it, and I have decided to be sensible about exactly none of it.", 'happy'],
-        ['narr', 'She tucks the hymn into the front of her robe, beside the lavender sachet, and goes back to the rail. The lanterns drift after her like a flock that has decided to be fond of her.'],
+        ['narr', 'She tucks the hymn into the front of her robe, beside the lavender sachet, and goes back to the rail.'],
+        ['narr', 'The lanterns drift after her like a flock that has decided to be fond of her.'],
       ]);
     },
   });
@@ -312,8 +315,10 @@
     run: async (c) => {
       await c.bgm('romance');
       await play(c, [
-        ['narr', 'Lumen Vale on Lantern Night. Thousands of paper lanterns lift off the lake at once, and the water looks as though someone spilled the sky and let it stay.'],
-        ['narr', 'Sera waits at the far end of the shingle, away from the crowd. Her headdress is in her hands. Without it she looks younger, like someone who is allowed to be wrong.'],
+        ['narr', 'Lumen Vale on Lantern Night.'],
+        ['narr', 'Thousands of paper lanterns lift off the lake at once, and the water looks as though someone spilled the sky and let it stay.'],
+        ['narr', 'Sera waits at the far end of the shingle, away from the crowd. Her headdress is in her hands.'],
+        ['narr', 'Without it she looks younger, like someone who is allowed to be wrong.'],
         ['seraphine', 'You found me. I left a trail of very obvious lavender, and I am not sorry.', 'blush'],
         ['seraphine', "Festival custom: one lantern, shared between two. You chose me. I know, because you did it with your whole face at the stall.", 'smirk'],
         ['seraphine', "So say it plainly. I am not doing another hymn about you. I would never finish, and the Abbess would send me to bed without supper.", 'normal'],
@@ -353,7 +358,8 @@
       await c.emote('player', 'heart');
       await c.sfx('heart');
       await play(c, [
-        ['narr', 'She kisses you, or you kiss her. Afterwards you will each insist the other one moved first. The lanterns, rising over the water, decline to take sides.'],
+        ['narr', 'She kisses you, or you kiss her. Afterwards you will each insist the other one moved first.'],
+        ['narr', 'The lanterns, rising over the water, decline to take sides.'],
       ]);
       await c.fade('out', 60, '#1a1030');
       await c.wait(30);
@@ -366,7 +372,8 @@
         ['rowan', 'Write it with no god in it.', 'smirk'],
         ['seraphine', "Oh, there's no god at all now. It's all people. Lots of people. Mostly you.", 'happy'],
         ['seraphine', "Stay on the shore with me until the last of them goes out? I'd like to be sensible about this for at least an hour.", 'normal'],
-        ['narr', 'She tucks her headdress under one arm and laces her fingers through yours. Far out on the water, the last festival lantern sets off toward the dark, carrying two names that nobody else will read.'],
+        ['narr', 'She tucks her headdress under one arm and laces her fingers through yours.'],
+        ['narr', 'Far out on the water, the last festival lantern sets off toward the dark, carrying two names that nobody else will read.'],
       ]);
       G.romance.setLover('seraphine');
       await c.affection('seraphine', 10);
@@ -394,11 +401,13 @@
           ['seraphine', "Under the wrong tune, then. I'll correct you the whole way down.", 'happy'],
           ['narr', 'She shifts along the hatch. Her shoulder finds yours, the way it has so many times since Wickholm, and this time she leaves it there.'],
           ['seraphine', "I want to sing the last verse. Not the Abbey's version. Not the Canticle. Ours.", 'normal'],
-          ['narr', 'She sings it very low, barely more than a breath. The lantern on the hook above you both sways, and the light rolls across her face like water.'],
+          ['narr', 'She sings it very low, barely more than a breath.'],
+          ['narr', 'The lantern on the hook above you both sways, and the light rolls across her face like water.'],
           ['seraphine', 'There. A hymn with no god in it, and one person I want to be listened to by for the rest of my life. That is the verse.', 'blush'],
           ['rowan', "I'm listening. I'm going to keep on listening.", 'normal'],
           ['seraphine', "Good. And if you're not, I'll know, because you have a face like a dropped pie when your mind wanders.", 'smirk'],
-          ['narr', 'She leans her forehead against yours. Neither of you moves for a long time. Above, the Spire climbs into the dark, and for once it seems a very long way off.'],
+          ['narr', 'She leans her forehead against yours. Neither of you moves for a long time.'],
+          ['narr', 'Above, the Spire climbs into the dark, and for once it seems a very long way off.'],
           ['seraphine', "Goodnight, {name}. Don't fall off the stairs. It's very untidy, and I'd have to sing at your funeral.", 'happy'],
         ]);
       } else {
@@ -417,7 +426,8 @@
           ['seraphine', 'I had help. Caspian wrote the sensible sections. Rook did the bit about the knitting, which he will deny in front of Maren.', 'smirk', 'caspian'],
           ['seraphine', "Tomorrow you'll be brave, I'll sing badly, and Wren will say something rude to the Spire, and the Spire will take it personally.", 'normal', 'wren'],
           ['seraphine', "I'm proud of you, and that isn't a hymn. It's a fact. The Abbess taught me never to lie about facts.", 'happy'],
-          ['narr', 'She takes the other half of the blanket and sits on the crate with the broken hinge, which Claret still has not fixed. The two of you watch the Spire until the galley lamp goes out.'],
+          ['narr', 'She takes the other half of the blanket and sits on the crate with the broken hinge, which Claret still has not fixed.'],
+          ['narr', 'The two of you watch the Spire until the galley lamp goes out.'],
         ]);
       }
     },
@@ -433,15 +443,19 @@
       await play(c, [
         ['narr', 'The Tithe ended on an ordinary grey morning in Lumen Vale. No proclamation was read. The Order had lost the knack of making them.'],
         ['narr', 'That evening, for the first time in forty years, the bells of the Pale Abbey rang at dusk with no Canticle beneath them.'],
-        ['narr', 'Sera stood on the Abbey steps. The congregation below her was not a congregation at all: former choristers, dockhands, a fox nobody had invited.'],
+        ['narr', 'Sera stood on the Abbey steps.'],
+        ['narr', 'The congregation below her was not a congregation at all: former choristers, dockhands, a fox nobody had invited.'],
         ['narr', 'Abbess Orla was there too, at the foot of the steps, where she had chosen to sit down and listen.'],
-        ['narr', 'Sera sang. No rests. No drinking marks. A hymn with no god in it, only people. When it ended, the lanterns on the terraces did not dim, because nothing was being taken from them.'],
-        ['narr', 'High above, the Hearthstar burns. It is brighter now, and warmer, and its light has two notes in it: one steady, and one that flickers when someone laughs.'],
+        ['narr', 'Sera sang. No rests. No drinking marks. A hymn with no god in it, only people.'],
+        ['narr', 'When it ended, the lanterns on the terraces did not dim, because nothing was being taken from them.'],
+        ['narr', 'High above, the Hearthstar burns.'],
+        ['narr', 'It is brighter now, and warmer, and its light has two notes in it: one steady, and one that flickers when someone laughs.'],
         ['rowan', 'They can probably hear you from up there.', 'smirk'],
         ['seraphine', "The Star? It hasn't got ears. It's a lantern.", 'smirk'],
         ['rowan', 'Then how do you know it is not listening?', 'normal'],
         ['seraphine', 'Because nothing that makes a sound that big ever wants to be heard by nobody. I have decided that is the theology now.', 'happy'],
-        ['narr', 'The Abbess has burned the rest-marks out of every hymnal in the Abbey, page by page, in the courtyard. Claret came to watch and complained that the bonfire was badly built.'],
+        ['narr', 'The Abbess has burned the rest-marks out of every hymnal in the Abbey, page by page, in the courtyard.'],
+        ['narr', 'Claret came to watch and complained that the bonfire was badly built.'],
         ['narr', 'The lavender along the Abbey wall is in full flower, and the bees have opinions about all of it.'],
         ['seraphine', "Thirty-one verses, and not one of them drinks anything. I checked. Orla checked too, and then she cried. She says it's the first time in public since the roof fell in.", 'sad'],
         ['rowan', 'Are you going to finish the second verse? The one that rhymes with corla?', 'smirk'],
@@ -450,18 +464,23 @@
         ['seraphine', 'Do you remember the first night? The deck, the sea, you in the doorway like a stray that had been told it could come in.', 'happy'],
         ['rowan', 'You told me to go to bed.', 'smirk'],
         ['seraphine', "I was extremely rude to you that night. I'd like it entered in the records that I was rude because I was already wonderful.", 'blush'],
-        ['narr', 'Her hand finds yours on the stone. It is steady now. It was not steady in the Hearthstar hall, when she had been ready to let her own light go out so that someone else could live.'],
+        ['narr', 'Her hand finds yours on the stone. It is steady now.'],
+        ['narr', 'It was not steady in the Hearthstar hall, when she had been ready to let her own light go out so that someone else could live.'],
         ['seraphine', "I was so frightened, up there. I thought the only way to end the Tithe was to let my wick go out for it. And you wouldn't let me.", 'sad'],
         ['rowan', 'You would not let me do it either.', 'worried'],
         ['seraphine', 'No. Two stubborn idiots holding one candle between them, each insisting the other take the warm side.', 'smirk'],
-        ['narr', 'Under her ribs, a thread of light, small and bright and entirely her own, leans toward yours. Yours leans back. The star above answers both, a note you feel in your teeth.'],
-        ['narr', 'Two hearts, one star. The old Lampwrights built the Hearthstar to burn on other people\'s warmth. It has learned, very quickly, how to give some back.'],
+        ['narr', 'Under her ribs, a thread of light, small and bright and entirely her own, leans toward yours.'],
+        ['narr', 'Yours leans back. The star above answers both, a note you feel in your teeth.'],
+        ['narr', 'Two hearts, one star. The old Lampwrights built the Hearthstar to burn on other people\'s warmth.'],
+        ['narr', 'It has learned, very quickly, how to give some back.'],
         ['seraphine', 'The Abbess has asked the choir to tour. Lumen, the Ashen Road, Brasshaven. Every place nobody ever let us sing.', 'happy'],
         ['seraphine', 'I said yes. Then I said we would sing for nothing, because the lamps have taken enough, and Orla could come and sit at the back and be humbled.', 'smirk'],
         ['rowan', 'Will Claret come?', 'normal'],
         ['seraphine', 'Claret will complain about the acoustics, fix the acoustics, and then insist it was load-bearing all along.', 'smirk'],
-        ['narr', 'On the terrace below, the lanterns are being lit one after another. Nobody has to light them. Somebody started, and everybody else wanted to.'],
-        ['narr', 'The one that drifted from the rail has reached the far shore. A small figure there is waving it at the sky, and all across the Vale other people are lighting theirs.'],
+        ['narr', 'On the terrace below, the lanterns are being lit one after another.'],
+        ['narr', 'Nobody has to light them. Somebody started, and everybody else wanted to.'],
+        ['narr', 'The one that drifted from the rail has reached the far shore.'],
+        ['narr', 'A small figure there is waving it at the sky, and all across the Vale other people are lighting theirs.'],
         ['seraphine', 'Nothing is being spent tonight. Look at them. Everything is being shared, and it is getting brighter.', 'happy'],
         ['narr', 'On the lake below, a single paper lantern drifts out over the water with two names written on its side. It does not go dark.'],
       ]);
@@ -481,8 +500,10 @@
       await c.bgm('tender');
       await play(c, [
         ['narr', "The Marigold's deck, after rain. Puddles hold the lamplight like spilled coins. In one corner, kneeling on an upturned crate, Wren is repotting a windowbox of trailing geranium."],
-        ['narr', 'The geranium was, until this morning, on a Brasshaven balcony. It was moved here by someone who had been told not to move it. Wren has not forgiven that person yet.'],
-        ['narr', 'Their blue witch hat, with its bedraggled feather, sits on the crate beside them. A fox with a torn ear watches from the rail with the expression of a professional.'],
+        ['narr', 'The geranium was, until this morning, on a Brasshaven balcony.'],
+        ['narr', 'It was moved here by someone who had been told not to move it. Wren has not forgiven that person yet.'],
+        ['narr', 'Their blue witch hat, with its bedraggled feather, sits on the crate beside them.'],
+        ['narr', 'A fox with a torn ear watches from the rail with the expression of a professional.'],
         ['wren', "Don't touch the roots. They're in a mood. I've apologised to the plant. It did not accept.", 'normal'],
         ['wren', 'You have a question sitting on your face like a wet bird. Ask it. The fox has already decided you are harmless.', 'smirk'],
       ]);
@@ -501,7 +522,7 @@
             ['wren', 'Honest. Good. Honest is rarer than dry days in the Whisperwood.', 'normal'],
           ] },
         { tone: 'Teasing', label: 'Ask if the fox is their business partner', d: 1, expr: 'smirk',
-          say: 'Is the fox your business partner? He looks like he does the lifting.',
+          say: 'Is the fox your business partner? Looks like the fox does all the lifting.',
           reply: [
             ['wren', 'Yes. He does the lifting. I do the blaming. It is a very efficient arrangement.', 'smirk'],
             ['narr', 'The fox sneezes, as if to confirm it for the record.'],
@@ -541,7 +562,8 @@
       await play(c, [
         ['wren', "The geranium is settled. Its name is Sulk. Don't use it. It hates being named.", 'smirk'],
         ['wren', "Come back tomorrow, when the moonpetal is awake. I'm bad at being found. I'm a little less bad after dark.", 'normal'],
-        ['narr', 'Wren picks the hat up off the crate, settles the feather, and does not quite look at you. The fox has already gone to sleep across the windowbox.'],
+        ['narr', 'Wren picks the hat up off the crate, settles the feather, and does not quite look at you.'],
+        ['narr', 'The fox has already gone to sleep across the windowbox.'],
       ]);
     },
   });
@@ -557,7 +579,8 @@
         ['narr', "The Marigold's lower hold smells of thyme, smoke and wet earth. Wren has hung drying bundles from every beam, and the crew has learned to duck without being asked."],
         ['narr', 'Wren sits cross-legged among the herbs with a glass jar held in both hands, the way other people hold a sleeping child.'],
         ['wren', 'Don\'t tip it. Everything in here has had a difficult year.', 'normal'],
-        ['narr', 'Under the lid is a whole small world: moss like green velvet, a fern just uncurling, a trickle of water in one corner, and a single pale moonpetal the size of a fingernail, shut tight.'],
+        ['narr', 'Under the lid is a whole small world: moss like green velvet, a fern just uncurling,'],
+        ['narr', 'a trickle of water in one corner, and a single pale moonpetal the size of a fingernail, shut tight.'],
       ]);
       await choose(c, 'wren', 'Ask about the jar:', [
         { tone: 'Earnest', label: 'Ask why a forest lives in a jar', d: 4,
@@ -635,8 +658,10 @@
     run: async (c) => {
       await c.bgm('romance');
       await play(c, [
-        ['narr', 'The Whisperwood at night is quiet in the particular way of a place that is listening. Pale moths gather at the cottage door. Far off, a fox gives an unimpressed bark.'],
-        ['narr', 'Wren sits on the porch step with their hat in their lap and the feather bent sideways. They are looking up at the tall moonpetal stalk by the gate, which has not bloomed in all the years they have lived here.'],
+        ['narr', 'The Whisperwood at night is quiet in the particular way of a place that is listening.'],
+        ['narr', 'Pale moths gather at the cottage door. Far off, a fox gives an unimpressed bark.'],
+        ['narr', 'Wren sits on the porch step with their hat in their lap and the feather bent sideways.'],
+        ['narr', 'They are looking up at the tall moonpetal stalk by the gate, which has not bloomed in all the years they have lived here.'],
         ['narr', 'Tonight a single bud is opening. Slowly, like someone checking whether it is safe.'],
         ['wren', "It's going to bloom. I'm not nervous. I'm only aware of a flower.", 'worried'],
         ['rowan', "You're nervous.", 'smirk'],
@@ -684,7 +709,7 @@
             ['wren', 'Want. That is a big word for a small, prickly person. I will have to find somewhere to keep it.', 'blush'],
           ] },
         { tone: 'Teasing', label: 'Say yes, if they bring the fox', d: 2, expr: 'smirk',
-          say: "Only if you bring the fox. He's been very vocal about it.",
+          say: 'Only if you bring the fox. The fox has been very vocal about it.',
           reply: [
             ['wren', 'He has already decided. He has been sitting on your boots since you sat down.', 'smirk'],
           ] },
@@ -695,7 +720,8 @@
           ] },
       ]);
       await play(c, [
-        ['narr', 'The bud unfurls with a sound like a sigh. Silver-white petals open one after another. Their light is soft and cool, nothing like a lamp, and it falls across the porch and both of your faces.'],
+        ['narr', 'The bud unfurls with a sound like a sigh. Silver-white petals open one after another.'],
+        ['narr', 'Their light is soft and cool, nothing like a lamp, and it falls across the porch and both of your faces.'],
         ['wren', "It's open. It has never been open with someone here to see it.", 'surprised'],
         ['wren', "I should say something about that. I don't know what. You will have to forgive me. Nobody has ever asked me to stay before, so I am bad at the rest.", 'sad'],
         ['wren', "Also, I have never done this. Kissing, I mean. Or nearly. Is it like a bee? Do I lean? Does the bee lean, or does the flower?", 'worried'],
@@ -706,12 +732,14 @@
           say: 'May I?',
           reply: [
             ['wren', 'Yes. Yes. Forehead first. We are doing forehead. I am not a fast person.', 'blush'],
-            ['narr', 'Their forehead touches yours, very gently, the way you would test whether a cup of tea is too hot. Then they stay there, and the petals glow around the two of you.'],
+            ['narr', 'Their forehead touches yours, very gently, the way you would test whether a cup of tea is too hot.'],
+            ['narr', 'Then they stay there, and the petals glow around the two of you.'],
           ] },
         { tone: 'Quiet', label: 'Stay exactly where you are and breathe', d: 4,
           say: "Stay right there. Let's just breathe for a little while.",
           reply: [
-            ['narr', 'Neither of you closes the last inch. The moonpetal holds its light and the Whisperwood holds its breath. It is the warmest quiet you have ever shared.'],
+            ['narr', 'Neither of you closes the last inch. The moonpetal holds its light and the Whisperwood holds its breath.'],
+            ['narr', 'It is the warmest quiet you have ever shared.'],
           ] },
         { tone: 'Teasing', label: 'Warn them the petals look offended', d: 1, expr: 'smirk',
           say: 'Mind the petals. They look offended by the whole arrangement.',
@@ -735,7 +763,9 @@
     run: async (c) => {
       await c.bgm('romance');
       await play(c, [
-        ['narr', 'Lumen Vale on Lantern Night. The festival is a warm roar along the terraces, but the far end of the shingle is quiet and dark, and that is where Wren has chosen to stand.'],
+        ['narr', 'Lumen Vale on Lantern Night.'],
+        ['narr', 'The festival is a warm roar along the terraces,'],
+        ['narr', 'but the far end of the shingle is quiet and dark, and that is where Wren has chosen to stand.'],
         ['narr', 'Wren holds a paper lantern against their chest. It is blank. They keep turning it over, as if the blank side might change its mind.'],
         ['wren', 'I hate crowds. I came anyway. This is a terrible sign. The moss is sulking about it.', 'worried'],
         ['wren', 'Festival rule: one lantern, shared between two people. You chose me. The stall keeper told me. He looked delighted, and he is not a delightful man.', 'smirk'],
@@ -773,14 +803,16 @@
         ['narr', 'Lantern light shines through the holes, each letter a tiny star. Yours.'],
         ['wren', 'Right. Is this where I am meant to kiss you? I have read about it. It seemed structurally unsound.', 'worried'],
         ['rowan', 'Structurally, I think you are fine.', 'blush'],
-        ['narr', 'They kiss you the way they do everything: directly, a little clumsily, and then with a complete and surprising certainty that goes straight through you.'],
+        ['narr', 'They kiss you the way they do everything: directly, a little clumsily,'],
+        ['narr', 'and then with a complete and surprising certainty that goes straight through you.'],
       ]);
       await c.emote('player', 'heart');
       await c.sfx('heart');
       await c.fade('out', 50, '#1a1030');
       await c.wait(30);
       await play(c, [
-        ['narr', 'Behind you, the lantern lifts off the shingle where it was set down with great care, and sails out over the water with your name on its side. The festival goes on without them for a while.'],
+        ['narr', 'Behind you, the lantern lifts off the shingle where it was set down with great care,'],
+        ['narr', 'and sails out over the water with your name on its side. The festival goes on without them for a while.'],
       ]);
       await c.fade('in', 50);
       await play(c, [
@@ -804,8 +836,10 @@
       const beloved = lover() === 'wren';
       if (beloved) {
         await play(c, [
-          ['narr', 'The night before the Spire. The Marigold is moored in the lee of the first terrace, and the Spire climbs into a sky with no stars in it at all.'],
-          ['narr', 'Wren sits on the rail with their boots off and a fox asleep across their knees. Their hat hangs on the nearest lamp hook, which for Wren is the same as undressing in public.'],
+          ['narr', 'The night before the Spire.'],
+          ['narr', 'The Marigold is moored in the lee of the first terrace, and the Spire climbs into a sky with no stars in it at all.'],
+          ['narr', 'Wren sits on the rail with their boots off and a fox asleep across their knees.'],
+          ['narr', 'Their hat hangs on the nearest lamp hook, which for Wren is the same as undressing in public.'],
           ['wren', "Don't say anything about the hat. It isn't a symbol. It's a hat, and it's tired.", 'normal'],
           ['rowan', "I wasn't going to say anything.", 'smirk'],
           ['wren', 'You were going to look at it meaningfully. I could feel it on the back of my neck.', 'smirk'],
@@ -831,7 +865,8 @@
           ['rowan', "I'm scared, Wren.", 'sad'],
           ['wren', 'Good. Scared is correct. People who are not scared fall off things. Hold the rail. Look at the next step, not the top.', 'normal'],
           ['wren', "I've made you something. It isn't a charm. Charms are for people who need luck. This is rosemary, for remembering.", 'normal'],
-          ['narr', 'They press a small paper twist into your palm and close your fingers over it, briskly, the way you might give a child a coin for the sweet shop.'],
+          ['narr', 'They press a small paper twist into your palm and close your fingers over it,'],
+          ['narr', 'briskly, the way you might give a child a coin for the sweet shop.'],
           ['wren', 'For when you forget who you are climbing for. You will, at about the eight-hundredth step. Everyone does. Eight hundred is very boring.', 'smirk'],
           ['wren', 'The fox has made a decision. He is coming in the morning. Nobody asked him.', 'normal'],
           ['rowan', "I'm glad he's coming.", 'happy'],
@@ -853,26 +888,31 @@
       await c.bgm('ending_love');
       await play(c, [
         ['narr', 'The Tithe ended without ceremony. The Order was too busy working out where its lamps had gone to bother with a proclamation.'],
-        ['narr', 'In the Whisperwood, the old Lampwright seed went quiet. For a long time it had held the forest shut like a fist, keeping the Hollow out and everyone else in. Now the fist opened.'],
+        ['narr', 'In the Whisperwood, the old Lampwright seed went quiet.'],
+        ['narr', 'For a long time it had held the forest shut like a fist, keeping the Hollow out and everyone else in. Now the fist opened.'],
         ['narr', "Within a season, people were walking the path to Wren's cottage again. Not to take anything. To ask questions and be answered rudely, which Wren considers the highest form of hospitality."],
         ['narr', "The garden has long since outgrown its jar. It spills over the cottage step and climbs the porch posts, and has, to the fox's great irritation, taken over the woodpile."],
         ['wren', "Don't step on the thyme.", 'normal'],
         ['rowan', "I'm not stepping on anything. I'm standing very carefully on the thyme.", 'smirk'],
         ['wren', 'That is stepping on the thyme.', 'normal'],
-        ['narr', 'Wren sits on the step with a mug of tea, hat on, feather back in place. Beside them on the sill is a second jar, empty and clean, and they keep glancing at it.'],
+        ['narr', 'Wren sits on the step with a mug of tea, hat on, feather back in place.'],
+        ['narr', 'Beside them on the sill is a second jar, empty and clean, and they keep glancing at it.'],
         ['wren', "It's for you. Don't look at it like that. It's a jar. You don't have to put anything in it.", 'normal'],
         ['rowan', 'Is that a question?', 'worried'],
         ['wren', "It's a Thursday. Not everything has to be a question.", 'smirk'],
-        ['narr', 'Above the trees, the Hearthstar burns brighter and warmer than anyone in Auren has ever seen it. Its light has two notes in it: one steady, one that flickers when the wind goes through the wood.'],
+        ['narr', 'Above the trees, the Hearthstar burns brighter and warmer than anyone in Auren has ever seen it.'],
+        ['narr', 'Its light has two notes in it: one steady, one that flickers when the wind goes through the wood.'],
         ['wren', 'The Lampwrights built the star to use people up. It is not like that now. It takes a little warmth from everyone and gives it back. Like a kettle that has finally remembered what it is for.', 'happy'],
         ['wren', 'I used to think warmth was a thing you rationed. Tea, moonpetal, the last of the honey. You hoard it so there is some when you are alone. The most useless belief I ever had.', 'sad'],
         ['rowan', 'What changed?', 'normal'],
         ['wren', 'Somebody sat on my step and did not leave. Then they came back with bad jokes and a fox. I stopped counting the rations.', 'blush'],
-        ['narr', 'At the heart of the garden the moonpetal is open. It is the first to bloom each year, and this year it bloomed on a quiet Tuesday, when someone was there to see it.'],
+        ['narr', 'At the heart of the garden the moonpetal is open.'],
+        ['narr', 'It is the first to bloom each year, and this year it bloomed on a quiet Tuesday, when someone was there to see it.'],
         ['wren', 'I was sure, up in the Spire hall, that the only way to end the Tithe was to let my own wick go out. Very sensible. A jar with the lid screwed down.', 'sad'],
         ['rowan', 'You would not let me do it, either.', 'worried'],
         ['wren', 'No. We are idiots pointed in the same direction. It is the most useful kind.', 'smirk'],
-        ['narr', 'Their hand finds yours on the warm stone of the step. The thread of their wick glows faintly beneath their ribs, close and bright. Yours leans toward it, and the star above answers both.'],
+        ['narr', 'Their hand finds yours on the warm stone of the step. The thread of their wick glows faintly beneath their ribs, close and bright.'],
+        ['narr', 'Yours leans toward it, and the star above answers both.'],
         ['narr', 'Two hearts, one star. Nothing is drinking the lamps any more. The whole Whisperwood hums, quietly, like the inside of a bell.'],
         ['wren', 'Sera has written. The choir is touring. She says she is going to sing in the trees, because the acoustics here are "ridiculous".', 'happy', 'seraphine'],
         ['wren', 'I wrote back. I said the trees are very rude about acoustics, and she should come anyway. Then I said I would bring the fox to heckle.', 'smirk', 'seraphine'],
@@ -881,7 +921,8 @@
         ['wren', 'I want to be called Wren. Hedge-witch is what people say when they are worried they will be wrong about me.', 'normal'],
         ['rowan', 'Then Wren it is. Every day, until you are sick of it.', 'blush'],
         ['wren', "I am not going to be sick of it. Don't be stupid. I'm extremely hard to get rid of. Like moss.", 'blush'],
-        ['narr', 'Dawn comes over the trees. Wren hangs their hat on its hook. In the window, the moonpetal begins to fold itself away for the day, the way a hand closes around something it means to keep.'],
+        ['narr', 'Dawn comes over the trees. Wren hangs their hat on its hook.'],
+        ['narr', 'In the window, the moonpetal begins to fold itself away for the day, the way a hand closes around something it means to keep.'],
       ]);
     },
   });
@@ -921,7 +962,8 @@
         ['wren', 'The stew does not want a blessing. It wants to be eaten quickly and not discussed.', 'normal'],
         ['seraphine', 'Wren, that is rude.', 'normal'],
         ['wren', 'It is also true. Sometimes those are the same thing. Pass the bread.', 'smirk'],
-        ['narr', 'The bread goes round. Somebody, nobody will say who, has put a little lavender in the honey. It is not in the recipe. It is the best thing on the table.', null, 'seraphine'],
+        ['narr', 'The bread goes round. Somebody, nobody will say who, has put a little lavender in the honey.', null, 'seraphine'],
+        ['narr', 'It is not in the recipe. It is the best thing on the table.', null, 'seraphine'],
         ['rowan', 'To the ship.', 'happy'],
         ['claret', "To the ship that doesn't explode.", 'smirk'],
         ['caspian', "It has been a week. Nothing has exploded.", 'happy', 'caspian'],
@@ -968,12 +1010,14 @@
         ['claret', 'You do not.', 'normal'],
         ['rowan', "I have Sera's face.", 'smirk'],
         ['seraphine', 'Mm. Be careful. You will have to give it back after.', 'smirk'],
-        ['narr', 'The hand that follows is decided by a fox, a sneeze, and a lamp that goes out at a very inconvenient moment. In the dark, somebody swears in a language nobody will admit to knowing.'],
+        ['narr', 'The hand that follows is decided by a fox, a sneeze, and a lamp that goes out at a very inconvenient moment.'],
+        ['narr', 'In the dark, somebody swears in a language nobody will admit to knowing.'],
         ['rowan', 'Who won?', 'worried'],
         ['claret', 'Nobody won. Lamp is out. We are all doing the washing-up.', 'normal'],
         ['rook', "I'd call that a moral victory for the fox.", 'smirk'],
         ['wren', 'He agrees with you.', 'smirk'],
-        ['narr', 'Someone lights the lamp again. In the sudden brightness everyone is laughing, even Caspian, who had sworn to be honest about his laughter and is not.'],
+        ['narr', 'Someone lights the lamp again.'],
+        ['narr', 'In the sudden brightness everyone is laughing, even Caspian, who had sworn to be honest about his laughter and is not.'],
         ['seraphine', "We should make it a tradition. Thursday games. I'll bring sweets. Not sweet buns. Wren has feelings about sweet buns.", 'happy'],
         ['wren', 'I have a very reasonable objection to sweet buns.', 'normal'],
         ['rowan', 'Same time next week?', 'happy'],
@@ -992,7 +1036,8 @@
       await play(c, [
         ['narr', 'Over the Ashen Road the sky turns the colour of an old bruise, and the Marigold runs straight into the middle of it.'],
         ['claret', 'Everyone in the galley. Now. Hold on to something bolted down. Nothing on this ship is bolted down enough, but hold on anyway.', 'worried'],
-        ['narr', 'Thunder walks across the hull like a giant in bad boots. The lamps swing on their hooks. A teacup escapes its saucer and is recaptured by Caspian without his looking.'],
+        ['narr', 'Thunder walks across the hull like a giant in bad boots. The lamps swing on their hooks.'],
+        ['narr', 'A teacup escapes its saucer and is recaptured by Caspian without his looking.'],
         ['caspian', 'I have it. Forgive the liberty.', 'normal', 'caspian'],
         ['rook', 'Caspian, that was the most heroic thing I have seen all week, and I have watched you wrestle a bear.', 'happy', 'caspian'],
         ['claret', "Don't say it's just a bit of wind. It is not a bit of wind. It is a wind with a grudge.", 'normal'],
@@ -1008,10 +1053,12 @@
         ['seraphine', 'Come here, everybody. Sit by the stove. I will sing.', 'happy'],
         ['rook', 'Sing what? Something with a happy ending, please. I have had a day.', 'smirk', 'rook'],
         ['seraphine', 'Something with no god in it.', 'normal'],
-        ['narr', 'She starts low, a simple tune with no crooked turns in it. By the second line the galley is humming along, including the ones who swear they cannot.'],
+        ['narr', 'She starts low, a simple tune with no crooked turns in it.'],
+        ['narr', 'By the second line the galley is humming along, including the ones who swear they cannot.'],
         ['caspian', 'I cannot hold a tune. I shall hold the lantern instead.', 'normal', 'caspian'],
         ['claret', 'Hold the lantern, Caspian. Thank you.', 'happy'],
-        ['narr', 'Thunder rolls off across the sea, growing smaller. The Marigold lurches once more and then steadies, like a horse that has decided not to bolt after all.'],
+        ['narr', 'Thunder rolls off across the sea, growing smaller.'],
+        ['narr', 'The Marigold lurches once more and then steadies, like a horse that has decided not to bolt after all.'],
         ['rowan', 'Is it over?', 'worried'],
         ['claret', 'No. That was the front edge. The back edge is worse. It is always worse.', 'normal'],
         ['rook', 'Then tell us a story, Captain, and make it a good one.', 'smirk', 'rook'],
@@ -1023,7 +1070,8 @@
         ['narr', 'The second wave hits. Nobody screams, though Rook comes close. They hold on to the table, to the nearest rail, to the nearest hand.'],
         ['rowan', "I'm not scared. I'm just holding on to Claret's sleeve very tightly.", 'worried'],
         ['claret', 'I can feel that. You are going to pull it off.', 'normal'],
-        ['narr', 'She does not move her arm. Neither do you. When the storm finally breaks, the sleeve is still there, a little crumpled, and nobody mentions it.'],
+        ['narr', 'She does not move her arm. Neither do you.'],
+        ['narr', 'When the storm finally breaks, the sleeve is still there, a little crumpled, and nobody mentions it.'],
         ['narr', 'Outside, the stars come back over the Ashen Road one at a time, like lanterns being lit by someone who has finally got the matches to work.'],
       ]);
     },
@@ -1042,7 +1090,8 @@
         ['rook', "Captain, I'm a thief. Not a riveter.", 'smirk'],
         ['claret', "You're a thief with two hands. Use them.", 'normal'],
         ['caspian', 'Please. Hand me the plate. I shall carry it like a shield, which I believe is its real purpose.', 'happy', 'caspian'],
-        ['narr', 'Caspian lifts a sheet of riveted iron onto one shoulder as if it were a loaf of bread, and sets it over the hole with a gentleness that stops Claret complaining for two whole seconds.'],
+        ['narr', 'Caspian lifts a sheet of riveted iron onto one shoulder as if it were a loaf of bread,'],
+        ['narr', 'and sets it over the hole with a gentleness that stops Claret complaining for two whole seconds.'],
         ['claret', "Hold it. Hold it, Caspian. Don't be nice to it. It'll get ideas.", 'normal'],
         ['narr', 'Rook pockets a bolt that is definitely not his and winks at no one in particular.', null, 'rook'],
         ['claret', 'Put that back.', 'normal'],
@@ -1055,13 +1104,16 @@
         ['wren', "It's a geranium. It is not a moonpetal. The moonpetal is for the bow. It needs a view.", 'normal'],
         ['claret', 'The geranium is not allowed in my engine. The engine is not a garden.', 'normal'],
         ['wren', 'Everything is a garden if you are patient enough. Your engine is already coughing like a hedge in June.', 'smirk'],
-        ['narr', 'Sera has climbed onto the hull with a pot of paint. She is writing a line of small lanterns along the new plate, one by one, each with the tilted flame the Lampwrights once painted on their doors.'],
+        ['narr', 'Sera has climbed onto the hull with a pot of paint.'],
+        ['narr', 'She is writing a line of small lanterns along the new plate, one by one,'],
+        ['narr', 'each with the tilted flame the Lampwrights once painted on their doors.'],
         ['rowan', "What are those?", 'normal'],
         ['seraphine', "Lanterns. Not the Order's kind. The sort you let go of, that go somewhere nobody owns.", 'happy'],
         ['claret', "They'll flake off in the first storm.", 'normal'],
         ['seraphine', "Then I'll paint them again. That's the nice thing about lanterns.", 'smirk'],
         ['caspian', 'I shall paint the one by the rivet. It is my favourite. It looks as if it is about to fall over, and does not care.', 'happy', 'caspian'],
-        ['narr', 'By the time the sun is low the hole is a patch, the patch is a plate, and the plate has a row of small bright lanterns running down the iron like the line of a hymn.'],
+        ['narr', 'By the time the sun is low the hole is a patch, the patch is a plate,'],
+        ['narr', 'and the plate has a row of small bright lanterns running down the iron like the line of a hymn.'],
         ['narr', 'Claret raps the plate with a spanner. It rings, low and sure, like a bell that has been told it is needed.'],
         ['claret', 'Fine. It is fine. We are fixed.', 'smirk'],
         ['rowan', "We're not fixed. We're fixed enough.", 'happy'],
@@ -1070,7 +1122,8 @@
         ['rook', "Right. Who's buying a drink? Not me. I'm skint. I'm borrowing the universe for the evening, though.", 'smirk', 'rook'],
         ['claret', "Nobody is buying anything. We go up the Spire in the morning. Eat something first.", 'normal'],
         ['caspian', 'Eat, then sleep. And tomorrow, we climb.', 'normal', 'caspian'],
-        ['narr', 'The crew sits along the hull in the last of the light, legs dangling, paint on their hands, while the Spire climbs into the dusk above them like a question with no ending yet.'],
+        ['narr', 'The crew sits along the hull in the last of the light, legs dangling, paint on their hands,'],
+        ['narr', 'while the Spire climbs into the dusk above them like a question with no ending yet.'],
       ]);
     },
   });
@@ -1096,7 +1149,8 @@
     run: async (c) => {
       await c.bgm('comic');
       await play(c, [
-        ['narr', 'The night before the Hearthstar. Every lantern the crew could find is strung through the Marigold\'s rigging, mismatched and warm. A table has been dragged up from the galley, with six cups on it.'],
+        ['narr', 'The night before the Hearthstar. Every lantern the crew could find is strung through the Marigold\'s rigging, mismatched and warm.'],
+        ['narr', 'A table has been dragged up from the galley, with six cups on it.'],
         ['narr', 'In the middle of the table stands a bottle of ember wine. Rook swears he did not steal it.'],
         ['rook', 'Acquired. Not stolen. There is a difference, and I am standing in it.', 'smirk'],
         ['claret', 'He took it off a bishop.', 'normal'],
