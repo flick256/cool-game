@@ -398,5 +398,129 @@
     c.bgm('spire');
   }
 
+  // ==================================================================
+  // MAP: spire_upper — the Hollow Queen's gallery: floating lights, the garden gate, Elowen
+  // ==================================================================
+  const up = G.maps.build('spire_upper', 36, 20, {
+    name: 'The Upper Gallery', bgm: 'sad', spawn: { x: 5, y: 10, dir: 'right' }, ground: 'g', interior: true, tint: 'rgba(12,10,30,0.22)',
+  });
+  up.border('objects', '9', 1);
+  up.rect('ground', 1, 1, 34, 18, 'g');
+  up.rect('ground', 2, 9, 23, 3, 'c');                         // the red carpet, lit by the floating lamps
+  up.hline('above', 2, 2, 32, '*');                            // a string of warm lanterns over the gallery
+  up.hline('above', 2, 17, 22, '*');
+  up.blob('ground', 8, 16, 5, 2, 'h').blob('ground', 22, 3, 4, 2, 'h').blob('ground', 15, 4, 2, 1, 'h');
+  up.vline('objects', 26, 1, 18, '9');                         // the wall of the garden
+  up.set('objects', 26, 10, ' ');                              // the one gap, where Elowen stands
+  up.rect('ground', 27, 1, 8, 18, '.');                        // the garden, unseen until Elowen falls aside
+  up.hline('objects', 6, 6, 4, 'Q').hline('objects', 6, 12, 4, 'Q');
+  up.set('objects', 13, 6, 'Q').set('objects', 13, 12, 'Q').set('objects', 19, 6, 'Q').set('objects', 19, 12, 'Q');
+  up.vline('objects', 3, 3, 3, 'P').vline('objects', 3, 14, 3, 'P');
+  up.set('objects', 22, 2, 'L').set('objects', 5, 2, 'L').set('objects', 22, 16, 'L').set('objects', 5, 16, 'L');
+  up.set('objects', 1, 9, 's').set('objects', 1, 11, 's');     // statues flanking the entry
+  up.set('objects', 30, 2, 'T').set('objects', 33, 2, 'T').set('objects', 30, 16, 'T').set('objects', 33, 16, 'T');
+  up.set('objects', 29, 9, 'o');                               // a fountain in the garden
+  up.set('objects', 3, 8, 'V').set('objects', 22, 17, 'V');    // banners of the Hearth Order
+  up.set('objects', 2, 1, 'u').set('objects', 4, 19, 'u');     // stairs to the Hearthstar, and back down
+  up.scatter('objects', 'F', 8, { seed: 21, avoid: [{ x: 1, y: 1, w: 25, h: 18 }] });
+  up.scatter('objects', 'B', 6, { seed: 22, avoid: [{ x: 1, y: 0, w: 25, h: 19 }] });
+  up.ev([
+    H.save('upper_save', 10, 10),
+    H.sign('upper_portrait', 14, 1, 'A portrait under a cracked gilt frame: a smiling woman with a lantern glowing in her chest. The plaque says only ELOWEN.'),
+    H.chest('upper_chest', 2, 4, 'ember_wine', 1),
+    H.transfer(2, 1, 'hearthstar_chamber', undefined, undefined, 'up', { id: 'upper_to_chamber', if: () => flag('ch5_elowen_done') }),
+    H.transfer(4, 19, 'spire_hall_2', 14, 2, 'down', { id: 'upper_to_hall2' }),
+    {
+      id: 'upper_stairs_block', x: 2, y: 2, w: 1, h: 1, sprite: null, trigger: 'touch', solid: false,
+      if: () => !flag('ch5_elowen_done'),
+      run: async (c) => {
+        await c.say(null, 'The stairs up to the Hearthstar are behind you, but the way is not open. Somewhere past the garden gate, a voice is singing softly.');
+      },
+    },
+    {
+      id: 'elowen_gate', x: 26, y: 10, sprite: 'elowen', trigger: 'action', solid: true, dir: 'left', move: 'still',
+      if: () => !flag('ch5_elowen_done'),
+      run: async (c) => { await elowenEncounter(c); },
+    },
+  ]);
+  up.encounters({ steps: [30, 44], troops: [{ id: 'spire_5', weight: 1 }] });
+  up.finish();
+
+  // Companion chip-ins used across the Elowen scenes
+  const ELOWEN_CHIP = {
+    caspian: ['Ma\'am. I served a Warden who would have made you a footnote. I\'m sorry for his ledger.', 'Lady Elowen, I still see the Order in my dreams. I hope you don\'t.', 'Elowen. Your garden is still here, under all the ash. I can see the roses.'],
+    seraphine: ['She is humming the Hearth hymn, but backwards. Hymns sung backwards are a sort of prayer, I think.', 'Lady Elowen, I\'ll sing with you if you want. I\'m not good at it. You may need to be patient.', 'Elowen. I can hear you. Your song has a new verse, and it\'s yours.'],
+    wren: ['The garden fox keeps looking at her. Foxes know when a person is halfway gone.', 'Lady. The moths are circling you. They\'d like to leave the light a little longer. So would I.', 'Elowen. The seeds in your hair are sprouting. That usually means somebody is still listening.'],
+  };
+
+  // Hollow Elowen: intro (once), the boss fight, and the mother-and-child outro.
+  async function elowenEncounter(c) {
+    if (!flag('ch5_elowen_met')) {
+      G.setFlag('ch5_elowen_met');
+      c.bgm('sad');
+      await c.narrate('A woman stands in the gap of the garden wall. Her dress is made of lamplight and ash. Where a heart should be, there is only one small ember, and a hairline thread of gold that seems to lean toward {name}.');
+      await c.say('Elowen', 'The garden is closed. It has been closed since the lamps went out. Go back down, little lights.', { face: 'elowen', expr: 'sad' });
+      await c.say('Claret', 'We just want through, ma\'am. Nobody has to get hurt.', { face: 'claret', expr: 'worried' });
+      await c.say('Elowen', 'Everyone who wants through has a wick they are willing to give. Yours are so bright. I can feel them from here.', { face: 'elowen', expr: 'normal' });
+      const i = await c.choice(['"Please. Let us pass."', '"Who are you?"', '"I\'m sorry you were alone up here."'], { prompt: 'Rowan steps forward.' });
+      if (i === 1) await c.say('Elowen', 'Someone who used to be called by name. I\'ve forgotten the name. I haven\'t forgotten the garden.', { face: 'elowen', expr: 'sad' });
+      if (i === 2) await c.say('Elowen', 'Alone. Yes. That is the kindest word anyone has said in this tower. Let me keep it, and give you the fight.', { face: 'elowen', expr: 'smirk' });
+      await c.say('Elowen', 'Then I will keep you in the garden, the way I kept everything else.', { face: 'elowen', expr: 'angry' });
+    }
+    const result = await c.battle('boss_elowen', {
+      canEscape: false, bgm: 'boss', loseOk: true,
+      intro: async (c2) => { await companionsSay(c2, { caspian: ['Steady. We fight her without hurting her. That\'s the whole trick.'], seraphine: ['Sing with me when you can. Her hymn has a hole in it. We can fill it.'] }); },
+      onHalf: async (c2) => {
+        c2.sfx('light');
+        c2.flash('#fff6c8', 24);
+        await c2.say(G.name(), 'Elowen. Look. This is warm. Can you feel it?', { face: 'rowan', expr: 'worried' });
+        await c2.say('Elowen', 'Warm... that is not... who taught you to be warm?', { face: 'elowen', expr: 'surprised' });
+        await c2.say(null, 'The ember in her chest flickers, and the hairline gold thread flares toward {name} like a drawn breath.');
+      },
+      outro: async (c2) => { await c2.wait(30); },
+    });
+    if (result !== 'win') return;
+    await elowenOutro(c);
+  }
+
+  // The quiet, devastating scene: Elowen returns to herself for a moment.
+  async function elowenOutro(c) {
+    c.bgm('sad');
+    c.sfx('heart');
+    await c.fade('out', 50, '#fff8e0');
+    await c.wait(20);
+    await c.fade('in', 80, '#fff8e0');
+    await c.narrate('The ash falls out of her hair like snow. For a moment, the woman in the garden gate is only tired, and only herself.');
+    await c.say('Elowen', 'Oh. Oh, you\'re warm. Warmer than the lamps ever were. Why are you so warm?', { face: 'elowen', expr: 'surprised' });
+    await c.say(G.name(), 'I\'m... I don\'t know. Ma\'am, are you...', { face: 'rowan', expr: 'worried' });
+    const pick = await c.choice(['"Are you my mother?"', '"Why did you leave me?"', '"It\'s okay. I\'m here now."'], { prompt: 'What do you ask?' });
+    await c.say('Elowen', 'I am the one who made you a cradle, and the one who gave away the light to close the door on you. I am so sorry. I did not know a child could be so heavy with warmth.', { face: 'elowen', expr: 'sad' });
+    if (pick === 1) await c.say(G.name(), 'You didn\'t leave me. You put me somewhere safe. I can hear it in your voice.', { face: 'rowan', expr: 'sad' });
+    if (pick === 2) await c.say(G.name(), 'I\'m here now. The lamps are cold, but I brought a warm one. I did. I think.', { face: 'rowan', expr: 'happy' });
+    await c.say('Elowen', 'Your wick is not missing, love. It was never a wick. It is the Heart. The Hearthstar is only a mirror of it. I hid it inside you so the Warden could not burn it for the Quiet.', { face: 'elowen', expr: 'normal' });
+    await c.say(G.name(), 'So the lamps... every lamp in Auren has been drinking from me. Is that right?', { face: 'rowan', expr: 'worried' });
+    await c.say('Elowen', 'Yes. But here is the thing, and listen to me, because I have so little time. Warmth is not spent. It is shared.', { face: 'elowen', expr: 'happy' });
+    await c.say('Elowen', 'Ignatius believes love is fuel that burns people out. He is wrong. He is only lonely, and I left him to be lonely in a house full of lamps.', { face: 'elowen', expr: 'sad' });
+    await companionsSay(c, {
+      seraphine: ['Lady Elowen, your hymn was never wrong. Only unfinished. I\'m so glad to hear the last verse.', 'Lady, your hymn is finished now. Thank you for singing it, even this quietly.', 'Oh. Oh, Elowen. Thank you for the last verse.'],
+      wren: ['She\'s fading like a good candle. Good candles don\'t go out angry, they go out tired.', 'Lady, you\'re going to be warm now. I can tell by the fox. He\'s sitting down.', 'Elowen. Go on. The garden will be fine. Foxes always know where to sit.'],
+    });
+    await c.say('Elowen', 'Tell Ignatius that I still remember the garden. Tell him I am not angry. Tell him I\'m sorry I made him wait. Go up. Give the Heart away, not to him. To everyone.', { face: 'elowen', expr: 'happy' });
+    await c.say(G.name(), 'I will. I promise. Thank you, Mother.', { face: 'rowan', expr: 'happy' });
+    await c.say('Elowen', 'Mm. That word hurts a little. In the good way.', { face: 'elowen', expr: 'smirk' });
+    c.emote('elowen_gate', 'heart');
+    await c.fade('out', 60, '#fff8e0');
+    await c.wait(30);
+    G.setFlag('ch5_elowen_done');
+    G.setFlag('ch5_done');
+    await c.showNpc('elowen_gate', false);
+    c.chapter(5);
+    await c.fade('in', 60, '#fff8e0');
+    await c.say('Claret', 'Rowan. Your face. Are you going to be sick?', { face: 'claret', expr: 'worried' });
+    await c.say(G.name(), 'No. I\'m going to be brave. Let\'s go, Claret.', { face: 'rowan', expr: 'happy' });
+    await c.say('Claret', 'Good. Then let\'s go and say something to the Warden he\'ll never forget.', { face: 'claret', expr: 'smirk' });
+    await c.toast('Hollow Elowen is gone. The Hearthstar stairs are open.', 'good');
+  }
+
   // @@NEXT@@
 })();

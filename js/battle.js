@@ -350,6 +350,7 @@
     }
     if (action.kind === 'defend') {
       a.defending = true; a.defendNext = true;
+      if (a.side === 'party') a.bp = Math.min(MAX_BP, a.bp + 1);
       emit(ctx, out, { type: 'defend', unit: a });
       return out;
     }
@@ -1414,8 +1415,6 @@
       if (this.banner) { this.banner.t++; if (this.banner.t >= this.banner.life) this.banner = null; }
       if (this.big) { this.big.t++; if (this.big.t >= this.big.life) this.big = null; }
     }
-  }
-  const ELEMENT_FX = { fire: 'fire', ice: 'ice', lightning: 'lightning', wind: 'wind', light: 'light', dark: 'dark' };
 
     // Process input for the active request. Called from update().
     handleInput() {
@@ -1522,8 +1521,24 @@
       }
     }
   }
+  const ELEMENT_FX = { fire: 'fire', ice: 'ice', lightning: 'lightning', wind: 'wind', light: 'light', dark: 'dark' };
   G.battle._BattleScene = BattleScene;
 
-  // @@NEXT@@
-  G.provide && G.provide('battle_logic');
+  // ---------------------------------------------------------------- registration & script command
+  G.scenes.register('battle', (params) => new BattleScene(params));
+
+  // c.battle(troopId, opts) -> Promise<'win'|'lose'|'escape'>
+  function battleCommand(troopId, opts) {
+    opts = opts || {};
+    return new Promise((resolve) => {
+      G.scenes.push('battle', {
+        troop: troopId, canEscape: opts.canEscape !== false, bg: opts.bg, bgm: opts.bgm, loseOk: !!opts.loseOk,
+        intro: opts.intro, onHalf: opts.onHalf, outro: opts.outro, onEnd: (r) => resolve(r),
+      });
+    });
+  }
+  G.battle.command = battleCommand;
+  if (G.script && G.script.define) G.script.define('battle', battleCommand);
+
+  G.provide && G.provide('battle');
 })();

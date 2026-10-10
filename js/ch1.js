@@ -506,3 +506,174 @@
     return m.finish({ onEnter: null });
   }
   buildMossgrave();
+
+  // ============================================================ MAP 4 — Brasshaven (steampunk harbor city)
+  function buildBrasshaven() {
+    const m = G.maps.build('brasshaven', 44, 34, {
+      name: 'Brasshaven', bgm: 'brasshaven', ground: '=', spawn: { x: 21, y: 21, dir: 'up' },
+    });
+    // ---- harbour: water to the south, pier, quay of cobble and grating
+    m.rect('ground', 0, 26, 44, 8, '~');
+    m.rect('ground', 0, 20, 44, 6, '=');
+    m.rect('ground', 0, 20, 9, 6, 'm');                        // grating by the docks
+    m.rect('ground', 35, 20, 9, 6, 'm');
+    m.rect('ground', 19, 24, 4, 4, 'b');                       // pier into the water
+    m.rect('ground', 2, 12, 36, 3, '=');                       // east-west street
+    m.rect('ground', 19, 5, 4, 16, '=');                       // main avenue
+    m.rect('ground', 3, 1, 3, 5, 'm');                         // cistern grating (secret)
+    m.set('ground', 5, 6, 'm');
+    m.blob('ground', 39, 4, 3, 2, 'm');
+    // ---- buildings
+    m.house(6, 4, 8, 6, { roof: '6', wall: '7', doorAt: 3 });            // The Brass Kettle inn (door 9,9)
+    m.house(28, 5, 8, 7, { roof: '6', wall: '7', doorAt: 3 });           // Claret's workshop (door 31,11)
+    m.house(9, 15, 6, 5, { roof: '4', wall: '7', doorAt: 2 });           // Sprocket & Sons (door 11,19)
+    m.house(30, 15, 6, 5, { roof: '6', wall: '7', doorAt: 2 });          // Hobbs' smithy (door 32,19)
+    m.house(14, 6, 6, 5, { roof: '5', wall: '7', doorAt: 2 });           // Pipe & Pint tavern (door 16,10)
+    m.house(2, 6, 6, 5, { roof: '6', wall: '7', doorAt: 3 });            // Gerrit's workshop (door 5,10)
+    m.house(38, 2, 4, 9, { roof: '6', wall: '7', doorAt: 1 });           // clock tower (door 39,10)
+    m.house(19, 1, 6, 4, { roof: '2', wall: 'W', doorAt: 2 });           // Order lamp office (door 21,4)
+    // ---- steam-punk dressing
+    m.vline('objects', 27, 5, 7, 'P');                         // pipes down the workshop flank
+    m.vline('objects', 15, 15, 5, 'P');
+    m.hline('objects', 36, 12, 2, 'P');
+    m.tiles('objects', [[26, 8], [26, 9]], 'J');              // boilers
+    m.tiles('objects', [[1, 16], [1, 17]], 'J');
+    m.tiles('objects', [[24, 17], [25, 17]], 'M');            // machine
+    m.tiles('objects', [[36, 17], [37, 17]], 'e');            // gears
+    m.tiles('objects', [[40, 13], [41, 15]], 'e');
+    m.tiles('objects', [[12, 21], [13, 21]], 'C');            // crates on the quay
+    m.tiles('objects', [[38, 22], [39, 22]], 'U');
+    m.tiles('objects', [[6, 22], [7, 23]], 'C');
+    m.tiles('objects', [[14, 13], [14, 14]], 'U');
+    m.tiles('objects', [[44 - 1, 19]], 'R');
+    m.set('objects', 17, 5, 'L').set('objects', 24, 5, 'L').set('objects', 18, 11, 'L').set('objects', 25, 11, 'L');
+    m.set('objects', 35, 11, 'L').set('objects', 12, 12, 'L');
+    m.tiles('objects', [[33, 25]], 'R');
+    m.tiles('objects', [[22, 14]], 'H');
+    m.tiles('objects', [[26, 19]], 'U');
+    m.tiles('above', [[20, 3], [21, 3]], '*');
+    m.hline('above', 9, 11, 3, '#');
+    m.hline('above', 28, 11, 4, '*');
+    // ---- Order gate & patrol route
+    m.set('objects', 20, 22, ' ');
+    m.set('above', 21, 21, '@');
+    // ---- portals & points of interest
+    m.ev([
+      H.transfer(9, 9, 'brasshaven_inn', 6, 8, 'up', { id: 'bh_inn_door' }),
+      H.transfer(31, 11, 'brasshaven_workshop', 6, 9, 'up', { id: 'bh_workshop_door' }),
+      H.shipPad(21, 20, { id: 'bh_ship_pad' }),
+      H.shop('bh_shop', 10, 20, 'merchant', 'brasshaven_shop', 'Gears, grease, and sandwiches you do not want to ask about. Five coins a cog.', 'Mabel Sprocket'),
+      H.shop('bh_smith', 33, 20, 'engineer', 'brasshaven_smith', 'Swords, spanners and strong opinions. Nothing comes without a warranty and a sigh.', 'Hobbs Anvilhand'),
+      H.sign('bh_sign_main', 22, 11, 'BRASSHAVEN\nSteam powers the city. The city pays the Order. The Order thanks the city.'),
+      H.sign('bh_sign_quay', 18, 19, 'THE QUAY\nNo loitering. No brooding. No wickless youths.'),
+      H.sign('bh_sign_clock', 37, 11, 'Clock Tower. Its face has not told the right time since the lamps were installed.'),
+    ]);
+    m.ev(H.chest('bh_quay', 40, 22, { gold: 90 }));
+    m.ev(H.chest('bh_cistern', 4, 3, 'potion', 2));
+    m.ev(H.chest('bh_secret', 41, 16, 'ribbon', 1));
+
+    // ---- the Order (patrolling guards, wickless-youth hunt)
+    m.ev([
+      H.npc('bh_guard_gate', 21, 5, 'guard', [
+        "Halt, citizen. Papers? Lamp papers. Everybody needs their lamp papers.",
+        "We are looking for a youth with no wick. Pale, scruffy, probably lying about it. Report sightings to the Order.",
+        "The Order thanks you for your warmth. Please keep it at a respectable temperature.",
+      ], { name: 'Order Guard Hask', move: 'still' }),
+      H.npc('bh_guard_patrol', 26, 13, 'guard', [
+        "Nothing to see here. Keep moving. Stay warm, stay quiet, stay on the cobbles.",
+        "Hm, you there. Your coat is very... red. Is that a Hollow thing? No? Good. Carry on, then.",
+      ], { name: 'Order Guard Pell', move: 'wander' }),
+      H.npc('bh_guard_quay', 30, 22, 'guard', [
+        "Quay's clear, sir. No dock smugglers today. The smugglers went to a better tavern. Lucky them.",
+      ], { name: 'Order Guard Dunk', move: 'wander' }),
+    ]);
+
+    // ---- citizens (tired, cold, brass-tongued)
+    m.ev([
+      H.npc('bh_joss', 19, 22, 'sailor', [
+        "Old Joss, dock foreman. Don't mind the spit. I've been spitting at the sea since before your mum had teeth.",
+        "The Marigold came in on a fog bank last spring with her belly full of holes. Claret's been patching her since.",
+        "Not a soul in Brasshaven feels truly warm, you know. The lamps take their share. They say it's for the greater good.",
+      ], { name: 'Joss' }),
+      H.npc('bh_tilly', 23, 15, 'child1', [
+        "My dad says the boilers keep us warm. I don't feel warm. I feel like a cold potato in a warm pan.",
+        "Don't tell Mum I said that. She's tired already. Everybody's tired.",
+      ], { name: 'Tilly' }),
+      H.npc('bh_nessa', 34, 11, 'child2', [
+        "Clockwork mouse, look! He squeaks when the gears are warm. He's been silent for three days. I think he's sad.",
+      ], { name: 'Nessa' }),
+      H.npc('bh_tired', 13, 18, 'villager_f1', [
+        "I work the night shift at the boilers. The lamps say I'm the lucky one because I'm still warm. I'm not, though. I'm just awake.",
+      ], { name: 'Dorrit' }),
+      H.npc('bh_tobin', 25, 21, 'villager_m1', [
+        "A stoker has warm hands and a cold heart, lad. That's the trade. The boiler eats the coal, the coal eats the lamp, the lamp eats the rest.",
+        "Hm. That came out more poetic than I meant. I'm going to have a pint.",
+      ], { name: 'Tobin the Stoker' }),
+      H.npc('bh_lady', 38, 19, 'noble', [
+        "I had my roof copper-plated this spring. Quite the fashion. It has done nothing for my moods, but it does match my gloves.",
+      ], { name: 'Lady Pemberly' }),
+      H.npc('bh_cat', 8, 14, 'cat', [
+        "The cat is perched on a warm pipe, judging you for being out of breath. Sensible creature.",
+      ], { name: null }),
+      H.npc('bh_dog', 18, 25, 'dog', [
+        "A stray dog wags at you and then gently sits on your foot. You feel very slightly more loved.",
+      ], { name: null }),
+      H.npc('bh_pinta', 17, 9, 'villager_f2', [
+        "Ever been in the Pipe & Pint? No? Well, they've got a bard in there who sings the Hearth Order's anthem. Very dull. Gets the bitter ones in trouble.",
+      ], { name: 'Pinta' }),
+    ]);
+
+    // ---- Gerrit the gear-collector (sidequest: wild honey -> brass cog for Claret)
+    m.ev([{
+      id: 'bh_gerrit', x: 5, y: 11, sprite: 'engineer', trigger: 'action', solid: true, dir: 'up', name: 'Gerrit Cogsworth',
+      run: async (c) => {
+        if (G.flag('ch1_gerrit_done')) {
+          await who(c, 'Gerrit Cogsworth', 'unknown', "Oh, the honey was marvellous! My bee-powered gearbox has never been so sweet. And the cog is a beauty.", 'happy');
+          return;
+        }
+        if (!G.flag('ch1_gerrit_asked')) {
+          G.setFlag('ch1_gerrit_asked', true);
+          await who(c, 'Gerrit Cogsworth', 'unknown', "Ah! A visitor who isn't a tax collector! I collect brass cogs. Every one is a piece of a clock that tells the time for everyone's wick.", 'happy');
+          await who(c, 'Gerrit Cogsworth', 'unknown', "Bring me a jar of wild honey from the Mossgrave bee tree. My gearbox runs on it. Thick, sticky, honest. Bring it and I'll give you a cog.", 'normal');
+          await me(c, "A cog for honey? That's a fair trade.", 'smirk');
+          return;
+        }
+        if (c.hasItem && (await c.hasItem('wild_honey')) > 0) {
+          await c.removeItem('wild_honey', 1);
+          G.setFlag('ch1_gerrit_done', true);
+          await who(c, 'Gerrit Cogsworth', 'unknown', "WILD HONEY! Oh, you beauty. Here, take a brass cog for your girl. Miss Vane prizes them, I hear. She'll like it, if she doesn't throw it.", 'happy');
+          c.sfx('coin');
+          c.addItem('brass_cog', 1);
+          return;
+        }
+        await who(c, 'Gerrit Cogsworth', 'unknown', "Still hunting for wild honey? The bee tree in Mossgrave is grumpy, but the honey is worth the stings.", 'normal');
+      },
+    }]);
+
+    // ---- hidden secret: the grating in the cistern alley reveals a drain with a chest (secret)
+    m.ev([{
+      id: 'bh_grate', x: 5, y: 7, sprite: null, trigger: 'action', solid: false,
+      run: async (c) => { await nar(c, 'A rusty grate, warm under your palm. Something below is humming a little tune, out of time with the city.'); },
+    }]);
+
+    // ---- arrival: the compass guides you to the workshop, the city notices you
+    m.ev(H.auto('bh_arrive', async (c) => {
+      G.setFlag('ch1_started', true);
+      c.chapter(1);
+      c.bgm('brasshaven');
+      c.titleCard('Brasshaven', 'Steam, brass & cold coins', 130);
+      await c.wait(40);
+      await nar(c, 'The city is all copper roofs and steam. Boilers hiss in every alley. Warm air rolls off the water, and somehow it still feels cold.');
+      await me(c, 'Maren said the compass would lead me to a workshop. It\'s pointing... up the avenue, toward the big sign with the wheel.', 'normal');
+      c.sfx('footstep_grass');
+      await c.wait(30);
+      await nar(c, 'Two Order guards at the gate look up from their clipboards. One of them has the tired eyes of someone who did not ask to be here.');
+      await who(c, 'Order Guard Hask', 'unknown', 'Lamp papers, citizen. Oh. No, wait. You don\'t look like a lamp person.', 'normal');
+      await me(c, 'I\'m a lamp person! Look, here\'s my lamp. Lit. Very bright.', 'worried');
+      await nar(c, 'Hask squints at your face, then at the compass. The compass hums. Hask shudders as if a fly crawled up their sleeve, and waves you on.');
+      await who(c, 'Order Guard Hask', 'unknown', 'Move along. Don\'t hang about the gate, it makes the Order nervous. Everything makes the Order nervous.', 'normal');
+    }, { once: true }));
+
+    return m.finish({ onEnter: null });
+  }
+  buildBrasshaven();
