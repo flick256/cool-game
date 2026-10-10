@@ -75,31 +75,11 @@
   // Each painter: (c, r, v) where c is 32x32 ctx, r = rng, v = variant int
   const PAINT = {};
 
-  PAINT.grass = function (c, r) {
-    rect(c, 0, 0, T, T, P_.grass[0]);
-    dither(c, r, 0, 0, T, T, P_.grass[2], 0.35);
-    speckle(c, r, 0, 0, T, T, P_.grass[1], 70);
-    speckle(c, r, 0, 0, T, T, P_.grassLt, 14);
-    speckle(c, r, 0, 0, T, T, P_.grassDk, 18);
-    // little blade ticks
-    for (let i = 0; i < 9; i++) { const x = Math.floor(r() * 30) + 1, y = Math.floor(r() * 30) + 1; px(c, x, y, P_.grassDk); px(c, x, y - 1, P_.grassLt); }
-  };
-  PAINT.grass_flower = function (c, r) {
-    PAINT.grass(c, r);
-    const cols = ['#fff6c8', '#ffe066', '#ffffff', '#ffb3c6'];
-    for (let i = 0; i < 6; i++) {
-      const x = 3 + Math.floor(r() * 26), y = 3 + Math.floor(r() * 26), col = cols[Math.floor(r() * cols.length)];
-      px(c, x, y, col); px(c, x + 1, y, '#e0a030'); px(c, x, y + 1, '#3f7f35'); px(c, x - 1, y, col); px(c, x, y - 1, col);
-    }
-  };
-  PAINT.moss = function (c, r) {
-    rect(c, 0, 0, T, T, P_.moss[0]);
-    dither(c, r, 0, 0, T, T, P_.moss[2], 0.5);
-    speckle(c, r, 0, 0, T, T, P_.moss[1], 60);
-    speckle(c, r, 0, 0, T, T, P_.mossDk, 40);
-    // ivy wisps
-    for (let i = 0; i < 4; i++) { const x = Math.floor(r() * 28), y = Math.floor(r() * 28); rect(c, x, y, 3, 1, '#6e9440'); px(c, x + 1, y + 1, '#6e9440'); }
-  };
+  // grass / moss / flowers are painted per pixel from WORLD coordinates (see "WORLD-SPACE GROUND" below):
+  // no repeating tile pattern and no seams between neighbours.
+  PAINT.grass = function (c) { putBuf(c, pixelBuf(0, 0, grassPx)); };
+  PAINT.grass_flower = function (c) { const b = pixelBuf(0, 0, grassPx); flowersOn(b, 0, 0); putBuf(c, b); };
+  PAINT.moss = function (c) { putBuf(c, pixelBuf(0, 0, mossPx)); };
   PAINT.dirt = function (c, r) {
     rect(c, 0, 0, T, T, P_.dirt[0]);
     dither(c, r, 0, 0, T, T, P_.dirt[2], 0.4);
@@ -275,7 +255,7 @@
       px(c, 27, y + 3, P_.brassLt); px(c, 27, y + 4, P_.brass[2]);
     }
   };
-  PAINT.void = function (c) { rect(c, 0, 0, T, T, '#05040a'); };
+  PAINT.void = function (c) { putBuf(c, pixelBuf(0, 0, voidPx)); };
   // ------------------------------------------------------------------ roofs (shingles, period 8 so blocks tile)
   // palette per roof: base, light, dark, moss-tint
   const ROOFS = {
@@ -1390,7 +1370,302 @@
   G.gfx.drawEmote = drawEmote;
   G.gfx.EMOTE_LEN = EMOTE_LEN;
 
+  // ================================================================== WORLD-SPACE GROUND
+  // Used by map.js when it pre-renders a chunk (cached per chunk, never per frame):
+  //   G.gfx.paintGround(g, def, tx, ty, px, py, ch)  one ground tile (base + edge blends) into the chunk canvas
+  //   G.gfx.paintShadows(g, def, tx0, ty0, tw, th)    object shadows for a chunk, drawn after all its ground
+  //   G.gfx.drawShore(ctx, def, tx, ty, sx, sy, frame) live foam on an animated water tile (cached blits)
+  // Grass/moss/void are painted per pixel from WORLD coordinates, so they never repeat or seam.
+  // Blends are written into a 32x32 pixel buffer per tile (one putImageData per tile).
+
+  // deterministic world-space hash -> [0,1) and smooth value noise -> [0,1)
+  function wh(x, y, s) {
+    let h = Math.imul((x | 0) ^ Math.imul(s | 0, 0x9E3779B1), 0x85EBCA6B) ^ Math.imul((y | 0) + Math.imul(s | 0, 31), 0xC2B2AE35);
+    h ^= h >>> 15; h = Math.imul(h, 0x2C1B3C6D); h ^= h >>> 12; h = Math.imul(h, 0x297A2D39); h ^= h >>> 15;
+    return (h >>> 0) / 4294967296;
+  }
+  function vnoise(x, y, s) {
+    const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+    const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+    const a = wh(xi, yi, s), b = wh(xi + 1, yi, s), c = wh(xi, yi + 1, s), d = wh(xi + 1, yi + 1, s);
+    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+  }
+  // 32x32 RGBA buffer filled per pixel; fn(worldX, worldY, out[3])
+  function pixelBuf(tx, ty, fn) {
+    const buf = new Uint8ClampedArray(T * T * 4), o = [0, 0, 0];
+    for (let j = 0; j < T; j++) for (let i = 0; i < T; i++) {
+      fn(tx * T + i, ty * T + j, o);
+      const k = (j * T + i) << 2;
+      buf[k] = o[0]; buf[k + 1] = o[1]; buf[k + 2] = o[2]; buf[k + 3] = 255;
+    }
+    return buf;
+  }
+  function putBuf(c, buf) { c.putImageData(new ImageData(buf, T, T), 0, 0); }
+  function pset(buf, k, c) { buf[k] = c[0]; buf[k + 1] = c[1]; buf[k + 2] = c[2]; buf[k + 3] = 255; }
+  // raw pixels of a painted (non-procedural-per-pixel) tile, cached per char
+  const tileRaw = new Map();
+  function tileBuf(ch) {
+    let b = tileRaw.get(ch);
+    if (!b) { const s = mk(T, T).getContext('2d'); s.drawImage(tileFor(ch, 0), 0, 0); b = s.getImageData(0, 0, T, T).data; tileRaw.set(ch, b); }
+    return b;
+  }
+
+  const GR = { base: hex2rgb('#5fa84a'), lt: hex2rgb('#6fb856'), dk: hex2rgb('#4f9a3e'), hiL: hex2rgb('#9ad46e'), hiD: hex2rgb('#3f7f35') };
+  const MO = { base: hex2rgb('#4d6b33'), lt: hex2rgb('#5a7a3a'), dk: hex2rgb('#3e5a2a'), ivy: hex2rgb('#6e9440'), ivyD: hex2rgb('#3f6a32'), leaf: hex2rgb('#86b054'), hiL: hex2rgb('#6e8a48'), hiD: hex2rgb('#2f4520') };
+  const FLOWERS = ['#fff6c8', '#ffe066', '#ffffff', '#ffb3c6', '#c9a7ff'].map(hex2rgb);
+  const FL_CORE = hex2rgb('#e0a030'), FL_STEM = hex2rgb('#3f7f35'), VIOLET = hex2rgb('#7a4fd0');
+
+  // two-tone grass: macro patches, speckle, and tufts of two blades per 5x5 world cell (cell-aligned => seamless)
+  function grassPx(x, y, o) {
+    const n = vnoise(x / 6.5, y / 6.5, 1);
+    let c = n > 0.64 ? GR.lt : n < 0.36 ? GR.dk : GR.base;
+    if (n > 0.6 && n <= 0.64 && wh(x, y, 3) < 0.5) c = GR.base;       // dithered patch edges
+    else if (n >= 0.36 && n < 0.4 && wh(x, y, 3) < 0.5) c = GR.dk;
+    const s = wh(x, y, 2);
+    if (s < 0.045) c = GR.hiD; else if (s > 0.975) c = GR.hiL;
+    const cx = Math.floor(x / 5), cy = Math.floor(y / 5);
+    if (wh(cx, cy, 4) < 0.45) {
+      for (let k = 0; k < 2; k++) {
+        const bx = cx * 5 + Math.floor(wh(cx, cy, 10 + k) * 5), by = cy * 5 + 1 + Math.floor(wh(cx, cy, 20 + k) * 4);
+        if (x === bx && (y === by || y === by - 1)) c = y === by - 1 ? GR.hiL : GR.hiD;
+      }
+    }
+    o[0] = c[0]; o[1] = c[1]; o[2] = c[2];
+  }
+  // overgrown moss: olive mats, thin ivy runners with leaves, darker ivy patches
+  function mossPx(x, y, o) {
+    const n = vnoise(x / 5, y / 5, 5);
+    let c = n > 0.66 ? MO.lt : n < 0.34 ? MO.dk : MO.base;
+    const p = vnoise(x / 9, y / 9, 11);
+    if (p > 0.7 && (p > 0.745 || wh(x, y, 12) < 0.5)) c = MO.ivyD;
+    const iv = vnoise(x / 3, y / 2.2, 7);
+    if (Math.abs(iv - 0.5) < 0.035) c = MO.ivy;
+    if ((c === MO.ivy || c === MO.ivyD) && wh(x >> 1, y >> 1, 9) < 0.3) c = MO.leaf;
+    const s = wh(x, y, 2);
+    if (s < 0.05) c = MO.hiD; else if (s > 0.97) c = MO.hiL;
+    o[0] = c[0]; o[1] = c[1]; o[2] = c[2];
+  }
+  // night sky for the void tile: deep blue, soft cloud banks, sparse stars
+  function voidPx(x, y, o) {
+    const cl = vnoise(x / 40, y / 28, 21) * 0.7 + vnoise(x / 11, y / 8, 23) * 0.3;
+    const k = Math.max(0, cl - 0.45);
+    o[0] = 9 + k * 46; o[1] = 13 + k * 50; o[2] = 38 + k * 84;
+    const s = wh(x, y, 31);
+    if (s > 0.9978) {
+      const b = 0.5 + 0.5 * wh(x, y, 32);
+      o[0] = 120 + 120 * b; o[1] = 128 + 110 * b; o[2] = 180 + 75 * b;
+      if (s > 0.9995) { o[0] = 255; o[1] = 255; o[2] = 255; }
+    }
+  }
+  // small flowers scattered on a ',' tile (per tile, kept inside the tile so nothing seams)
+  function flowersOn(buf, tx, ty) {
+    const n = 5 + Math.floor(wh(tx, ty, 41) * 4);
+    for (let i = 0; i < n; i++) {
+      const x = 3 + Math.floor(wh(tx, ty, 50 + i) * 24), y = 3 + Math.floor(wh(tx, ty, 80 + i) * 24);
+      const col = FLOWERS[Math.floor(wh(tx, ty, 110 + i) * FLOWERS.length)];
+      pset(buf, (y * T + x) << 2, FL_CORE);
+      pset(buf, (y * T + x - 1) << 2, col); pset(buf, (y * T + x + 1) << 2, col);
+      pset(buf, ((y - 1) * T + x) << 2, col); pset(buf, ((y + 1) * T + x) << 2, FL_STEM);
+    }
+  }
+
+  // ground kinds. rank: a higher-rank kind spills its colour over its lower-rank neighbours.
+  // style 'r' = ragged natural edge (2-4px), 's' = straight built edge (2px).
+  const KIND = {};
+  function kindDef(chars, k, rank, style, pal, bank) {
+    const rgb = pal.map(hex2rgb);
+    const def = { k, rank, style, pal: rgb, rim: hex2rgb(shade(pal[0], -0.32)), bank: hex2rgb(bank) };
+    for (const ch of chars) KIND[ch] = def;
+  }
+  kindDef('.,', 'grass', 5, 'r', ['#5fa84a', '#4f9a3e', '#6fb856'], '#33502c');
+  kindDef('v', 'moss', 6, 'r', ['#4d6b33', '#3e5a2a', '#5a7a3a'], '#243a1e');
+  kindDef('_', 'sand', 7, 'r', P_.sand, '#a88a55');
+  kindDef('h', 'hollow', 9, 'r', ['#2a1f3a', '#352848', '#1d1528'], '#120c1c');
+  kindDef('y', 'ash', 3, 'r', P_.ash, '#4a4950');
+  kindDef('a', 'arena', 4, 's', P_.arena, '#a88550');
+  kindDef(':', 'dirt', 2, 'r', P_.dirt, '#5a3f24');
+  kindDef('=l', 'cobble', 2, 's', P_.cobble, '#4e4d55');
+  kindDef('t', 'stone', 2, 's', P_.stone, '#6f6e78');
+  kindDef('g', 'marble', 2, 's', P_.marble, '#b9aa86');
+  kindDef('m', 'metal', 2, 's', P_.iron, '#2a2d36');
+  kindDef('f', 'wood', 1, 's', P_.woodFloor, '#4a2d18');
+  kindDef('j', 'deck', 1, 's', P_.deck, '#4a2d18');
+  kindDef('k', 'cave', 1, 'r', P_.cave, '#2c2b3a');
+  kindDef('b', 'bridge', 1, 's', P_.woodFloor, '#2a1e14');
+  kindDef('c', 'carpet', 4, 's', P_.carpet, '#5a1620');
+  const WET = { '~': 1, 'w': 1 };
+
+  // buffer index of depth d (0 = the tile's edge) at offset p along a side (N E S W)
+  function sideIdx(side, p, d) {
+    const x = side === 'W' ? d : side === 'E' ? T - 1 - d : p;
+    const y = side === 'N' ? d : side === 'S' ? T - 1 - d : p;
+    return (y * T + x) << 2;
+  }
+  function alongOf(side, tx, ty, p) { return (side === 'N' || side === 'S') ? tx * T + p : ty * T + p; }
+  function edgeDepth(style, along) {
+    if (style === 's') return 2;
+    return 2 + Math.floor(vnoise(along / 3.2, 0.5, 13) * 2.99);       // 2..4 px, varies smoothly along the world edge
+  }
+  function spillSide(buf, nk, kd, side, tx, ty) {
+    for (let p = 0; p < T; p++) {
+      const a = alongOf(side, tx, ty, p), D = edgeDepth(nk.style, a);
+      for (let d = 0; d < D; d++) {
+        if (d === D - 1 && wh(a, d, 5) < 0.45) continue;                 // dithered last row = ragged
+        let c = nk.pal[Math.floor(wh(a, d, 4) * nk.pal.length)];
+        if (nk.k === 'hollow' && wh(a, d, 6) < 0.12) c = VIOLET;
+        pset(buf, sideIdx(side, p, d), c);
+      }
+      pset(buf, sideIdx(side, p, D), kd.rim);                             // the lower terrain's dark rim
+    }
+  }
+  function rimSide(buf, kd, side) {
+    for (let p = 0; p < T; p++) pset(buf, sideIdx(side, p, 0), kd.rim);  // equal-rank seam
+  }
+  function bankSide(buf, kd, side, tx, ty) {                              // land beside water: darker wet soil
+    for (let p = 0; p < T; p++) {
+      const a = alongOf(side, tx, ty, p), D = 2 + Math.floor(vnoise(a / 2.7, 0.5, 17) * 2.99);
+      for (let d = 0; d < D; d++) {
+        if (d === D - 1 && wh(a, d, 19) < 0.4) continue;
+        pset(buf, sideIdx(side, p, d), kd.bank);
+      }
+    }
+  }
+  function cornerBlob(buf, nk, cx, cy, tx, ty) {                          // only a diagonal neighbour is higher
+    for (let j = 0; j < 4; j++) for (let i = 0; i < 4; i++) {
+      const r2 = i * i + j * j;
+      if (r2 > 13) continue;
+      if (r2 > 9 && wh(tx * T + i, ty * T + j, 23) < 0.5) continue;
+      const x = cx ? T - 1 - i : i, y = cy ? T - 1 - j : j;
+      pset(buf, (y * T + x) << 2, nk.pal[Math.floor(wh(tx * T + i, ty * T + j, 4) * nk.pal.length)]);
+    }
+  }
+  function nbrCh(def, x, y) { return (x < 0 || y < 0 || x >= def.w || y >= def.h) ? null : def.ground[y][x]; }
+  function higherThan(c, kd) { const k = c ? KIND[c] : null; return !!k && k.k !== kd.k && k.rank > kd.rank; }
+
+  let groundWarned = false;
+  function paintGround(g, def, tx, ty, px, py, ch) {
+    try {
+      let buf;
+      if (ch === 'q') buf = pixelBuf(tx, ty, voidPx);
+      else if (ch === '.' || ch === ',') { buf = pixelBuf(tx, ty, grassPx); if (ch === ',') flowersOn(buf, tx, ty); }
+      else if (ch === 'v') buf = pixelBuf(tx, ty, mossPx);
+      else buf = new Uint8ClampedArray(tileBuf(ch));
+      const kd = KIND[ch];
+      if (kd) {
+        const nb = { N: nbrCh(def, tx, ty - 1), E: nbrCh(def, tx + 1, ty), S: nbrCh(def, tx, ty + 1), W: nbrCh(def, tx - 1, ty) };
+        for (const side of ['N', 'E', 'S', 'W']) {
+          const c = nb[side];
+          if (!c) continue;
+          if (WET[c]) { bankSide(buf, kd, side, tx, ty); continue; }
+          const nk = KIND[c];
+          if (!nk || nk.k === kd.k) continue;
+          if (nk.rank > kd.rank) spillSide(buf, nk, kd, side, tx, ty);
+          else if (nk.rank === kd.rank) rimSide(buf, kd, side);
+        }
+        // [diagonal x, diagonal y, side A, side B, corner quadrant x, quadrant y]
+        const CORNERS = [[tx + 1, ty - 1, 'N', 'E', 1, 0], [tx - 1, ty - 1, 'N', 'W', 0, 0], [tx + 1, ty + 1, 'S', 'E', 1, 1], [tx - 1, ty + 1, 'S', 'W', 0, 1]];
+        for (const [x, y, sa, sb, cx, cy] of CORNERS) {
+          const nk = KIND[nbrCh(def, x, y)];
+          if (!nk || nk.k === kd.k || nk.rank <= kd.rank) continue;
+          if (higherThan(nb[sa], kd) || higherThan(nb[sb], kd)) continue;
+          cornerBlob(buf, nk, cx, cy, tx, ty);
+        }
+      }
+      g.putImageData(new ImageData(buf, T, T), px, py);
+    } catch (err) {
+      if (!groundWarned) { groundWarned = true; console.warn('[gfx] paintGround failed; using plain tile', err); }
+      g.drawImage(tileFor(ch, 0), px, py);
+    }
+  }
+
+  // ---- shadows: soft ellipses under objects; buildings throw a band south (in front of the facade) and a thin one east
+  const SHADOW = {  // char: [centre x, centre y, rx, ry, alpha] in tile pixels
+    T: [20, 27, 12, 4.5, 0.34], N: [19, 28, 9, 3.8, 0.32], d: [17, 28, 7, 3, 0.22], B: [18, 26, 12.5, 4.5, 0.3],
+    R: [17, 26, 12, 4.2, 0.36], '+': [18, 28, 8, 2.8, 0.25], i: [16, 26, 8, 3, 0.22], s: [16, 28, 9, 3, 0.3],
+    o: [17, 27, 13, 4.5, 0.32], Q: [16, 28, 7, 2.6, 0.28], L: [17, 28, 5, 2, 0.3], M: [16, 27, 13.5, 4, 0.32],
+    J: [16, 27, 12, 4, 0.32], e: [16, 27, 13, 4, 0.3], r: [16, 27, 10, 3, 0.26], U: [17, 28, 6, 2.4, 0.28],
+    C: [16, 28, 9, 3, 0.28], E: [16, 28, 10, 3, 0.24], H: [16, 28, 6, 2, 0.22], Z: [16, 28, 12, 3.5, 0.26],
+    I: [16, 28, 12, 3.4, 0.3], x: [16, 29, 12, 1.8, 0.2],
+  };
+  const BUILD = { W: 1, X: 1, O: 1, '7': 1, '8': 1, '9': 1, A: 1, '1': 1, '2': 1, '3': 1, '4': 1, '5': 1, '6': 1 };
+  function objAt(def, x, y) { return (x < 0 || y < 0 || x >= def.w || y >= def.h) ? ' ' : def.objects[y][x]; }
+  function ellipseShadow(g, x, y, rx, ry, a) {
+    g.translate(x, y); g.scale(rx, ry);
+    const gr = g.createRadialGradient(0, 0, 0, 0, 0, 1);
+    a = Math.min(0.62, a * 1.75);                                    // soft but readable on bright grass
+    gr.addColorStop(0, 'rgba(6,8,14,' + a + ')'); gr.addColorStop(0.6, 'rgba(6,8,14,' + (a * 0.7) + ')'); gr.addColorStop(1, 'rgba(6,8,14,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(0, 0, 1, 0, Math.PI * 2); g.fill();
+  }
+  let shadowWarned = false;
+  function paintShadows(g, def, tx0, ty0, tw, th) {
+    try {
+      for (let ty = ty0 - 2; ty < ty0 + th + 2; ty++) for (let tx = tx0 - 2; tx < tx0 + tw + 2; tx++) {
+        const o = objAt(def, tx, ty);
+        if (!o || o === ' ') continue;
+        const ox = (tx - tx0) * T, oy = (ty - ty0) * T;
+        const s = SHADOW[o];
+        if (s) { g.save(); g.translate(ox, oy); ellipseShadow(g, s[0], s[1], s[2], s[3], s[4]); g.restore(); }
+        if (BUILD[o]) {
+          if (!BUILD[objAt(def, tx, ty + 1)]) {
+            const gy = oy + T, gr = g.createLinearGradient(0, gy, 0, gy + 8);
+            gr.addColorStop(0, 'rgba(8,6,16,0.55)'); gr.addColorStop(1, 'rgba(8,6,16,0)');
+            g.fillStyle = gr; g.fillRect(ox, gy, T, 8);
+          }
+          if (!BUILD[objAt(def, tx + 1, ty)]) {
+            const gx = ox + T, gr = g.createLinearGradient(gx, 0, gx + 4, 0);
+            gr.addColorStop(0, 'rgba(8,6,16,0.42)'); gr.addColorStop(1, 'rgba(8,6,16,0)');
+            g.fillStyle = gr; g.fillRect(gx, oy, 4, T);
+          }
+        }
+      }
+    } catch (err) {
+      if (!shadowWarned) { shadowWarned = true; console.warn('[gfx] paintShadows failed', err); }
+    }
+  }
+
+  // ---- shorelines: foam on the water side, drawn live over the animated water (cached per shape/frame)
+  const SHORE = new Map();
+  const SIDE_BIT = { N: 1, E: 2, S: 4, W: 8 };
+  function buildShore(mask, shallow, frame, v) {
+    const buf = new Uint8ClampedArray(T * T * 4);
+    const hi = hex2rgb(shallow ? '#e4f7f2' : '#eefaff'), mid = hex2rgb(shallow ? '#a9dcd6' : '#b9e4f7');
+    for (const side of ['N', 'E', 'S', 'W']) {
+      if (!(mask & SIDE_BIT[side])) continue;
+      for (let p = 0; p < T; p++) {
+        const D = ((p + frame * 2) & 7) < 4 ? 2 : 1;             // period 8 divides the tile: continuous along the shore
+        for (let d = 0; d < D; d++) pset(buf, sideIdx(side, p, d), d === 0 ? hi : mid);
+        if (wh(p, frame * 5 + SIDE_BIT[side], 61 + v) < 0.1) pset(buf, sideIdx(side, p, D), hi);   // glints
+      }
+    }
+    const cv = mk(T, T);
+    cv.getContext('2d').putImageData(new ImageData(buf, T, T), 0, 0);
+    return cv;
+  }
+  let shoreWarned = false;
+  function drawShore(ctx, def, tx, ty, sx, sy, frame) {
+    try {
+      const ch = def.ground[ty][tx];
+      if (!WET[ch]) return;
+      let mask = 0;
+      if (KIND[nbrCh(def, tx, ty - 1)]) mask |= 1;
+      if (KIND[nbrCh(def, tx + 1, ty)]) mask |= 2;
+      if (KIND[nbrCh(def, tx, ty + 1)]) mask |= 4;
+      if (KIND[nbrCh(def, tx - 1, ty)]) mask |= 8;
+      if (!mask) return;
+      const f = frame & 3, v = (tx * 7 + ty * 13) & 3;
+      const key = ((((ch === 'w' ? 16 : 0) | mask) * 4 + f) * 4) + v;
+      let cv = SHORE.get(key);
+      if (!cv) { cv = buildShore(mask, ch === 'w', f, v); SHORE.set(key, cv); }
+      ctx.drawImage(cv, sx, sy);
+    } catch (err) {
+      if (!shoreWarned) { shoreWarned = true; console.warn('[gfx] drawShore failed', err); }
+    }
+  }
+  G.gfx.paintGround = paintGround;
+  G.gfx.paintShadows = paintShadows;
+  G.gfx.drawShore = drawShore;
+
   // ------------------------------------------------------------------ misc
-  G.gfx.clearCaches = function () { tileCache.clear(); sheetCache.clear(); };
+  G.gfx.clearCaches = function () { tileCache.clear(); sheetCache.clear(); tileRaw.clear(); SHORE.clear(); };
   G.provide('gfx_world');
 })();

@@ -25,9 +25,7 @@
       name: 'Gladius Citadel', bgm: 'gladius', spawn: { x: 11, y: 29, dir: 'up' },
     });
 
-    // ---- ground: cobbles, forecourt, paths --------------------------------------------
-    m.rect('ground', 17, 13, 9, 9, '=');                       // central plaza
-    m.rect('ground', 18, 12, 7, 1, 't');                       // colosseum forecourt (stone)
+    // ---- ground: paths first, then paving patterns laid over them -----------------------
     m.path([[11, 29], [21, 29], [21, 13]], '=', 3);            // spawn avenue -> plaza
     m.path([[2, 21], [17, 21]], '=', 2);                       // west market avenue
     m.path([[3, 9], [3, 12], [17, 12]], '=', 2);               // NW houses -> plaza
@@ -37,80 +35,121 @@
     m.path([[31, 27], [25, 27], [25, 21]], '=', 2);            // tavern door -> plaza
     m.rect('ground', 1, 18, 9, 3, '=');                        // market cobbles
     m.rect('ground', 11, 18, 5, 3, '=');                       // fruit-stall cobbles
-    m.rect('ground', 9, 27, 4, 3, 'v');                        // moss patch (reclaimed by nature)
+    m.rect('ground', 17, 13, 9, 9, '=');                       // central plaza
+    m.rect('ground', 15, 12, 13, 1, 't');                      // colosseum forecourt flagstones
+    m.rect('ground', 19, 16, 5, 5, 'g');                       // marble inlay around the fountain
+    [[17, 13], [25, 13], [17, 21], [25, 21]].forEach(([x, y]) => m.set('ground', x, y, 'l'));   // warm glow corners
+    m.rect('ground', 24, 29, 5, 4, 't');                       // tavern terrace (stone patio)
+    m.rect('ground', 9, 27, 4, 3, 'v');                        // moss patches (reclaimed by nature)
     m.rect('ground', 30, 30, 6, 3, 'v');
     m.rect('ground', 33, 27, 3, 2, 'v');
+    m.rect('ground', 2, 24, 6, 2, 'v');                        // overgrown ruin floor
 
-    // ---- colosseum (solid sandstone ellipse, crown of pillars, grand entrance) -------
+    // ---- colosseum: sandstone bowl, crown of pillars, arched grand entrance -------------
     m.blob('objects', 21, 6, 10, 5, 'A');
     for (let x = 12; x <= 30; x += 2) m.set('objects', x, 1, 'Q');   // crown of pillars
     m.set('objects', 21, 11, 'D');                                    // grand entrance
     m.hline('objects', 20, 12, 3, 'u');                               // steps
+    m.hline('above', 20, 10, 3, '@');                                 // arch lintel over the door
     m.set('objects', 18, 11, 's'); m.set('objects', 24, 11, 's');     // statues flanking the door
-    m.set('objects', 14, 7, 'V'); m.set('objects', 28, 7, 'V');       // banners
+    m.set('objects', 19, 12, 'L'); m.set('objects', 23, 12, 'L');     // lamps at the steps
+    m.set('objects', 16, 12, 'Q'); m.set('objects', 26, 12, 'Q');     // pillars framing the forecourt
+    m.set('objects', 13, 11, 'Q'); m.set('objects', 15, 11, 'Q');     // colonnade, west
+    m.set('objects', 27, 11, 'Q'); m.set('objects', 29, 11, 'Q');     // colonnade, east
+    m.set('objects', 13, 4, 'V'); m.set('objects', 29, 4, 'V');       // banners on the bowl
+    m.set('objects', 14, 7, 'V'); m.set('objects', 28, 7, 'V');
     m.set('objects', 17, 9, 'V'); m.set('objects', 25, 9, 'V');
     m.set('objects', 14, 13, 's'); m.set('objects', 28, 13, 's');    // plaza plinth statues
-    m.set('objects', 13, 11, 'Q'); m.set('objects', 29, 11, 'Q');
 
-    // ---- plaza furniture ------------------------------------------------------------------
+    // ---- plaza furniture ----------------------------------------------------------------
     m.set('objects', 21, 18, 'o');                                    // central fountain
-    m.set('objects', 19, 16, 'H'); m.set('objects', 23, 16, 'H');    // benches (chairs)
+    m.set('objects', 19, 16, 'H'); m.set('objects', 23, 16, 'H');    // benches at the marble corners
     m.set('objects', 19, 20, 'H'); m.set('objects', 23, 20, 'H');
     [[16, 13], [26, 13], [16, 21], [26, 21], [12, 25], [30, 25], [22, 27]].forEach(([x, y]) => m.set('objects', x, y, 'L'));
 
-    // ---- west market: stall 1 (merchant, shop) ----------------------------------------
+    // ---- west market: stall 1 (merchant, shop) --------------------------------------------
     m.rect('objects', 2, 15, 7, 1, '5');                              // red awning
     m.rect('objects', 2, 16, 7, 1, 'S');                              // shelves of goods
     m.rect('objects', 2, 17, 7, 1, 'E');                              // counter
+    m.hline('above', 2, 14, 7, '*');                                  // strings of lanterns over the market
     m.set('objects', 1, 16, 'V');
-    m.set('objects', 1, 19, 'C'); m.set('objects', 8, 19, 'C');       // crates
+    m.set('objects', 1, 19, 'C'); m.set('objects', 8, 19, 'C');      // crates
     m.set('objects', 1, 20, 'U'); m.set('objects', 9, 20, 'U');      // barrels
-    // ---- market stall 2: fruit & flowers (vendor) -----------------------------------
+    // ---- market stall 2: fruit & flowers (vendor) -----------------------------------------
     m.rect('objects', 11, 15, 4, 1, '2');
     m.rect('objects', 11, 16, 4, 1, 'S');
     m.rect('objects', 11, 17, 4, 1, 'E');
+    m.hline('above', 11, 14, 4, '*');
     m.set('objects', 15, 19, 'U'); m.set('objects', 16, 19, 'C');
 
-    // ---- NW houses ----------------------------------------------------------------------------
+    // ---- NW houses ------------------------------------------------------------------------
     m.house(1, 3, 5, 5, { roof: '1', wall: 'X', doorAt: 2 });         // door (3,7)
     m.house(8, 4, 4, 4, { roof: '5', wall: 'W', doorAt: 2 });         // door (10,7)
     m.set('objects', 6, 5, 'B'); m.set('objects', 6, 7, 'B');
     m.set('objects', 5, 1, 'T');
-    // ---- NE houses (inn-ish home, then a row of roofs) -----------------------------------
+    m.set('objects', 7, 8, 'U'); m.set('objects', 1, 9, 'F'); m.set('objects', 2, 9, 'F');
+
+    // ---- NE houses (inn-ish home, then a row of roofs) ------------------------------------
     m.house(34, 2, 6, 5, { roof: '2', wall: 'X', doorAt: 2 });        // door (36,6)
     m.house(38, 9, 4, 4, { roof: '4', wall: 'W', doorAt: 2 });        // door (40,12)
     m.set('objects', 42, 6, 'B'); m.set('objects', 41, 2, 'Y');
+    m.set('objects', 42, 9, 'U'); m.set('objects', 33, 8, 'L');
 
-    // ---- smithy (metal, copper roof, forge) ---------------------------------------------------
+    // ---- smithy (metal, copper roof, forge) -----------------------------------------------
     m.house(34, 15, 6, 5, { roof: '6', wall: '7', doorAt: 2 });       // door (36,19)
     m.set('objects', 32, 16, 'M'); m.set('objects', 41, 16, 'J');
     m.set('objects', 31, 19, 'e'); m.set('objects', 33, 18, 'U');
+    m.set('objects', 33, 20, 'C');
     m.rect('objects', 40, 19, 2, 2, 'P');
 
-    // ---- tavern (The Gilded Dice) ----------------------------------------------------------------
+    // ---- east garden: flower beds, a hedge, a shade tree ----------------------------------
+    m.rect('objects', 27, 16, 2, 1, 'F'); m.set('objects', 27, 17, 'F');
+    m.hline('objects', 27, 19, 2, 'B');
+    m.set('objects', 29, 17, 'T');
+
+    // ---- tavern (The Gilded Dice) and its stone terrace -----------------------------------
     m.house(28, 22, 7, 5, { roof: '3', wall: 'X', doorAt: 3 });       // door (31,26)
     m.set('objects', 35, 24, 'U'); m.set('objects', 35, 25, 'U');
     m.set('objects', 27, 25, 'E'); m.set('objects', 26, 25, 'H');     // outdoor table
     m.set('objects', 29, 28, 'x');                                    // fence line for the terrace
+    m.set('objects', 25, 31, 'E'); m.set('objects', 24, 31, 'H'); m.set('objects', 26, 31, 'H');   // terrace café
+    m.set('objects', 28, 30, 'E'); m.set('objects', 28, 29, 'H');
+    m.set('objects', 24, 29, 'F');
 
-    // ---- pond & garden in the south-east ----------------------------------------------------
+    // ---- south-east pond: reed shallows, benches, trees ------------------------------------
+    m.blob('ground', 38, 29, 4.5, 3.5, 'w');
     m.pond(38, 29, 3, 2);
-    m.set('objects', 35, 29, 'B'); m.set('objects', 41, 30, 'F'); m.set('objects', 37, 32, 'R');
+    m.set('objects', 33, 28, 'H'); m.set('objects', 40, 33, 'H');
+    m.set('objects', 34, 33, 'T'); m.set('objects', 41, 33, 'T');
+    m.set('objects', 37, 33, 'R'); m.set('objects', 42, 30, 'F');
+    m.set('objects', 41, 26, 'L');
 
-    // ---- south-west secret alcove (chest behind bushes) ----------------------------------
+    // ---- NE garden hedge and flowers ------------------------------------------------------
+    m.hline('objects', 40, 13, 3, 'B');
+    m.rect('objects', 41, 16, 2, 1, 'F'); m.set('objects', 41, 17, 'F');
+    m.set('objects', 42, 20, 'T');
+
+    // ---- south-west: ruined colonnade and the secret alcove -------------------------------
+    m.set('objects', 2, 24, 'Q'); m.set('objects', 5, 24, 'Q'); m.set('objects', 8, 24, 'Q');
+    m.set('objects', 4, 26, 'r'); m.set('objects', 7, 27, 'r');
+    m.set('objects', 2, 27, 'F'); m.set('objects', 3, 27, 'F');
     m.set('objects', 2, 31, 'B'); m.set('objects', 4, 31, 'B'); m.set('objects', 3, 32, 'B');
 
     // ---- scenery: trees, bushes, flowers, grass (deterministic scatter) -------------------
+    const npc = [[21, 16], [20, 15], [15, 16], [19, 14], [12, 23], [23, 22], [30, 15], [16, 24], [12, 21],
+      [27, 22], [38, 21], [13, 18], [5, 18], [17, 15], [11, 30], [3, 31], [21, 11], [31, 26]];
     const avoid = [
       { x: 9, y: 0, w: 26, h: 14 },   // colosseum & forecourt
       { x: 14, y: 12, w: 13, h: 12 }, // plaza
       { x: 10, y: 24, w: 14, h: 8 },  // spawn avenue
-      { x: 0, y: 13, w: 14, h: 10 },  // market
+      { x: 0, y: 13, w: 18, h: 10 },  // market
       { x: 0, y: 0, w: 9, h: 13 },    // NW houses
       { x: 33, y: 0, w: 11, h: 14 },  // NE houses
-      { x: 27, y: 14, w: 17, h: 14 }, // smithy & tavern
+      { x: 27, y: 14, w: 17, h: 14 }, // smithy, garden & tavern
       { x: 0, y: 30, w: 6, h: 4 },    // secret alcove
-    ];
+      { x: 22, y: 27, w: 8, h: 6 },   // tavern terrace
+      { x: 32, y: 25, w: 12, h: 9 },  // pond shore
+    ].concat(npc.map(([x, y]) => ({ x: x - 1, y: y - 1, w: 3, h: 3 })));
     m.scatter('objects', 'T', 22, { seed: 11, avoid, on: '.' });
     m.scatter('objects', 'N', 8, { seed: 12, avoid, on: '.' });
     m.scatter('objects', 'B', 16, { seed: 13, avoid, on: '.' });
@@ -301,28 +340,35 @@
     });
     m.room(0, 0, 20, 14, { floor: 'f', wall: 'X', topWall: 2 });
     m.rect('ground', 2, 3, 16, 9, 'c');                        // red carpet hall
-    m.hline('objects', 1, 1, 18, 'S');                         // back shelves of bottles
-    m.set('objects', 3, 1, 'Y'); m.set('objects', 16, 1, 'Y');
-    m.set('objects', 5, 1, 'S');
-    // bar along the north wall
+    m.set('objects', 5, 0, 'V'); m.set('objects', 14, 0, 'V'); // house banners on the back wall
+    m.set('objects', 0, 6, 'O'); m.set('objects', 19, 6, 'O'); // glowing windows
+    // back bar: bookshelves and bottles along the north wall
+    m.hline('objects', 1, 1, 18, 'S');
+    m.set('objects', 3, 1, 'Y'); m.set('objects', 9, 1, 'Y'); m.set('objects', 16, 1, 'Y');
+    m.hline('above', 2, 1, 16, '*');                           // paper lanterns strung along the shelves
+    // bar counter with casks and bar stools
     m.hline('objects', 6, 3, 8, 'E');
     m.set('objects', 6, 4, 'U'); m.set('objects', 13, 4, 'U');
+    m.set('objects', 8, 4, 'H'); m.set('objects', 10, 4, 'H'); m.set('objects', 11, 4, 'H');
     // dice tables
     m.set('objects', 3, 7, 'E'); m.set('objects', 4, 7, 'E'); m.set('objects', 2, 7, 'H');
     m.set('objects', 3, 6, 'H'); m.set('objects', 3, 8, 'H'); m.set('objects', 4, 6, 'H');
     m.set('objects', 15, 7, 'E'); m.set('objects', 16, 7, 'E'); m.set('objects', 14, 7, 'H');
     m.set('objects', 15, 6, 'H'); m.set('objects', 15, 8, 'H'); m.set('objects', 17, 7, 'H');
-    // hearth & lounge
-    m.set('objects', 17, 4, 'I'); m.set('objects', 1, 11, 'C'); m.set('objects', 2, 11, 'C');
+    // hearth with firewood, and a side shelf
+    m.set('objects', 17, 4, 'I'); m.set('objects', 18, 3, 'C');
+    m.set('objects', 18, 6, 'S'); m.set('objects', 18, 7, 'S');
+    // lounge in the back-left corner
+    m.set('objects', 1, 11, 'C'); m.set('objects', 2, 11, 'C');
+    m.set('objects', 4, 10, 'E'); m.set('objects', 3, 10, 'H'); m.set('objects', 5, 10, 'H');
     m.set('objects', 18, 10, 'U'); m.set('objects', 17, 10, 'U');
-    m.set('objects', 8, 11, 'Z');                              // a cot in the back room
+    // dining corner by the innkeeper, and a cot in the back room
+    m.set('objects', 13, 11, 'E'); m.set('objects', 14, 11, 'H');
+    m.set('objects', 8, 11, 'Z');
     m.set('objects', 9, 9, 'E'); m.set('objects', 9, 10, 'H');
-    m.set('objects', 6, 9, 'V');
-    // the exit door in the south wall
+    // the exit door in the south wall, lamps in the corners
     m.set('objects', 10, 13, 'D');
-    m.set('objects', 13, 2, ' ');
-    m.set('objects', 6, 2, ' ');
-    m.set('objects', 1, 2, 'L');  m.set('objects', 18, 2, 'L');
+    m.set('objects', 1, 2, 'L'); m.set('objects', 18, 2, 'L');
     m.encounters(null);
     tavernEvents(m);
     return m.finish();
@@ -422,28 +468,44 @@
     const m = G.maps.build('gladius_arena', 44, 30, {
       name: 'Gladius Arena', bgm: 'arena', spawn: { x: 22, y: 23, dir: 'up' },
     });
-    // rings: stone walkway (t) inside the sandstone stands (A), sand (a) in the middle
+    // rings: paved walkway inside the sandstone stands (A), sand (a) in the middle
     m.blob('ground', 22, 14, 18, 12, '=');                     // paved outer ring
     m.blob('objects', 22, 14, 18, 12, 'A');                    // stands
     m.blob('objects', 22, 14, 15, 10, ' ');                    // clear the walkway
     m.blob('ground', 22, 14, 15, 10, 't');
     m.blob('ground', 22, 14, 13, 8.5, 'a');                    // sand
     m.blob('objects', 22, 14, 13, 8.5, ' ');
-    // gates
+    m.rect('ground', 20, 22, 5, 3, 'g');                       // marble bands on the walkway, south
+    m.rect('ground', 20, 5, 5, 2, 'g');                        // and north
+    [[9, 9], [35, 9], [9, 19], [35, 19]].forEach(([x, y]) => m.set('ground', x, y, 'l'));   // lamp-lit corners
+
+    // gates: the main gate faces the citadel, the back gate opens onto the aqueduct
     m.set('objects', 22, 26, 'D');                             // main gate to the citadel
     m.set('objects', 22, 25, ' '); m.set('ground', 22, 25, 't');
+    m.rect('ground', 18, 27, 9, 3, 't');                       // paved gate court outside the arena
+    m.set('objects', 19, 27, 'Q'); m.set('objects', 25, 27, 'Q');
+    m.set('objects', 19, 29, 'L'); m.set('objects', 25, 29, 'L');
     m.set('objects', 4, 14, 'D'); m.set('objects', 5, 14, ' '); m.set('objects', 6, 14, ' ');
     m.set('ground', 5, 14, 't'); m.set('ground', 6, 14, 't');  // back gate -> aqueduct
-    // seats: a few stone benches along the walkway and banners on the stands
-    [[12, 4], [32, 4], [12, 24], [32, 24]].forEach(([x, y]) => m.set('objects', x, y, 'V'));
-    m.set('objects', 22, 2, 'V'); m.set('objects', 40, 14, 'V'); m.set('objects', 4, 10, 'V');
     m.set('objects', 3, 14, 'Q'); m.set('objects', 41, 14, 'Q');
-    m.set('objects', 18, 25, 's'); m.set('objects', 26, 25, 's');
-    m.set('objects', 8, 14, 's'); m.set('objects', 36, 14, 's');
-    // corridor lamps (walkway)
-    [[9, 9], [35, 9], [9, 19], [35, 19]].forEach(([x, y]) => m.set('objects', x, y, 'L'));
-    // a palm-ish decor beyond the rings (outside the stands)
-    m.scatter('objects', 'T', 8, { seed: 21, on: '.', avoid: [{ x: 4, y: 2, w: 37, h: 24 }] });
+    m.set('objects', 3, 12, 'Q'); m.set('objects', 3, 16, 'Q');
+    m.set('objects', 41, 12, 'Q'); m.set('objects', 41, 16, 'Q');
+
+    // colossal crown of pillars along the top, banners on the bowl
+    for (let x = 14; x <= 30; x += 4) m.set('objects', x, 1, 'Q');
+    [[22, 2], [12, 4], [32, 4], [12, 24], [32, 24], [6, 10], [38, 10], [6, 18], [38, 18], [40, 14], [20, 25], [24, 25]]
+      .forEach(([x, y]) => m.set('objects', x, y, 'V'));
+    m.set('objects', 4, 10, 'V');
+    m.set('objects', 18, 25, 's'); m.set('objects', 26, 25, 's');     // statues flanking the main gate
+    m.set('objects', 8, 14, 's'); m.set('objects', 36, 14, 's');      // walkway statues
+    [[9, 9], [35, 9], [9, 19], [35, 19]].forEach(([x, y]) => m.set('objects', x, y, 'L'));   // corridor lamps
+
+    // trees and bushes beyond the stands, a tree line around the bowl
+    const outside = [{ x: 4, y: 2, w: 37, h: 24 }, { x: 17, y: 26, w: 11, h: 4 }];
+    m.scatter('objects', 'T', 22, { seed: 21, on: '.', avoid: outside });
+    m.scatter('objects', 'B', 14, { seed: 22, on: '.', avoid: outside });
+    m.scatter('objects', 'F', 10, { seed: 23, on: '.', avoid: outside });
+    m.scatter('objects', 'G', 10, { seed: 24, on: '.', avoid: outside });
     arenaEvents(m);
     return m.finish();
   }
@@ -680,24 +742,43 @@
       name: 'Old Gladius Aqueduct', bgm: 'undercroft', ground: 'k', spawn: { x: 2, y: 13, dir: 'right' },
     });
     m.rect('objects', 0, 0, 36, 26, '8');                      // living rock
-    m.rect('objects', 1, 12, 34, 3, ' ');                      // main corridor
+    // main corridor: worn stone flags with moss in the cracks
+    m.rect('objects', 1, 12, 34, 3, ' ');
     m.rect('ground', 1, 12, 34, 3, 't');
-    m.rect('ground', 12, 2, 2, 22, '~');                       // the old water channel
+    m.rect('ground', 4, 12, 2, 1, 'v'); m.rect('ground', 26, 14, 2, 1, 'v');
+    // the old water channel: an open flume cut through the rock, bridged where it crosses the corridor
+    m.rect('objects', 12, 2, 2, 10, ' '); m.rect('objects', 12, 15, 2, 9, ' ');
+    m.rect('ground', 12, 2, 2, 22, '~');
     m.rect('ground', 12, 13, 2, 1, 'b');                       // bridge across the channel
-    m.rect('objects', 2, 3, 9, 8, ' ');                        // north room
+    // north room: a cistern with a stone floor and a corner of moss
+    m.rect('objects', 2, 3, 9, 8, ' ');
     m.rect('ground', 2, 3, 9, 8, 't');
+    m.rect('ground', 2, 8, 3, 3, 'v');
     m.rect('objects', 5, 11, 1, 1, ' ');                       // opening south to corridor
-    m.rect('objects', 15, 3, 16, 7, ' ');                      // north-east room
-    m.rect('ground', 15, 3, 16, 7, 't');
+    // north-east hall: marble floor, pillars, a rubble spill
+    m.rect('objects', 15, 3, 16, 7, ' ');
+    m.rect('ground', 15, 3, 16, 7, 'g');
     m.rect('objects', 21, 10, 1, 2, ' ');                      // opening to the corridor
-    m.rect('objects', 15, 16, 12, 6, ' ');                     // south room
+    // south store: cave floor with a stone pad, shelves and crates
+    m.rect('objects', 15, 16, 12, 6, ' ');
+    m.rect('ground', 17, 17, 6, 3, 't');
     m.rect('objects', 20, 15, 1, 1, ' ');                      // opening to the corridor
+    m.set('objects', 15, 17, 'S'); m.set('objects', 15, 18, 'S'); m.set('objects', 15, 19, 'S');
+    m.set('objects', 19, 18, 'E'); m.set('objects', 18, 18, 'H');
+    m.set('objects', 16, 20, 'C'); m.set('objects', 17, 20, 'C');
+    // pillars and barrels
     [[4, 3], [16, 8], [25, 20]].forEach(([x, y]) => m.set('objects', x, y, 'U'));
-    m.set('objects', 4, 6, 'C'); m.set('objects', 7, 8, 'R');  // scattered crates & rubble
     m.set('objects', 24, 19, 'U');
+    m.set('objects', 2, 3, 'Q'); m.set('objects', 10, 3, 'Q'); m.set('objects', 2, 10, 'Q');
+    m.set('objects', 18, 4, 'Q'); m.set('objects', 24, 4, 'Q'); m.set('objects', 18, 8, 'Q'); m.set('objects', 24, 8, 'Q');
+    m.set('objects', 4, 6, 'C'); m.set('objects', 7, 8, 'R');  // scattered crates & rubble
     m.set('objects', 25, 5, 'r'); m.set('objects', 29, 6, 'r');
-    m.set('objects', 33, 12, 'L'); m.set('objects', 1, 14, 'L');
-    m.set('objects', 3, 9, 'i'); m.set('objects', 9, 3, 'i'); m.set('objects', 17, 4, 'i'); m.set('objects', 28, 8, 'i');   // glowing cave crystals
+    // corridor lamps, pillars and carved arches in the rock above the corridor
+    m.set('objects', 33, 12, 'L'); m.set('objects', 1, 14, 'L'); m.set('objects', 5, 14, 'L');
+    m.set('objects', 7, 12, 'Q'); m.set('objects', 19, 14, 'Q'); m.set('objects', 30, 12, 'Q');
+    m.set('above', 8, 11, '@'); m.set('above', 16, 11, '@'); m.set('above', 25, 11, '@');
+    // glowing cave crystals
+    m.set('objects', 3, 9, 'i'); m.set('objects', 9, 3, 'i'); m.set('objects', 17, 4, 'i'); m.set('objects', 28, 8, 'i');
     m.scatter('objects', 'R', 6, { seed: 31, on: 'k', avoid: [{ x: 0, y: 11, w: 36, h: 4 }] });
     m.ev(H.transfer(1, 13, 'gladius_arena', 5, 14, 'right', { id: 'aq1_to_arena' }));
     m.ev(H.transfer(34, 13, 'aqueduct_2', undefined, undefined, 'right', { id: 'aq1_to_aq2' }));
@@ -739,25 +820,45 @@
       name: 'Lantern Vault', bgm: 'tense', ground: 'k', spawn: { x: 2, y: 13, dir: 'right' },
     });
     m.rect('objects', 0, 0, 36, 26, '8');
+    // corridor: stone flags, moss in the cracks
     m.rect('objects', 1, 12, 24, 3, ' ');                      // corridor
     m.rect('ground', 1, 12, 24, 3, 't');
+    m.rect('ground', 4, 12, 2, 1, 'v'); m.rect('ground', 19, 14, 2, 1, 'v');
+    // the channel: open flume through the rock, bridged over the corridor
+    m.rect('objects', 8, 2, 2, 10, ' '); m.rect('objects', 8, 15, 2, 9, ' ');
     m.rect('ground', 8, 2, 2, 22, '~');                        // channel
     m.rect('ground', 8, 13, 2, 1, 'b');                        // bridge
-    m.rect('objects', 14, 3, 9, 6, ' ');                       // north cache room
+    // north cache room: stone floor, moss corner, shelves
+    m.rect('objects', 14, 3, 9, 6, ' ');
     m.rect('ground', 14, 3, 9, 6, 't');
+    m.rect('ground', 14, 3, 3, 2, 'v');
     m.rect('objects', 15, 9, 1, 3, ' ');                       // opening down to the corridor
-    m.rect('objects', 14, 16, 9, 5, ' ');                      // south cache room
+    m.set('objects', 22, 5, 'S'); m.set('objects', 22, 6, 'S');
+    m.set('objects', 22, 3, 'Q'); m.set('objects', 14, 8, 'Q');
+    // south cache room: stone floor, shelves and barrels
+    m.rect('objects', 14, 16, 9, 5, ' ');
     m.rect('ground', 14, 16, 9, 5, 't');
+    m.rect('ground', 21, 16, 2, 1, 'v');
     m.rect('objects', 15, 15, 1, 1, ' ');
-    m.rect('objects', 25, 8, 10, 11, ' ');                     // the vault
+    m.set('objects', 14, 17, 'S'); m.set('objects', 14, 18, 'S');
+    m.set('objects', 15, 19, 'U'); m.set('objects', 16, 19, 'C');
+    // the vault: marble floor, a glowing machine cradle, pillars around the Anchor
+    m.rect('objects', 25, 8, 10, 11, ' ');
     m.rect('ground', 25, 8, 10, 11, 'g');
+    m.rect('ground', 27, 12, 2, 3, 'l');                       // warm light around the Anchor's cradle
     m.rect('objects', 30, 11, 3, 5, 'M');                      // the Colosseum Anchor's cradle
     m.set('objects', 29, 13, ' ');                             // the Anchor sits at (29,13)
     m.set('objects', 27, 9, 'J'); m.set('objects', 27, 17, 'J');
     m.set('objects', 33, 9, 'P'); m.set('objects', 33, 10, 'P'); m.set('objects', 33, 16, 'P');
+    m.set('objects', 25, 10, 'Q'); m.set('objects', 25, 16, 'Q');
+    m.set('objects', 34, 11, 'Q'); m.set('objects', 34, 15, 'Q');
+    m.set('objects', 34, 8, 'i'); m.set('objects', 34, 18, 'i');   // humming crystals
     m.set('objects', 26, 14, 'E');                             // the ledger desk
     m.set('objects', 18, 11, ' ');
     m.set('objects', 9, 10, 'C'); m.set('objects', 1, 11, 'C');
+    m.set('objects', 23, 12, 'L');
+    m.set('objects', 6, 12, 'Q'); m.set('objects', 16, 14, 'Q');
+    m.set('above', 6, 11, '@'); m.set('above', 20, 11, '@');
     m.set('objects', 16, 4, 'i'); m.set('objects', 21, 19, 'i');   // dripping cave crystals
     m.scatter('objects', 'R', 4, { seed: 41, on: 'k', avoid: [{ x: 0, y: 11, w: 24, h: 4 }] });
     m.ev(H.transfer(1, 13, 'aqueduct_1', 33, 13, 'left', { id: 'aq2_to_aq1' }));

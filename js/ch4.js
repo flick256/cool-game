@@ -43,62 +43,118 @@
     return m;
   }
 
-  // ------------------------------------------------------------ LUMEN VALE layout (44 x 34)
+  // no-go zones: nature is never scattered into the town, the paths, houses or the landing
   const VALE_NOGO = [
-    { x: 14, y: 6, w: 16, h: 13 },   // plaza and market
-    { x: 19, y: 17, w: 5, h: 17 },   // lantern avenue
-    { x: 21, y: 16, w: 17, h: 4 },   // lakeside promenade
-    { x: 14, y: 26, w: 15, h: 8 },   // ship pad yard and inn front
+    { x: 13, y: 5, w: 17, h: 11 },  // plaza and market
+    { x: 18, y: 16, w: 7, h: 18 },  // lantern avenue and ship landing
+    { x: 22, y: 15, w: 17, h: 4 },  // lakeside promenade and rail
+    { x: 34, y: 11, w: 5, h: 5 },   // lake pier
+    { x: 35, y: 18, w: 5, h: 9 },   // gazebo path and gazebo
+    { x: 2, y: 1, w: 8, h: 6 },     // north-west farmhouse
+    { x: 0, y: 10, w: 7, h: 7 },    // west cottage
+    { x: 2, y: 20, w: 8, h: 7 },    // south-west house
+    { x: 15, y: 0, w: 7, h: 6 },    // north house
+    { x: 7, y: 7, w: 7, h: 7 },     // cottage by the writing booth
+    { x: 29, y: 19, w: 8, h: 7 },   // east house
+    { x: 26, y: 25, w: 9, h: 7 },   // Lumen Inn
+    { x: 2, y: 14, w: 16, h: 4 },   // west road
+    { x: 5, y: 23, w: 15, h: 4 },   // south-west road and bridge
+    { x: 7, y: 26, w: 7, h: 3 },    // cat and dog
   ];
+  // every event tile (NPCs, triggers, the ship pad, the inn door): nature stays one tile away
+  const VALE_EV = [[21, 33], [12, 18], [18, 30], [25, 14], [23, 14], [13, 15], [17, 13], [29, 18], [35, 18],
+    [12, 27], [9, 27], [16, 11], [24, 11], [13, 11], [26, 14], [26, 22], [35, 12], [30, 29]];
   const VALE_LAMPS = [[19, 10], [23, 10], [19, 16], [23, 16], [19, 21], [23, 21], [19, 28], [23, 28],
-    [33, 16], [4, 17], [13, 17], [24, 6]];
+    [33, 16], [4, 17], [13, 17], [24, 6], [34, 14], [38, 14]];
 
   function lumenValeLayout() {
     const m = G.maps.build('lumen_vale', 44, 34, {
       name: 'Lumen Vale', bgm: 'festival', spawn: { x: 21, y: 32, dir: 'up' }, tint: 'rgba(40,20,70,0.18)',
     });
-    // lake to the north-east: shallows ring, deep water, a long pier
-    m.blob('ground', 36, 8, 8, 6, 'w');
-    m.blob('ground', 36, 8, 7, 4, '~');
-    m.rect('ground', 35, 12, 3, 5, 'b');
-    // lantern-lit plaza, the avenue south to the ship pad, and the promenade along the shore
-    m.rect('ground', 15, 8, 13, 9, 'l');
-    m.rect('ground', 20, 17, 3, 16, 'l');
-    m.rect('ground', 22, 17, 16, 2, 'l');
-    m.set('objects', 21, 12, 'o');                       // fountain
-    // dirt footpaths to the houses
+    // -- water: a deep lake in the north-east with a shallows ring; a stream comes down the west side of town
+    m.blob('ground', 37, 7, 8.5, 6.5, 'w');
+    m.blob('ground', 37, 7, 6.5, 4.5, '~');
+    m.rect('ground', 13, 19, 2, 15, '~');
+    m.rect('ground', 12, 19, 1, 15, 'w');
+    m.rect('ground', 15, 19, 1, 15, 'w');
+    // -- the cobbled plaza, lantern-lit streets through it, the avenue to the landing, the promenade on the shore
+    m.rect('ground', 14, 6, 15, 10, '=');
+    m.rect('ground', 14, 11, 15, 2, 'l');
+    m.rect('ground', 20, 6, 3, 10, 'l');
+    m.rect('ground', 20, 16, 3, 17, 'l');
+    m.rect('ground', 22, 16, 16, 2, 'l');
+    m.rect('ground', 35, 12, 3, 5, 'b');                  // lake pier
+    m.rect('ground', 18, 31, 7, 3, 'g');                  // marble landing around the ship pad
+    m.rect('ground', 36, 23, 5, 4, 'g');                  // marble gazebo on the lake
+    // -- dirt footpaths to the houses, the gazebo and the stone bridge
     m.rect('ground', 6, 6, 1, 11, ':');
     m.rect('ground', 7, 16, 8, 1, ':');
     m.rect('ground', 3, 15, 4, 1, ':');
+    m.rect('ground', 10, 12, 1, 2, ':');
+    m.rect('ground', 11, 13, 4, 1, ':');
+    m.set('ground', 18, 5, ':');
     m.rect('ground', 6, 25, 14, 1, ':');
     m.rect('ground', 23, 24, 10, 1, ':');
     m.rect('ground', 23, 30, 8, 1, ':');
-    // houses (roof rows over a facade row; the door is the bottom centre)
-    m.house(3, 2, 6, 4, { roof: '2', wall: 'X' });                 // door (6,5)
-    m.house(1, 11, 4, 4, { roof: '4', wall: 'X' });                // door (3,14)
-    m.house(3, 21, 6, 4, { roof: '5', wall: 'W' });                // door (6,24)
-    m.house(30, 20, 6, 4, { roof: '3', wall: 'X', doorAt: 2 });    // door (32,23)
+    m.rect('ground', 37, 18, 2, 5, ':');
+    m.rect('ground', 12, 25, 4, 2, 'b');                  // stone bridge over the stream
+    // -- houses (roof rows over a facade row; the door is the bottom centre)
+    m.house(3, 2, 6, 4, { roof: '2', wall: 'X' });                 // farmhouse, door (6,5)
+    m.house(1, 11, 4, 4, { roof: '4', wall: 'X' });                // west cottage, door (3,14)
+    m.house(3, 21, 6, 4, { roof: '5', wall: 'W' });                // south-west house, door (6,24)
+    m.house(8, 8, 4, 4, { roof: '1', wall: 'X', doorAt: 2 });      // cottage by the writing booth, door (10,11)
+    m.house(16, 1, 5, 4, { roof: '6', wall: 'X' });                // north house, door (18,4)
+    m.house(30, 20, 6, 4, { roof: '3', wall: 'X', doorAt: 2 });    // east house, door (32,23)
     m.house(27, 26, 7, 4, { roof: '1', wall: 'W', doorAt: 3 });    // Lumen inn, door (30,29)
-    // market stalls: awning + table, the keeper stands just in front
+    // -- market stalls: awning + table, the keeper stands just in front; stock behind each one
     stall(m, 16, 9, '5');     // lantern seller   -> keeper (16,11)
     stall(m, 24, 9, '6');     // smith            -> keeper (24,11)
     stall(m, 26, 12, '2');    // ring toss        -> keeper (26,14)
     stall(m, 26, 20, '2');    // food stalls      -> keeper (26,22)
-    // lantern-writing booth: long table with the scribe on the north side
+    m.set('objects', 16, 8, 'U'); m.set('objects', 17, 8, 'C');
+    m.set('objects', 24, 8, 'C'); m.set('objects', 25, 8, 'U');
+    m.set('objects', 28, 12, 'C'); m.set('objects', 28, 13, 'U');
+    m.set('objects', 28, 20, 'C'); m.set('objects', 28, 21, 'U');
+    // -- lantern-writing booth: long table with the scribe on the north side, paper stock behind
     m.set('objects', 12, 12, 'E'); m.set('objects', 13, 12, 'E');
+    m.set('objects', 12, 10, 'S'); m.set('objects', 13, 10, 'S');
     m.set('objects', 14, 9, 's');                        // statue
+    // -- central fountain, benches around it, flowers at its feet
+    m.set('objects', 21, 12, 'o');
+    m.set('objects', 19, 13, 'H'); m.set('objects', 23, 13, 'H');
+    m.set('objects', 19, 12, 'F'); m.set('objects', 23, 12, 'F');
+    // -- promenade railing along the plaza and a pair of benches facing the lake
+    m.hline('objects', 22, 15, 12, 'x');
+    m.set('objects', 26, 18, 'H'); m.set('objects', 31, 18, 'H');
+    // -- gazebo: pillars on the corners, a little table and two chairs, flowers outside
+    [[36, 23], [40, 23], [36, 26], [40, 26]].forEach((p) => m.set('objects', p[0], p[1], 'Q'));
+    m.set('objects', 38, 24, 'E'); m.set('objects', 37, 25, 'H'); m.set('objects', 39, 25, 'H');
+    m.set('objects', 35, 24, 'F');
+    // -- ship landing: pillars, a statue, a lamp
+    m.set('objects', 18, 31, 'Q'); m.set('objects', 24, 31, 'Q');
+    m.set('objects', 17, 31, 'L'); m.set('objects', 16, 32, 's');
+    // -- inn yard stores
+    m.set('objects', 34, 27, 'U'); m.set('objects', 34, 28, 'C'); m.set('objects', 35, 28, 'B');
+    // -- lamp posts
     VALE_LAMPS.forEach((p) => m.set('objects', p[0], p[1], 'L'));
-    // hanging paper-lantern strings (above layer, walkable)
-    m.hline('above', 15, 7, 13, '*');
-    m.hline('above', 20, 20, 3, '*');
-    m.hline('above', 22, 16, 16, '*');
-    // nature: trees, pines, bushes, flower beds and tall grass on open grass only
-    m.scatter('objects', 'T', 16, { seed: 11, on: '.', avoid: VALE_NOGO });
-    m.scatter('objects', 'N', 10, { seed: 12, on: '.', avoid: VALE_NOGO });
-    m.scatter('objects', 'B', 14, { seed: 13, on: '.', avoid: VALE_NOGO });
-    m.scatter('objects', 'F', 34, { seed: 14, on: '.', avoid: VALE_NOGO });
-    m.scatter('objects', 'G', 14, { seed: 15, on: '.', avoid: VALE_NOGO });
-    m.scatter('objects', 'R', 3, { seed: 16, on: '.', avoid: VALE_NOGO });
+    // -- hanging paper-lantern strings across the streets (above layer, walkable)
+    m.hline('above', 15, 7, 13, '*');     // over the plaza
+    m.hline('above', 20, 19, 3, '*');     // over the avenue
+    m.hline('above', 20, 26, 3, '*');
+    m.hline('above', 22, 16, 16, '*');    // along the promenade
+    m.hline('above', 7, 16, 8, '*');      // across the west road
+    m.hline('above', 36, 22, 5, '*');     // over the gazebo
+    // -- nature: a tree border framing the town, then copses, flower beds, reeds and stones
+    const valeAvoid = VALE_NOGO.concat(VALE_EV.map((p) => ({ x: p[0] - 1, y: p[1] - 1, w: 3, h: 3 })));
+    const interior = { x: 3, y: 3, w: 38, h: 28 };
+    m.scatter('objects', 'T', 80, { seed: 11, on: '.', avoid: valeAvoid.concat([interior]) });
+    m.scatter('objects', 'N', 40, { seed: 12, on: '.', avoid: valeAvoid.concat([interior]) });
+    m.scatter('objects', 'T', 10, { seed: 13, on: '.', avoid: valeAvoid });
+    m.scatter('objects', 'B', 28, { seed: 14, on: '.', avoid: valeAvoid });
+    m.scatter('objects', 'F', 64, { seed: 15, on: '.', avoid: valeAvoid });
+    m.scatter('objects', 'G', 26, { seed: 16, on: '.', avoid: valeAvoid });
+    m.scatter('objects', 'R', 4, { seed: 17, on: '.', avoid: valeAvoid });
+    m.scatter('objects', 'G', 12, { seed: 18, on: 'w', avoid: valeAvoid });   // reeds on the shallows
     return m;
   }
 
@@ -331,17 +387,25 @@
     });
     m.room(0, 0, 16, 12, { floor: 'f', wall: 'X', topWall: 2 });
     m.rect('ground', 5, 8, 6, 2, 'c');                     // carpet by the hearth
+    m.rect('ground', 9, 3, 4, 2, 'c');                     // rug under the hearth
     m.rect('objects', 2, 2, 5, 1, 'S');                    // shelves behind the counter
     m.rect('objects', 2, 4, 5, 1, 'E');                    // counter
+    m.rect('objects', 8, 2, 4, 1, 'S');                    // jars and bottles by the hearth
+    m.set('objects', 1, 2, 'Y'); m.set('objects', 1, 3, 'Y');   // bookshelves in the back corner
     m.set('objects', 1, 5, 'Y'); m.set('objects', 1, 6, 'Y');   // bookshelves on the west wall
     m.set('objects', 12, 2, 'I');                          // hearth
     m.set('objects', 13, 6, 'Z'); m.set('objects', 13, 7, 'Z');  // a bed
+    m.set('objects', 14, 6, 'Y'); m.set('objects', 14, 7, 'Y');  // bookshelves beside the bed
     m.set('objects', 9, 7, 'E'); m.set('objects', 10, 7, 'E');   // a table
     m.set('objects', 9, 8, 'H'); m.set('objects', 10, 8, 'H');   // chairs
     m.set('objects', 1, 9, 'U'); m.set('objects', 1, 10, 'U');   // barrels
+    m.set('objects', 2, 10, 'C');                          // crate of bread
     m.set('objects', 14, 9, 'F'); m.set('objects', 14, 10, 'F'); // flowers
+    m.set('objects', 13, 10, 'F');
     m.set('objects', 3, 10, 'L');                          // lamp post
     m.set('objects', 7, 11, 'D');                          // exit door
+    m.set('objects', 3, 11, 'O'); m.set('objects', 11, 11, 'O');   // lit windows on the south wall
+    m.set('objects', 4, 0, 'O'); m.set('objects', 10, 0, 'O');     // lit windows on the back wall
     m.hline('above', 2, 1, 12, '*');                       // paper lanterns strung along the ceiling
     m.ev([
       H.innkeeper('ch4_innkeeper', 4, 3, 'innkeeper', 30, 'Brindle'),
@@ -368,18 +432,23 @@
     m.rect('ground', 0, 10, 22, 2, 'w');                  // shallows
     m.rect('ground', 0, 12, 28, 2, '_');                  // sand shore
     m.rect('ground', 9, 4, 3, 10, 'b');                   // release pier, runs out into the lake
-    // the hill on the east side with its single old tree
-    m.set('objects', 24, 3, 'T'); m.set('objects', 25, 4, 'B'); m.set('objects', 23, 6, 'B');
-    m.set('objects', 22, 8, 'R'); m.set('objects', 26, 7, 'R'); m.set('objects', 24, 8, 'R');
-    m.set('objects', 26, 2, 'G'); m.set('objects', 23, 2, 'G');
-    // lantern stands and lamps on the shore
+    // the hill on the east side: an old tree, a bench beneath it, bushes and stones
+    m.set('objects', 24, 2, 'T'); m.set('objects', 26, 3, 'T');
+    m.set('objects', 24, 4, 'H'); m.set('objects', 25, 4, 'H');
+    m.set('objects', 22, 5, 'B'); m.set('objects', 27, 5, 'B');
+    m.set('objects', 22, 8, 'R'); m.set('objects', 24, 8, 'R'); m.set('objects', 26, 7, 'R');
+    m.hline('above', 23, 3, 5, '*');                      // fairy lights strung through the branches
+    // lamps and stands on the shore
     m.set('objects', 8, 13, 'L'); m.set('objects', 12, 13, 'L');
     m.set('objects', 5, 13, 'C'); m.set('objects', 16, 13, 'C'); m.set('objects', 14, 16, 'U');
     m.set('objects', 1, 16, 'T'); m.set('objects', 3, 18, 'T'); m.set('objects', 25, 15, 'T');
     m.set('objects', 26, 18, 'N'); m.set('objects', 20, 18, 'N'); m.set('objects', 22, 16, 'B');
     m.set('objects', 1, 12, 'R'); m.set('objects', 20, 13, 'R');
-    m.scatter('objects', 'G', 12, { seed: 21, on: 'w_', avoid: [{ x: 2, y: 13, w: 23, h: 3 }] });
-    m.scatter('objects', 'F', 14, { seed: 22, on: '.', avoid: [{ x: 2, y: 13, w: 23, h: 4 }, { x: 8, y: 0, w: 4, h: 14 }] });
+    m.set('objects', 3, 11, 'G'); m.set('objects', 7, 11, 'G'); m.set('objects', 17, 11, 'G'); m.set('objects', 20, 10, 'G');
+    // reeds in the shallows, flowers and tall grass on the banks (the shore itself stays open for the scene)
+    m.scatter('objects', 'G', 14, { seed: 21, on: 'w', avoid: [{ x: 2, y: 13, w: 23, h: 4 }] });
+    m.scatter('objects', 'F', 16, { seed: 22, on: '.', avoid: [{ x: 2, y: 13, w: 23, h: 4 }, { x: 8, y: 0, w: 4, h: 14 }] });
+    m.scatter('objects', 'G', 8, { seed: 23, on: '.', avoid: [{ x: 2, y: 13, w: 23, h: 4 }, { x: 8, y: 0, w: 4, h: 14 }] });
     m.hline('above', 4, 8, 14, '*');                      // lantern strings across the shore
     return m;
   }
@@ -597,16 +666,32 @@
     const m = G.maps.build('ashen_road_1', 40, 24, {
       name: 'The Ashen Road', bgm: 'ashen_road', ground: 'y', spawn: { x: 2, y: 12, dir: 'right' }, tint: 'rgba(30,10,40,0.12)',
     });
+    // blight in patches; the road winds over it, dirt out of the Vale and old cobble nearer the Spire
     m.blob('ground', 9, 5, 5, 3, 'h');
     m.blob('ground', 27, 18, 6, 3, 'h');
     m.blob('ground', 19, 19, 3, 2, 'h');
-    m.rect('ground', 0, 10, 40, 5, ':');                  // the packed road under the ash
-    m.set('objects', 8, 3, 'z'); m.set('objects', 30, 4, 'z'); m.set('objects', 14, 21, 'z'); m.set('objects', 33, 21, 'z');
-    m.rect('objects', 22, 8, 2, 1, 'r');
-    m.rect('objects', 16, 16, 1, 2, 'r');
-    const band = { x: 0, y: 9, w: 40, h: 7 };
-    m.scatter('objects', 'd', 16, { seed: 31, on: 'yh', avoid: [band] });
-    m.scatter('objects', 'r', 10, { seed: 32, on: 'yh', avoid: [band] });
+    m.blob('ground', 35, 4, 4, 2, 'h');
+    m.rect('ground', 0, 11, 13, 4, ':');
+    m.rect('ground', 12, 9, 6, 4, ':');
+    m.rect('ground', 17, 10, 8, 4, '=');
+    m.rect('ground', 24, 12, 8, 4, ':');
+    m.rect('ground', 31, 11, 9, 4, '=');
+    // a ruined archway straddling the road, with the wall stubs and lintel
+    m.set('objects', 20, 9, 'W'); m.set('objects', 23, 9, 'W');
+    m.set('objects', 20, 14, 'W'); m.set('objects', 23, 14, 'W');
+    m.set('above', 21, 9, '@'); m.set('above', 22, 9, '@');
+    // broken wagons (crates spilled from the bed, a barrel rolled off), burned fence, rubble
+    m.set('objects', 8, 16, 'C'); m.set('objects', 9, 16, 'C'); m.set('objects', 10, 17, 'U');
+    m.set('objects', 34, 7, 'C'); m.set('objects', 35, 7, 'C'); m.set('objects', 35, 8, 'U');
+    [25, 26, 28, 31, 32].forEach((x) => m.set('objects', x, 9, 'x'));
+    m.set('objects', 19, 8, 'r'); m.set('objects', 24, 8, 'r'); m.set('objects', 14, 16, 'r');
+    // a dead grove in the north-east, crystal outcrops in the blight
+    [[33, 2], [37, 2], [31, 3], [38, 6], [36, 5]].forEach((p) => m.set('objects', p[0], p[1], 'd'));
+    [[6, 5], [11, 6], [12, 3], [23, 19], [29, 21]].forEach((p) => m.set('objects', p[0], p[1], 'i'));
+    const roadBand = [{ x: 0, y: 8, w: 40, h: 9 }];
+    m.scatter('objects', 'd', 16, { seed: 31, on: 'yh', avoid: roadBand });
+    m.scatter('objects', 'r', 10, { seed: 32, on: 'yh', avoid: roadBand });
+    m.scatter('objects', 'i', 6, { seed: 33, on: 'h', avoid: roadBand });
     m.ev([
       H.sign('ch4_sign_r1', 6, 9, 'THE ASHEN ROAD\nBy order of the Hearth Order: no lantern shall be lit beyond this point.'),
       H.save('ch4_save_r1a', 4, 9),
@@ -640,20 +725,32 @@
     const m = G.maps.build('ashen_road_2', 40, 24, {
       name: 'Ashen Road: the Gate Yard', bgm: 'ashen_road', ground: 'y', spawn: { x: 2, y: 12, dir: 'right' }, tint: 'rgba(30,10,40,0.16)',
     });
+    // blight in patches; the road winds in from the west and runs straight into the gate yard
     m.blob('ground', 14, 4, 5, 3, 'h');
     m.blob('ground', 22, 19, 6, 3, 'h');
     m.blob('ground', 36, 4, 3, 2, 'h');
-    m.rect('ground', 0, 10, 39, 5, ':');                  // the road runs into the gate yard
+    m.rect('ground', 0, 11, 10, 4, ':');
+    m.rect('ground', 9, 9, 7, 4, ':');
+    m.rect('ground', 15, 11, 7, 4, '=');
+    m.rect('ground', 21, 10, 9, 5, '=');
     m.rect('ground', 30, 6, 9, 13, 'h');                  // gate yard: corrupted ground
-    m.rect('objects', 30, 6, 10, 1, 'r');                 // rubble walls with the road opening at y10-14
-    m.rect('objects', 30, 18, 10, 1, 'r');
-    m.rect('objects', 39, 6, 1, 13, 'r');
-    m.rect('objects', 30, 6, 1, 4, 'r');
-    m.rect('objects', 30, 15, 1, 4, 'r');
+    // the gate yard's ruined walls, with the road opening at y10-14
+    m.rect('objects', 30, 6, 10, 1, 'W');
+    m.rect('objects', 30, 18, 10, 1, 'W');
+    m.rect('objects', 39, 6, 1, 13, 'W');
+    m.rect('objects', 30, 6, 1, 4, 'W');
+    m.rect('objects', 30, 15, 1, 4, 'W');
+    m.set('objects', 32, 8, 'Q'); m.set('objects', 37, 8, 'Q');   // broken pillars
+    m.set('objects', 32, 16, 'Q'); m.set('objects', 37, 16, 'Q');
+    m.set('objects', 31, 7, 'i'); m.set('objects', 38, 17, 'i'); // crystals in the corners
+    m.set('objects', 31, 8, 'r'); m.set('objects', 36, 10, 'r'); m.set('objects', 33, 17, 'r');
     m.set('objects', 6, 3, 'z'); m.set('objects', 25, 21, 'z'); m.set('objects', 35, 2, 'z');
-    const band = { x: 0, y: 9, w: 30, h: 7 };
-    m.scatter('objects', 'd', 14, { seed: 41, on: 'yh', avoid: [band] });
-    m.scatter('objects', 'r', 8, { seed: 42, on: 'yh', avoid: [band] });
+    // a wrecked cart south of the road
+    m.set('objects', 22, 16, 'C'); m.set('objects', 23, 16, 'C'); m.set('objects', 24, 17, 'U');
+    const roadBand = [{ x: 0, y: 8, w: 30, h: 9 }, { x: 31, y: 9, w: 7, h: 7 }];
+    m.scatter('objects', 'd', 14, { seed: 41, on: 'yh', avoid: roadBand });
+    m.scatter('objects', 'r', 8, { seed: 42, on: 'yh', avoid: roadBand });
+    m.scatter('objects', 'i', 5, { seed: 43, on: 'h', avoid: roadBand });
     m.ev([
       H.save('ch4_save_r2a', 4, 9),
       H.save('ch4_save_r2b', 27, 9),

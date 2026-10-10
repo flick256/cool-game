@@ -119,73 +119,118 @@
     const m = G.maps.build('wickholm', 40, 30, {
       name: 'Wickholm', bgm: 'wickholm', ground: 'v', spawn: { x: 10, y: 11, dir: 'down' },
     });
-    // ---- ground: meadows, plaza, paths, ponds
-    m.blob('ground', 33, 26, 6, 3, '.');
-    m.blob('ground', 36, 4, 3, 2, '.');
-    m.blob('ground', 6, 26, 4, 2, ',');
-    m.rect('ground', 17, 12, 8, 7, '=');                          // cobble plaza
+        // ---- ground: an overgrown moss village. Cobble square with a golden-glow fountain court, dirt lanes that join every door
+    //      to the square, grass lawns, a marsh with a dock, and the stone floor of the ruins.
+    m.blob('ground', 33, 26, 6, 3, '.');                          // meadow south-east
+    m.blob('ground', 36, 4, 3, 2, '.');                           // grassy patch north-east
+    m.blob('ground', 6, 26, 4, 2, ',');                           // flowery lawn south-west
+    m.blob('ground', 26, 2, 3, 2, '.');                           // the graveyard lawn
+    m.rect('ground', 17, 12, 8, 7, '=');                          // cobble square
+    m.rect('ground', 19, 14, 3, 3, 'l');                          // golden glow round the fountain
+    m.rect('ground', 9, 1, 6, 4, 't');                            // the broken cottage's floor
+    m.rect('ground', 32, 2, 5, 3, 't');                           // the chapel's floor
     m.path([[20, 18], [20, 29]], ':', 2);                         // south lane
     m.path([[24, 14], [39, 14]], ':', 2);                         // east road to Mossgrave
-    m.path([[6, 10], [6, 14], [17, 14]], ':', 2);                 // house to plaza
+    m.path([[6, 10], [6, 14], [17, 14]], ':', 2);                 // Rowan's house to the square
     m.path([[28, 15], [28, 11]], ':', 1);                         // shop lane
-    m.path([[32, 14], [32, 6], [34, 6]], ':', 1);                  // lane to the ruin (x=32 corridor)
+    m.path([[32, 14], [32, 6], [34, 6]], ':', 1);                 // lane to the ruin
     m.path([[15, 10], [15, 13]], ':', 1);                         // hall steps
     m.path([[11, 17], [11, 12], [9, 12]], ':', 2);                // garden lane
-    m.blob('ground', 8, 21, 4.5, 3.5, 'w');                       // marsh rim
+    m.path([[35, 12], [35, 13]], ':', 1);                         // cottage door to the road
+    m.path([[5, 21], [5, 22]], ':', 1);                           // mossy cottage door
+    // ---- water: the marsh (with a dock for the fisher), the east pond and a small south pond
+    m.blob('ground', 8, 21, 4.5, 3.5, 'w');
     m.pond(8, 21, 3, 2);
-    m.pond(33, 21, 3, 2);
+    m.rect('ground', 10, 21, 3, 1, 'b');                          // fisher's dock
     m.blob('ground', 33, 21, 4.5, 3.5, 'w');
-    m.pond(33, 21, 2, 1);
+    m.pond(33, 21, 3, 2);
     m.pond(14, 28, 2, 1);
 
-    // ---- buildings
-    m.house(3, 5, 7, 5, { roof: '1', wall: 'X', doorAt: 3 });     // Rowan's house (door 6,9)
+    // ---- buildings: tidy houses beside a broken-down one. Doors keep their event coordinates.
+    m.house(3, 5, 7, 5, { roof: '1', wall: 'X', doorAt: 3 });     // Rowan's house, mossy green roof (door 6,9)
     m.house(13, 6, 6, 5, { roof: '5', wall: 'W', doorAt: 2 });    // Lamplighter's hall (door 15,10)
     m.house(25, 5, 7, 6, { roof: '2', wall: 'W', doorAt: 3 });    // Dorrin's goods shop (door 28,10)
     m.house(33, 8, 5, 4, { roof: '3', wall: 'X', doorAt: 2 });    // cottage (door 35,11)
     m.house(3, 17, 5, 4, { roof: '4', wall: 'X', doorAt: 2 });    // mossy cottage (door 5,20)
+    // broken-down cottage (north-west): planks without a roof, rubble, a dead tree growing inside
+    m.hline('objects', 9, 1, 6, 'X').hline('objects', 9, 4, 6, 'X');
+    m.vline('objects', 9, 1, 4, 'X').vline('objects', 14, 1, 4, 'X');
+    m.set('objects', 14, 2, ' ');                                 // a plank has fallen out
+    m.set('objects', 11, 4, ' ').set('objects', 12, 4, ' ');     // the doorway
+    m.tiles('objects', [[10, 2], [13, 3], [12, 5]], 'r');
+    m.set('objects', 12, 2, 'd');
+    m.set('objects', 10, 3, 'B');
     // ruined Lampwright chapel with a secret alcove (opening at 34,5)
     m.box('objects', 31, 1, 7, 5, 'W');
-    m.rect('ground', 32, 2, 5, 3, 't');
     m.set('objects', 34, 5, ' ');
-    m.set('objects', 32, 1, 'r').set('objects', 36, 1, 'r');
-    m.set('objects', 34, 2, 's');
+    m.set('objects', 32, 1, 'r').set('objects', 36, 1, 'r');     // broken top wall
     m.tiles('objects', [[32, 4], [33, 4]], 'r');
     m.set('objects', 36, 4, 'r');
+    m.set('objects', 34, 2, 's');
     m.set('objects', 30, 4, 'r').set('objects', 30, 2, 'd');
-    // village props
-    m.set('objects', 20, 15, 'o');                               // fountain (plaza)
-    m.set('objects', 16, 12, 'L').set('objects', 25, 12, 'L').set('objects', 16, 18, 'L').set('objects', 25, 18, 'L');
-    m.set('objects', 21, 17, ' ');
-    m.tiles('objects', [[19, 12], [22, 12]], 'H');               // benches
-    m.tiles('objects', [[28, 19], [29, 19]], 'U');
-    m.hline('objects', 37, 12, 4, 'x').vline('objects', 37, 12, 4, 'x');
-    m.hline('objects', 8, 10, 3, 'x').vline('objects', 10, 6, 4, 'x');  // yard fences
-    m.hline('objects', 25, 19, 5, 'x');
-    m.tiles('objects', [[12, 9]], 'C');
-    m.tiles('objects', [[36, 19], [37, 19]], 'U');
-    m.tiles('objects', [[20, 25]], 'R');
-    m.tiles('objects', [[27, 26]], 'R');
-    // sprawling greenery
-    m.scatter('objects', 'T', 14, { seed: 3, on: 'v.', avoid: [{ x: 0, y: 13, w: 40, h: 4 }, { x: 17, y: 11, w: 9, h: 9 }, { x: 18, y: 18, w: 5, h: 12 }, { x: 3, y: 4, w: 12, h: 7 }, { x: 24, y: 4, w: 10, h: 8 }, { x: 30, y: 0, w: 10, h: 7 }] });
-    m.scatter('objects', 'N', 6, { seed: 9, on: 'v.', avoid: [{ x: 0, y: 13, w: 40, h: 4 }, { x: 16, y: 10, w: 12, h: 12 }] });
-    m.scatter('objects', 'd', 4, { seed: 11, on: 'v.', avoid: [{ x: 0, y: 13, w: 40, h: 4 }, { x: 16, y: 10, w: 12, h: 12 }] });
-    m.scatter('objects', 'B', 18, { seed: 12, on: 'v.', avoid: [{ x: 0, y: 13, w: 40, h: 4 }, { x: 17, y: 11, w: 9, h: 9 }, { x: 18, y: 18, w: 5, h: 12 }] });
-    m.scatter('objects', 'G', 40, { seed: 14, on: 'v.,' });
-    m.scatter('objects', 'F', 22, { seed: 15, on: 'v.,', avoid: [{ x: 0, y: 13, w: 40, h: 4 }] });
-    m.scatter('objects', 'R', 6, { seed: 16, on: 'v.', avoid: [{ x: 0, y: 13, w: 40, h: 4 }] });
-    // keep the ruin interior and its lane clear of random scatter
-    m.rect('objects', 32, 2, 5, 3, ' '); m.set('objects', 34, 2, 's');
-    m.rect('objects', 32, 6, 4, 1, ' '); m.set('objects', 34, 5, ' ');
-    // mossy roof ivy shows as bushes along the walls
-    m.tiles('objects', [[4, 9], [8, 9]], 'B');
+    m.tiles('objects', [[26, 1], [28, 1], [27, 3], [29, 3]], '+'); // the graveyard lawn
+    // Rowan's yard, the hall corners and the cottage garden
+    m.hline('objects', 8, 10, 3, 'x').vline('objects', 10, 6, 4, 'x');
+    m.tiles('objects', [[4, 9], [8, 9]], 'B');                    // ivy growing over the wall
     m.tiles('objects', [[13, 10], [18, 10]], 'B');
-    m.set('objects', 0, 0, 'T');
-    m.set('above', 17, 11, '*').set('above', 18, 11, '*').set('above', 19, 11, '*').set('above', 20, 11, '*');
-    m.set('above', 21, 11, '*').set('above', 22, 11, '*').set('above', 23, 11, '*');
+    m.tiles('objects', [[13, 11], [14, 11]], 'F');
+    m.tiles('objects', [[33, 12], [34, 12]], 'F');
+    m.tiles('objects', [[38, 9], [38, 10]], 'B');
+    m.vline('objects', 2, 17, 3, 'x');                            // broken fence round the mossy cottage
+    m.set('objects', 2, 20, 'B');
+    m.tiles('objects', [[12, 9]], 'C');                           // crate by the hall
+    m.tiles('objects', [[29, 12], [30, 12]], 'U');                // barrels by the shop lane
 
-    // ---- airship landing beacon next to the arrival point
+    // ---- the square: a fountain in the glow, lamps, benches, a flower bed on each corner
+    m.set('objects', 20, 15, 'o');
+    m.set('objects', 16, 12, 'L').set('objects', 25, 12, 'L').set('objects', 16, 18, 'L').set('objects', 25, 18, 'L');
+    m.tiles('objects', [[19, 12], [22, 12]], 'H');               // benches
+    m.tiles('objects', [[17, 18], [24, 13]], 'F');               // flower beds on the square's corners
+    m.set('objects', 4, 11, 'L');                                 // a lamp by Rowan's door
+    m.set('objects', 30, 16, 'L');                                // a lamp on the east road
+
+    // ---- the east road and the Mossgrave gate: the road runs clear to the gate
+    m.tiles('objects', [[37, 12], [38, 13]], 'r');                // rubble by the road
+    m.set('objects', 37, 13, 'R');
+    m.tiles('objects', [[34, 16], [34, 17]], 'F');                // flowers by the ruin-hint's garden
+    m.tiles('objects', [[37, 15], [37, 16]], 'B');                // bushes round the garden chest (36,16)
+    m.vline('objects', 39, 0, 13, 'T');                           // a wood along the east edge (gate gap at 14-15)
+    m.vline('objects', 39, 16, 14, 'N');
+
+    // ---- the south: a lane of rocks, the marsh reeds, a garden at the mossy cottage
+    m.tiles('objects', [[18, 26], [23, 26]], 'R');                // roadside rocks
+    m.tiles('objects', [[1, 21]], 'd');                           // dead tree on the marsh edge
+    m.tiles('objects', [[13, 19], [14, 20], [13, 21]], 'G');      // reeds by the pond
+    m.tiles('objects', [[9, 18], [12, 22]], 'G');
+    m.tiles('objects', [[7, 16], [8, 17]], 'G');
+    m.tiles('objects', [[15, 24], [18, 22]], 'R');
+    m.tiles('objects', [[30, 21], [31, 22]], 'R');                // rocks by the east pond
+
+    // ---- the edges: woods with gaps, so nothing just stops
+    m.tiles('objects', [[0, 0], [2, 0], [5, 0], [6, 0], [11, 0], [16, 0], [17, 0], [22, 0], [31, 0], [36, 0]], 'T');
+    m.tiles('objects', [[0, 6], [0, 7], [0, 8], [0, 9], [0, 11], [0, 12], [0, 13], [0, 16]], 'N');
+    m.tiles('objects', [[1, 8], [1, 18], [0, 22], [0, 24]], 'T');
+    m.hline('objects', 0, 29, 40, 'N');
+    m.set('objects', 20, 29, ' ').set('objects', 21, 29, ' ');   // the south lane runs out to the edge
+    m.tiles('objects', [[17, 29], [19, 29]], 'T');
+    m.set('objects', 0, 0, 'T');
+    // ---- stray scrub and flowers for life (kept off every event and approach)
+    const keep = [
+      { x: 0, y: 11, w: 40, h: 4 }, { x: 16, y: 10, w: 13, h: 10 }, { x: 19, y: 18, w: 3, h: 12 },
+      { x: 2, y: 3, w: 12, h: 7 }, { x: 24, y: 4, w: 10, h: 8 }, { x: 31, y: 0, w: 8, h: 6 },
+      { x: 32, y: 6, w: 7, h: 9 }, { x: 0, y: 17, w: 14, h: 6 }, { x: 33, y: 16, w: 7, h: 4 },
+    ];
+    m.scatter('objects', 'G', 42, { seed: 14, on: 'v.,', avoid: keep });
+    m.scatter('objects', 'F', 16, { seed: 15, on: 'v.,', avoid: keep });
+    m.scatter('objects', 'B', 10, { seed: 12, on: 'v.', avoid: keep });
+    m.scatter('objects', 'T', 8, { seed: 3, on: 'v.', avoid: keep });
+    m.scatter('objects', 'd', 2, { seed: 11, on: 'v.', avoid: keep });
+    // keep every lane and approach clear again after the scatter
+    m.tiles('objects', [[11, 4], [12, 4]], ' ');
+    m.tiles('objects', [[20, 18], [20, 19], [21, 18], [21, 19]], ' ');
     m.set('objects', 11, 11, ' ');
+    m.tiles('above', [[17, 11], [18, 11], [19, 11], [20, 11], [21, 11], [22, 11], [23, 11]], '*');
+m.set('objects', 11, 11, ' ');
     // ---- portals & shop
     m.ev([
       H.transfer(6, 9, 'wickholm_house', 5, 7, 'up', { id: 'wh_home_door' }),
@@ -509,51 +554,136 @@
     const m = G.maps.build('brasshaven', 44, 34, {
       name: 'Brasshaven', bgm: 'brasshaven', ground: '=', spawn: { x: 21, y: 21, dir: 'up' },
     });
-    // ---- harbour: water to the south, pier, quay of cobble and grating
-    m.rect('ground', 0, 26, 44, 8, '~');
-    m.rect('ground', 0, 20, 44, 6, '=');
-    m.rect('ground', 0, 20, 9, 6, 'm');                        // grating by the docks
-    m.rect('ground', 35, 20, 9, 6, 'm');
-    m.rect('ground', 19, 24, 4, 4, 'b');                       // pier into the water
+    // ---- harbour: water to the south, quay of cobble and iron grating, piers into the bay
+    m.rect('ground', 0, 26, 44, 8, '~');                       // harbour water
+    m.rect('ground', 0, 20, 44, 6, '=');                       // quay & cobbles
+    m.rect('ground', 0, 20, 9, 6, 'm');                        // iron-grate docks (west)
+    m.rect('ground', 35, 20, 9, 6, 'm');                       // iron-grate docks (east)
+    m.rect('ground', 19, 24, 4, 4, 'b');                       // main pier into the bay
+    m.rect('ground', 37, 25, 3, 3, 'b');                       // little east jetty
     m.rect('ground', 2, 12, 36, 3, '=');                       // east-west street
+    m.rect('ground', 9, 13, 29, 1, 'm');                       // steam-vent grating down the middle of the street
+    m.rect('ground', 1, 11, 7, 4, ':');                        // the dirt lane of the lower quarter (west)
     m.rect('ground', 19, 5, 4, 16, '=');                       // main avenue
-    m.rect('ground', 3, 1, 3, 5, 'm');                         // cistern grating (secret)
-    m.set('ground', 5, 6, 'm');
-    m.blob('ground', 39, 4, 3, 2, 'm');
-    // ---- buildings
+    // ---- north market: a grate square with a cobble cross and a glowing fountain court
+    m.rect('ground', 6, 1, 13, 3, 'm');
+    m.vline('ground', 9, 1, 3, '=').vline('ground', 13, 1, 3, '=').vline('ground', 17, 1, 3, '=');
+    m.rect('ground', 11, 1, 3, 3, 'l');
+    m.rect('ground', 14, 4, 5, 2, '=');                        // alley down to the avenue
+    // ---- cistern grating (secret drain) on the west
+    m.rect('ground', 3, 1, 3, 5, 'm');
+    // ---- boiler court (between Sprocket and the avenue)
+    m.rect('ground', 16, 15, 3, 5, 'm');
+    // ---- central plaza: stone flags round a fountain
+    m.rect('ground', 23, 15, 6, 5, 't');
+
+    // ---- buildings (copper roofs, slate, terracotta, yellow). Doors keep their event coordinates.
     m.house(6, 4, 8, 6, { roof: '6', wall: '7', doorAt: 3 });            // The Brass Kettle inn (door 9,9)
     m.house(28, 5, 8, 7, { roof: '6', wall: '7', doorAt: 3 });           // Claret's workshop (door 31,11)
     m.house(9, 15, 6, 5, { roof: '4', wall: '7', doorAt: 2 });           // Sprocket & Sons (door 11,19)
-    m.house(30, 15, 6, 5, { roof: '6', wall: '7', doorAt: 2 });          // Hobbs' smithy (door 32,19)
+    m.house(30, 15, 6, 5, { roof: '3', wall: '7', doorAt: 2 });          // Hobbs' smithy (door 32,19)
     m.house(14, 6, 6, 5, { roof: '5', wall: '7', doorAt: 2 });           // Pipe & Pint tavern (door 16,10)
-    m.house(2, 6, 6, 5, { roof: '6', wall: '7', doorAt: 3 });            // Gerrit's workshop (door 5,10)
+    m.house(2, 6, 4, 5, { roof: '3', wall: '7', doorAt: 1 });            // Gerrit's workshop (door 3,10)
     m.house(38, 2, 4, 9, { roof: '6', wall: '7', doorAt: 1 });           // clock tower (door 39,10)
     m.house(19, 1, 6, 4, { roof: '2', wall: 'W', doorAt: 2 });           // Order lamp office (door 21,4)
-    // ---- steam-punk dressing
+
+    // ---- perimeter: riveted iron wall round the city, pipes running up the walls
+    m.hline('objects', 0, 0, 44, '7');                         // north wall
+    m.vline('objects', 0, 0, 20, '7');                         // west wall
+    m.vline('objects', 43, 0, 20, '7');                        // east wall
+    m.tiles('objects', [[2, 0], [7, 0], [18, 0], [28, 0], [38, 0]], 'P');
+
+    // ---- chimneys (pipes on the roofs) and roof-side pipes
+    m.tiles('objects', [[8, 4], [12, 4]], 'P');                // inn
+    m.tiles('objects', [[30, 5], [34, 5]], 'P');               // workshop
+    m.tiles('objects', [[17, 6]], 'P');                        // tavern
+    m.tiles('objects', [[12, 15], [33, 15]], 'P');             // Sprocket & smithy
+    m.tiles('objects', [[23, 1]], 'P');                        // lamp office
+    m.tiles('objects', [[40, 2]], 'P');                        // clock tower
+    m.tiles('objects', [[4, 6]], 'P');                         // Gerrit
     m.vline('objects', 27, 5, 7, 'P');                         // pipes down the workshop flank
-    m.vline('objects', 15, 15, 5, 'P');
+    m.vline('objects', 15, 15, 5, 'P');                        // boiler court wall
+    m.vline('objects', 29, 15, 5, 'P');                        // pipes down the smithy flank
     m.hline('objects', 36, 12, 2, 'P');
-    m.tiles('objects', [[26, 8], [26, 9]], 'J');              // boilers
-    m.tiles('objects', [[1, 16], [1, 17]], 'J');
-    m.tiles('objects', [[24, 17], [25, 17]], 'M');            // machine
-    m.tiles('objects', [[36, 17], [37, 17]], 'e');            // gears
-    m.tiles('objects', [[40, 13], [41, 15]], 'e');
-    m.tiles('objects', [[12, 21], [13, 21]], 'C');            // crates on the quay
-    m.tiles('objects', [[38, 22], [39, 22]], 'U');
-    m.tiles('objects', [[6, 22], [7, 23]], 'C');
-    m.tiles('objects', [[14, 13], [14, 14]], 'U');
-    m.tiles('objects', [[44 - 1, 19]], 'R');
-    m.set('objects', 17, 5, 'L').set('objects', 24, 5, 'L').set('objects', 18, 11, 'L').set('objects', 25, 11, 'L');
-    m.set('objects', 35, 11, 'L').set('objects', 12, 12, 'L');
-    m.tiles('objects', [[33, 25]], 'R');
-    m.tiles('objects', [[22, 14]], 'H');
+
+    // ---- north market: stalls under a row of lanterns, a fountain in the glow
+    m.tiles('objects', [[7, 1], [8, 1], [16, 1], [17, 1]], 'S');  // shelves of goods
+    m.tiles('objects', [[7, 2], [8, 2], [16, 2], [17, 2]], 'E');  // stall tables
+    m.tiles('objects', [[9, 2], [18, 2]], 'C');                   // crates under the stalls
+    m.set('objects', 12, 2, 'o');                                 // steam fountain
+    m.tiles('objects', [[10, 3], [14, 3]], 'H');                  // benches by the fountain
+    m.tiles('objects', [[6, 1], [6, 2], [6, 3]], 'P');            // pipes along the inn's west wall
+    m.tiles('above', [[7, 3], [9, 3], [11, 3], [13, 3], [15, 3], [17, 3]], '*');
+
+    // ---- cistern (secret) and the west lane
+    m.tiles('objects', [[1, 1], [1, 2]], 'U');
+    m.set('objects', 1, 4, 'C');
+    m.set('objects', 2, 14, 'H');                              // an old bench
+    m.tiles('objects', [[1, 16], [1, 17]], 'J');               // boilers, west yard
+    m.tiles('objects', [[7, 17], [7, 18]], 'C');               // stacked crates
+    m.set('objects', 6, 19, 'U');
+    m.set('objects', 4, 13, 'L');                              // lamp posts along the lane
+    m.set('objects', 8, 15, 'L');
+    m.set('objects', 6, 11, 'U');                               // barrels by Gerrit's door
+    m.tiles('objects', [[3, 16], [4, 16]], 'e');                // gears in the west yard
+
+    // ---- boiler court (16..18, 15..19) between Sprocket and the avenue
+    m.set('objects', 16, 15, 'J');
+    m.set('objects', 18, 16, 'e');
+    m.set('objects', 16, 19, 'C');
+    m.set('objects', 17, 19, 'U');
+
+    // ---- alley east of the avenue (23..26, 5..10): barrels, crates, a lamp
+    m.tiles('objects', [[23, 6], [23, 7]], 'U');
+    m.tiles('objects', [[24, 8], [24, 9]], 'C');
+    m.set('objects', 24, 5, 'L');
+    m.set('objects', 17, 5, 'L');
+
+    // ---- the street: lamp posts and a gear cluster by the east yard
+    m.set('objects', 18, 11, 'L').set('objects', 25, 11, 'L').set('objects', 35, 11, 'L');
+    m.set('objects', 12, 12, 'L');
+    m.tiles('objects', [[22, 14]], 'H');                        // chair by the avenue
     m.tiles('objects', [[26, 19]], 'U');
+    m.set('objects', 25, 17, 'o');                              // plaza fountain
+    m.tiles('objects', [[23, 17], [27, 17]], 'H');             // benches round it
+    m.set('objects', 23, 19, 'L').set('objects', 28, 19, 'L');
+
+    // ---- workshop front, clock tower and the east yard
+    m.tiles('objects', [[40, 13], [41, 13], [41, 14]], 'e');   // gears
+    m.tiles('objects', [[36, 15], [36, 16]], 'M');              // lathe in the yard
+    m.tiles('objects', [[36, 17], [37, 17]], 'e');              // gears
+    m.set('objects', 42, 15, 'U');
+    m.tiles('objects', [[38, 13], [39, 13]], 'F');              // a planter by the gears
+    m.vline('objects', 42, 2, 9, 'P');                          // pipes up the clock tower flank
+
+    // ---- south quay: crates, barrels, lamps, dock cranes and a steam railing
+    m.tiles('objects', [[12, 21], [13, 21], [13, 22]], 'C');   // crates by the quay
+    m.set('objects', 14, 22, 'U');
+    m.tiles('objects', [[38, 22], [39, 22]], 'U');             // barrels by the chest
+    m.tiles('objects', [[9, 22]], 'E');                        // fish stall
+    m.tiles('objects', [[10, 22], [9, 24], [10, 24]], 'C');
+    m.tiles('objects', [[1, 22], [2, 22], [2, 23]], 'C');      // west docks: stacked crates
+    m.tiles('objects', [[1, 25], [2, 25]], 'U');
+    m.set('objects', 5, 21, 'M').set('objects', 5, 20, 'P');   // west dock crane
+    m.set('objects', 6, 21, 'e');
+    m.set('objects', 27, 23, 'M').set('objects', 27, 22, 'P'); // central dock crane
+    m.set('objects', 42, 22, 'M').set('objects', 42, 21, 'P'); // east dock crane
+    m.tiles('objects', [[16, 21], [28, 21]], 'L');             // quay lamps
+    m.tiles('objects', [[30, 24], [31, 24], [31, 25]], 'C');   // crates by the guard post
+    m.hline('objects', 9, 25, 9, 'P');                         // steam railing, west quay
+    m.hline('objects', 23, 25, 11, 'P');                       // steam railing, east quay
+    m.tiles('objects', [[33, 25]], 'P');
+    m.set('objects', 19, 25, ' ');
+
+    // ---- harbour water: a crate-boat, a second quay corner
+    m.set('objects', 40, 28, 'C');
+    m.set('objects', 35, 30, 'U');
+    m.set('objects', 14, 27, 'C');
+    m.tiles('objects', [[30, 30], [10, 31], [36, 33]], 'R');   // rocks breaking the bay
+
+    // ---- hanging lanterns across the avenue mouth; a warm light over the arrival point
     m.tiles('above', [[20, 3], [21, 3]], '*');
-    m.hline('above', 9, 11, 3, '#');
     m.hline('above', 28, 11, 4, '*');
-    // ---- Order gate & patrol route
-    m.set('objects', 20, 22, ' ');
-    m.set('above', 21, 21, '@');
     // ---- portals & points of interest
     m.ev([
       H.transfer(9, 9, 'brasshaven_inn', 6, 8, 'up', { id: 'bh_inn_door' }),

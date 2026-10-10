@@ -39,6 +39,30 @@
     const back = { up: 'down', down: 'up', left: 'right', right: 'left' }[d] || 'up';
     await c.walk('player', [back], { wait: true });
   };
+  // forest groves: soft-edged clusters of trees and bushes inside an ellipse. Only free grass/moss is used,
+  // and nothing goes within `clear` tiles of an event or on the rows in `roads` (so paths stay open).
+  // picks: [[tile, weight], ...]
+  const grove = (m, cx, cy, rx, ry, seed, picks, clear, roads) => {
+    const rnd = G.util.rng(seed);
+    const total = picks.reduce((s, p) => s + p[1], 0);
+    for (let y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++) for (let x = Math.floor(cx - rx); x <= Math.ceil(cx + rx); x++) {
+      if (!m.inb(x, y)) continue;
+      const dx = (x - cx) / rx, dy = (y - cy) / ry, d = dx * dx + dy * dy;
+      if (d > 1 || m.get('objects', x, y) !== ' ' || '.v,'.indexOf(m.get('ground', x, y)) < 0) continue;
+      if (roads && roads.some((r) => y >= r[0] && y <= r[1])) continue;
+      if (m.events.some((e) => Math.abs(x - e.x) <= clear && Math.abs(y - e.y) <= clear)) continue;
+      if (rnd() > (1 - d) * 0.95) continue;
+      let r = rnd() * total;
+      for (const p of picks) { if (r < p[1]) { m.set('objects', x, y, p[0]); break; } r -= p[1]; }
+    }
+  };
+  // leafy canopy overhangs (above layer) over some round trees, for depth as you walk the wood
+  const canopies = (m, seed, p) => {
+    const rnd = G.util.rng(seed);
+    for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) {
+      if (m.get('objects', x, y) === 'T' && m.get('above', x, y) === ' ' && rnd() < p) m.set('above', x, y, '^');
+    }
+  };
   // a plain NPC: lines is a function (c) => Promise; keeps each event self-contained
   const npc = (id, x, y, sprite, run, opts) => Object.assign({
     id, x, y, sprite, trigger: 'action', solid: true, dir: 'down', move: 'still', run,
@@ -50,21 +74,30 @@
   pa.rect('ground', 0, 0, 40, 1, 'q').rect('ground', 36, 0, 4, 32, 'q').rect('ground', 0, 31, 40, 1, 'q');
   pa.rect('ground', 0, 1, 36, 1, 'v');
   pa.hline('objects', 0, 1, 36, 'x').vline('objects', 35, 2, 28, 'x').hline('objects', 0, 30, 36, 'x');
-  // marble plaza, airship landing deck, dirt path from the west gate
+  // marble courtyard ringed by cobbled cloister walks, airship landing deck, dirt path from the west gate
   pa.rect('ground', 9, 11, 19, 19, 'g');
+  pa.rect('ground', 9, 11, 19, 2, '=');             // north walk under the nave
+  pa.rect('ground', 9, 13, 2, 17, '=');             // west cloister walk
+  pa.rect('ground', 26, 13, 2, 17, '=');            // east cloister walk
+  pa.rect('ground', 9, 28, 19, 2, '=');             // south walk
+  pa.rect('ground', 28, 15, 1, 2, '=');             // gravel path into the hedge garden
   pa.rect('ground', 17, 25, 5, 5, 'j');
   pa.rect('ground', 1, 15, 8, 2, ':');
-  pa.rect('ground', 27, 15, 2, 2, 'g');
   pa.blob('ground', 5, 5, 3, 2, 'v');
   pa.blob('ground', 31, 22, 3, 2, 'v');
   pa.pond(6, 18, 2, 1);
   // Abbey nave (door at 18,10 leads to the hall), steps and pillars
   pa.house(10, 3, 17, 8, { roof: '4', wall: '9', doorAt: 8, windows: false });
   pa.rect('objects', 17, 11, 3, 1, 'u');
-  pa.tiles('objects', [[11, 11], [24, 11]], 'Q');
-  // Bell tower (north-west)
+  // nave facade: lit windows and green-and-gold banners on the front wall, cypress line behind the roof
+  pa.tiles('objects', [[11, 10], [15, 10], [21, 10], [25, 10]], 'O');
+  pa.tiles('objects', [[13, 10], [23, 10]], 'V');
+  for (const x of [8, 11, 14, 17, 20, 23, 26]) pa.set('objects', x, 2, 'N');
+  // Bell tower (north-west): slate cap, marble shaft, belfry window
   pa.rect('objects', 2, 2, 5, 2, '4');
   pa.rect('objects', 2, 4, 5, 7, '9');
+  pa.set('objects', 4, 6, 'O');
+  pa.tiles('objects', [[0, 3], [0, 6], [0, 9]], 'N');   // cypresses along the cliff edge
   // Pilgrim shop (west) and pilgrim hostel (east)
   pa.house(2, 21, 6, 5, { roof: '5', wall: '9', doorAt: 3, windows: false });   // door (5,25)
   pa.house(27, 21, 6, 5, { roof: '2', wall: '9', doorAt: 2, windows: false });  // door (29,25)
@@ -85,13 +118,30 @@
     if (y === 14 && (x === 30 || x === 32)) b = true;
     if (b) pa.set('objects', x, y, 'B');
   }
-  // plaza furniture and statues
+  // courtyard: colonnades down both sides (pillars with arches over them), statues at the ends
+  pa.tiles('objects', [[11, 11], [25, 11]], 'Q');
   pa.tiles('objects', [[11, 14], [25, 14], [11, 26], [25, 26]], 's');
-  pa.tiles('objects', [[12, 18], [12, 22], [24, 18], [24, 22]], 'Q');
+  pa.tiles('objects', [[11, 18], [11, 22], [25, 18], [25, 22]], 'Q');
+  pa.tiles('above', [[11, 18], [11, 22], [25, 18], [25, 22]], '@');
+  pa.tiles('objects', [[11, 20], [25, 20]], 'L');
+  // two grass parterres with hedge borders, opening toward the fountain axis
+  for (const x0 of [12, 20]) {
+    pa.box('objects', x0, 17, 5, 4, 'B');
+    pa.rect('ground', x0 + 1, 18, 3, 2, '.');
+    pa.set('objects', x0 + 2, 20, ' ');
+    pa.tiles('objects', [[x0 + 1, 18], [x0 + 3, 19]], 'F');
+    pa.set('objects', x0 + 2, 18, 'G');
+  }
+  // central fountain, benches facing the gardens, corner lamps and flower borders
+  pa.rect('ground', 17, 19, 3, 3, 'l');             // golden glow around the fountain (walkable)
   pa.set('objects', 18, 20, 'o');
   pa.tiles('objects', [[13, 16], [15, 16], [21, 16], [23, 16]], 'H');
+  pa.tiles('objects', [[1, 23], [7, 26]], 'C');     // stacked goods by the pilgrim shop
+  pa.set('objects', 1, 24, 'U');
   pa.tiles('objects', [[9, 12], [27, 12], [9, 28], [27, 28]], 'L');
   pa.tiles('objects', [[10, 12], [11, 12], [26, 12], [10, 27], [26, 27]], 'F');
+  // landing deck framed by two pillars
+  pa.tiles('objects', [[16, 27], [22, 27]], 'Q');
   // hanging paper lanterns over the plaza
   pa.tiles('above', [[13, 12], [17, 12], [21, 12], [25, 12]], '*');
   // scatter: trees, pines, bushes, flowers, tall grass in the open gardens
@@ -255,6 +305,10 @@
   ph.vline('objects', 1, 6, 3, 'Y');                   // hymnal shelves
   ph.vline('objects', 16, 6, 2, 'S');
   ph.tiles('above', [[9, 6], [9, 9]], '*');            // chandeliers
+  ph.tiles('objects', [[0, 4], [0, 8], [17, 4], [17, 8]], 'O');   // coloured side windows
+  ph.tiles('objects', [[8, 1], [9, 1]], 'V');                     // banners above the altar
+  ph.tiles('objects', [[6, 2], [11, 2]], 'L');                    // candle stands by the altar
+  ph.set('objects', 13, 4, 'E');                                  // lectern
   ph.ev(H.transfer(9, 13, 'pale_abbey', 18, 11, 'down'));
 
   // Sera: rehearsing at the altar, then a long talk (heart choice, the abbey seal)
@@ -362,6 +416,16 @@
   c1.set('objects', 12, 18, 'z'); c1.set('objects', 16, 15, 'z');               // small Hollow rifts
   c1.tiles('objects', [[10, 21], [11, 21], [18, 23]], 'r');
   c1.tiles('objects', [[16, 1], [22, 1]], 's');
+  // graveyard: disturbed earth and rubble; pillars, cracked flags and rubble along the south passage
+  c1.blob('ground', 11, 6, 1, 1, 'k');
+  c1.blob('ground', 5, 9, 1, 1, 'k');
+  c1.tiles('objects', [[1, 8], [11, 10]], 'r');
+  c1.set('objects', 12, 2, 'L');
+  c1.tiles('objects', [[6, 14], [19, 14]], 'Q');
+  c1.blob('ground', 11, 20, 2, 1, 'k');
+  c1.blob('ground', 25, 19, 1, 1, 'k');
+  c1.set('objects', 1, 21, 'L');
+  c1.tiles('objects', [[7, 24], [13, 24], [22, 24]], 'r');
   c1.scatter('objects', 'R', 4, { seed: 6, on: 't', avoid: [{ x: 0, y: 13, w: 30, h: 13 }, { x: 13, y: 0, w: 17, h: 12 }] });
   c1.scatter('objects', 'd', 2, { seed: 8, on: 't', avoid: [{ x: 0, y: 13, w: 30, h: 13 }, { x: 13, y: 0, w: 17, h: 12 }] });
   c1.encounters({ steps: [16, 30], troops: [{ id: 'crypt_1', weight: 3 }, { id: 'crypt_2', weight: 2 }, { id: 'crypt_3', weight: 2 }, { id: 'crypt_4', weight: 1 }] });
@@ -463,6 +527,13 @@
   c2.tiles('objects', [[3, 3], [6, 3], [9, 5], [3, 8], [7, 8], [14, 3], [14, 7], [10, 2]], '+');
   c2.tiles('objects', [[2, 20], [3, 21], [24, 3], [24, 23]], 'i');
   c2.tiles('objects', [[5, 22], [6, 22], [12, 20]], 'r');
+  // cracked flags in the entry passage, pillars and lamps around the Hollow chamber
+  c2.blob('ground', 9, 18, 2, 1, 'k');
+  c2.blob('ground', 14, 21, 2, 1, 'k');
+  c2.tiles('objects', [[21, 3], [21, 9]], 'Q');
+  c2.tiles('objects', [[1, 12], [26, 16]], 'L');
+  c2.tiles('objects', [[23, 5], [14, 9]], '+');
+  c2.tiles('objects', [[13, 23], [25, 23]], 'r');
   c2.scatter('objects', 'R', 3, { seed: 4, on: 'th', avoid: [{ x: 1, y: 13, w: 17, h: 4 }, { x: 18, y: 1, w: 9, h: 24 }] });
   c2.encounters({ steps: [14, 26], troops: [{ id: 'crypt_3', weight: 3 }, { id: 'crypt_4', weight: 3 }, { id: 'crypt_2', weight: 2 }, { id: 'crypt_1', weight: 1 }] });
 
@@ -588,13 +659,29 @@
   // "Wren's garden" sign-post and the old Lampwright oak
   w1.set('objects', 24, 13, 'd');
   w1.tiles('objects', [[12, 17], [13, 17], [12, 13], [14, 13]], 'F');
+  // hedges lining the main road (the road itself stays two tiles wide)
+  w1.hline('objects', 29, 14, 7, 'B').hline('objects', 30, 17, 6, 'B');
+  // a winding track north from the road to a ruined glade ringed with glowing flowers
+  w1.rect('ground', 13, 9, 2, 6, ':').rect('ground', 13, 9, 5, 2, ':').rect('ground', 17, 3, 2, 8, ':');
+  w1.blob('ground', 18, 2, 3, 2, ',');
+  w1.tiles('objects', [[14, 0], [15, 2], [16, 0], [20, 0], [21, 2], [20, 4], [15, 4]], 'F');
+  w1.tiles('objects', [[14, 4], [21, 5]], 'Q');                         // broken shrine columns
+  w1.tiles('objects', [[22, 2], [15, 6], [23, 3]], 'r');
+  // a second track south-east to a clearing of glowing grass
+  w1.rect('ground', 33, 17, 2, 7, ':').blob('ground', 34, 25, 2, 2, ',');
+  w1.tiles('objects', [[31, 23], [37, 24], [33, 28], [36, 28]], 'F');
+  // glowing crystals and rocks scattered through the wood
+  w1.tiles('objects', [[24, 6], [29, 4], [17, 27], [31, 21]], 'i');
+  w1.tiles('objects', [[9, 6], [12, 22], [12, 27], [23, 20]], 'R');
+  w1.tiles('objects', [[22, 14], [14, 8]], 'F');
   // scatter forest: pines, trees, flowers and grass
   const w1Avoid = [
     { x: 0, y: 13, w: 40, h: 6 }, { x: 9, y: 0, w: 4, h: 30 }, { x: 21, y: 19, w: 10, h: 10 },
     { x: 17, y: 4, w: 11, h: 9 }, { x: 32, y: 2, w: 8, h: 12 }, { x: 37, y: 0, w: 3, h: 30 }, { x: 0, y: 0, w: 3, h: 30 },
   ];
-  w1.scatter('objects', 'N', 24, { seed: 21, on: '.v,', avoid: w1Avoid });
-  w1.scatter('objects', 'T', 12, { seed: 23, on: '.v,', avoid: w1Avoid });
+  w1.scatter('objects', 'N', 34, { seed: 21, on: '.v,', avoid: w1Avoid });
+  w1.scatter('objects', 'T', 16, { seed: 23, on: '.v,', avoid: w1Avoid });
+  w1.scatter('objects', 'B', 10, { seed: 33, on: '.v,', avoid: w1Avoid });
   w1.scatter('objects', 'd', 4, { seed: 25, on: '.v,', avoid: w1Avoid.concat([{ x: 0, y: 0, w: 28, h: 30 }]) });
   w1.scatter('objects', 'F', 22, { seed: 27, on: '.v,', avoid: w1Avoid });
   w1.scatter('objects', 'R', 6, { seed: 29, on: '.v,', avoid: w1Avoid });
@@ -626,6 +713,16 @@
   w1.ev(H.chest('ww1_chest_glade', 21, 8, 'pressed_flower'));
   w1.ev(H.chest('ww1_chest_maze', 28, 26, 'lavender_sachet'));
   w1.ev(H.chest('ww1_secret', 36, 4, 'wild_honey'));
+  // dense woodland in clusters at the edges of the wood (the road rows 13-18 stay open)
+  const w1Road = [[13, 18]];
+  const w1Wood = [['N', 5], ['T', 3], ['B', 2], ['F', 1]];
+  grove(w1, 5, 4, 4, 4, 101, w1Wood, 1, w1Road);
+  grove(w1, 6, 25, 4, 4, 103, w1Wood, 1, w1Road);
+  grove(w1, 17, 26, 5, 3, 107, w1Wood, 1, w1Road);
+  grove(w1, 31, 27, 5, 2, 109, [['N', 5], ['T', 3], ['B', 2]], 1, w1Road);
+  grove(w1, 36, 21, 2, 6, 111, [['N', 4], ['T', 2], ['B', 2]], 1, w1Road);
+  grove(w1, 28, 2, 7, 2, 113, [['N', 4], ['T', 3], ['B', 1]], 1, w1Road);
+  canopies(w1, 301, 0.5);
   w1.finish();
 
   // Wren walks out of the cottage after the matron falls: the party joins, and the charm changes hands.
@@ -664,7 +761,14 @@
   w2.tiles('objects', [[29, 13], [30, 19]], 'd');
   // Wren's cottage, north-east, with its door facing the grove
   w2.house(26, 3, 6, 5, { roof: '1', wall: 'X', doorAt: 3, windows: true });   // door (29,7)
-  w2.tiles('objects', [[25, 6], [25, 7], [32, 6], [32, 8]], 'F');
+  w2.tiles('objects', [[25, 6], [32, 6], [32, 8]], 'F');
+  // Wren's yard: herb beds, a picket fence on the west, a well, herb-jar shelves along the walls
+  w2.rect('ground', 21, 3, 4, 2, ',').rect('ground', 21, 6, 4, 2, ',');
+  w2.tiles('objects', [[21, 3], [23, 3], [22, 6], [24, 7], [22, 4]], 'G');
+  w2.vline('objects', 20, 2, 7, 'x');
+  w2.set('objects', 24, 1, 'o');                       // the well
+  w2.tiles('objects', [[25, 3], [25, 4], [25, 5], [32, 3], [32, 4]], 'S');
+  w2.set('objects', 25, 7, 'U');                       // rain barrel
   w2.tiles('objects', [[12, 12], [13, 12], [12, 18], [17, 18]], 'F');
   const w2Avoid = [
     { x: 0, y: 13, w: 36, h: 6 }, { x: 22, y: 8, w: 14, h: 15 }, { x: 24, y: 2, w: 10, h: 7 },
@@ -677,6 +781,14 @@
   w2.scatter('objects', 'F', 16, { seed: 47, on: '.v,', avoid: w2Avoid });
   w2.scatter('objects', 'G', 12, { seed: 49, on: '.v,', avoid: w2Avoid });
   w2.scatter('objects', 'R', 5, { seed: 51, on: '.v,', avoid: w2Avoid });
+  // thorn hedges lining the road, a glowing clearing, a reed-fringed spring, rubble and crystals in the grove
+  w2.hline('objects', 5, 14, 8, 'B').hline('objects', 5, 17, 8, 'B');
+  w2.blob('ground', 16, 20, 2, 2, ',');
+  w2.tiles('objects', [[14, 19], [18, 19], [16, 18], [15, 22], [18, 22]], 'F');
+  w2.tiles('objects', [[3, 5], [9, 5], [6, 3], [8, 7]], 'G');
+  w2.tiles('objects', [[4, 4], [10, 6]], 'R');
+  w2.tiles('objects', [[26, 12], [32, 16]], 'r');
+  w2.tiles('objects', [[30, 11], [24, 14], [28, 17]], 'i');
   w2.encounters({ steps: [14, 26], troops: [{ id: 'ww_1', weight: 2 }, { id: 'ww_2', weight: 3 }, { id: 'ww_3', weight: 2 }, { id: 'ww_4', weight: 2 }] });
 
   w2.ev(H.transfer(0, 15, 'whisperwood_1', 38, 15, 'left', { id: 'ww2_to_ww1' }));
@@ -728,6 +840,15 @@
   w2.ev(H.chest('ww2_chest_grove', 31, 12, 'rare_tea'));
   w2.ev(H.chest('ww2_secret', 1, 25, 'moonpetal'));
   w2.tiles('objects', [[0, 25], [2, 25], [1, 24]], 'B');  // the secret hollow (open to the south)
+  // dense woodland in clusters; the road (rows 14-17) stays open
+  const w2Road = [[14, 17]];
+  const w2Wood = [['N', 5], ['T', 3], ['B', 2]];
+  grove(w2, 5, 5, 4, 3, 201, w2Wood, 1, w2Road);
+  grove(w2, 4, 27, 4, 3, 203, [['N', 5], ['T', 3], ['B', 1], ['F', 1]], 1, w2Road);
+  grove(w2, 16, 28, 6, 2, 205, w2Wood, 1, w2Road);
+  grove(w2, 32, 25, 3, 5, 207, [['N', 4], ['T', 2], ['B', 2]], 1, w2Road);
+  grove(w2, 17, 4, 4, 2, 209, [['N', 4], ['T', 3], ['B', 2]], 1, w2Road);
+  canopies(w2, 302, 0.5);
   w2.finish();
 
   // ============================================================ wren_cottage (16 x 12)
@@ -746,6 +867,7 @@
   wc.tiles('objects', [[2, 10], [3, 10]], 'U');          // barrels of dried rose-hips
   wc.set('objects', 12, 10, 'C');
   wc.tiles('above', [[6, 2], [8, 2]], '*');
+  wc.set('objects', 2, 8, 'L');                          // standing lamp by the bookshelves
   wc.set('objects', 7, 11, 'D');                         // front door
   wc.ev(H.transfer(7, 11, 'whisperwood_2', 29, 8, 'down', { id: 'wc_exit' }));
 

@@ -171,8 +171,10 @@
       const ch = rows[ty0 + j][tx0 + i];
       if (!ch || ch === ' ') continue;
       if (layer === 'ground' && isAnim(ch)) continue;
-      paintTile(g, ch, layer, i * TILE, j * TILE, 0);
+      if (layer === 'ground' && G.gfx && G.gfx.paintGround) G.gfx.paintGround(g, def, tx0 + i, ty0 + j, i * TILE, j * TILE, ch);
+      else paintTile(g, ch, layer, i * TILE, j * TILE, 0);
     }
+    if (layer === 'ground' && G.gfx && G.gfx.paintShadows) G.gfx.paintShadows(g, def, tx0, ty0, tw, th);
     store.set(key, cv);
     return cv;
   }
@@ -677,6 +679,7 @@
       const sx = a.x * TILE - cx, sy = a.y * TILE - cy;
       if (sx <= -TILE || sy <= -TILE || sx >= VW || sy >= VH) continue;
       paintScreenTile(ctx, a.ch, 'ground', sx, sy, frame);
+      if (G.gfx && G.gfx.drawShore) G.gfx.drawShore(ctx, def, a.x, a.y, sx, sy, frame);
     }
     drawLayer(ctx, def, 'objects', cx, cy);
 
@@ -750,6 +753,21 @@
       invalidate(def);
     },
     invalidate() { if (M.def) invalidate(M.def); },
+    // whole-map composite of one layer, built from the same chunk caches the game draws (used by tools/mapshot.js)
+    renderLayer(def, layer, frame) {
+      const cv = G.util.canvas(def.w * TILE, def.h * TILE), g = cv.getContext('2d');
+      const nx = Math.ceil(def.w / CHUNK), ny = Math.ceil(def.h / CHUNK);
+      for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) g.drawImage(chunkCanvas(def, layer, i, j), i * CHUNK_PX, j * CHUNK_PX);
+      if (layer === 'ground') {
+        for (let y = 0; y < def.h; y++) for (let x = 0; x < def.w; x++) {
+          const ch = def.ground[y][x];
+          if (!isAnim(ch)) continue;
+          paintScreenTile(g, ch, 'ground', x * TILE, y * TILE, frame | 0);
+          if (G.gfx && G.gfx.drawShore) G.gfx.drawShore(g, def, x, y, x * TILE, y * TILE, frame | 0);
+        }
+      }
+      return cv;
+    },
   };
 
   // ------------------------------------------------------------------ script commands

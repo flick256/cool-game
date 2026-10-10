@@ -107,7 +107,7 @@
   }
 
   function buildDeck() {
-    const b = G.maps.build('marigold_deck', 22, 14, { name: 'The Marigold — Deck', bgm: 'marigold', spawn: { x: 11, y: 8, dir: 'up' }, interior: false });
+    const b = G.maps.build('marigold_deck', 22, 14, { name: 'The Marigold — Deck', bgm: 'marigold', spawn: { x: 11, y: 8, dir: 'up' }, interior: false, tint: 'rgba(255,170,90,0.06)' });
     b.rect('ground', 0, 0, 22, 14, 'q');                    // sky void around the ship
     b.rect('ground', 1, 2, 20, 10, 'j');                    // airship deck planks
     b.hline('objects', 1, 2, 20, 'x'); b.hline('objects', 1, 11, 20, 'x');     // rails
@@ -119,6 +119,19 @@
     b.set('objects', 18, 8, 'C'); b.set('objects', 19, 8, 'C'); b.set('objects', 18, 9, 'C');   // cargo
     b.set('objects', 18, 6, 'U'); b.set('objects', 19, 6, 'U');
     [3, 4, 5, 15, 16, 17].forEach((x) => b.set('above', x, 2, '*'));           // strings of paper lanterns
+
+    // --- lived-in dressing: masts, steam pipes, boiler hatch, barrels and potted shrubs ---
+    [[2, 3], [19, 3], [2, 10], [19, 10]].forEach(([x, y]) => b.set('objects', x, y, 'Q'));   // four masts
+    b.set('objects', 5, 3, 'U'); b.set('objects', 6, 3, 'B');                  // spare barrel, potted shrub
+    b.vline('objects', 7, 3, 5, 'P');                                          // steam pipe down the galley's west wall
+    b.vline('objects', 14, 3, 5, 'P');                                         // ...and its east wall
+    b.set('objects', 16, 6, 'J');                                              // boiler hatch by the helm
+    b.set('objects', 18, 4, 'e');                                              // brass gears
+    b.set('objects', 17, 5, 'B'); b.set('objects', 19, 5, 'B');                // potted shrubs by the helm
+    b.set('objects', 19, 9, 'U');                                              // more cargo
+    b.set('objects', 2, 8, 'U'); b.set('objects', 2, 9, 'C');                  // port-side stores
+    [9, 10, 11, 12, 13].forEach((x) => b.set('above', x, 11, '*'));           // string lights along the south rail
+    b.set('objects', 13, 9, 'Z'); b.set('objects', 14, 9, 'Z');             // hammocks out on the south rail
     b.ev([
       { id: 'to_galley', x: 11, y: 7, sprite: null, trigger: 'step', solid: false,
         run: async (c) => { c.sfx('door'); await c.transfer('marigold_galley'); } },
@@ -143,7 +156,7 @@
   }
 
   function buildGalley() {
-    const b = G.maps.build('marigold_galley', 16, 11, { name: 'Marigold Galley', bgm: 'marigold', spawn: { x: 8, y: 9, dir: 'up' }, interior: true });
+    const b = G.maps.build('marigold_galley', 16, 11, { name: 'Marigold Galley', bgm: 'marigold', spawn: { x: 8, y: 9, dir: 'up' }, interior: true, tint: 'rgba(255,170,90,0.10)' });
     b.room(0, 0, 16, 11, { floor: 'f', wall: 'X', topWall: 2 });
     b.door(8, 10);                                               // the way back out to the deck
     b.set('objects', 4, 1, 'O'); b.set('objects', 11, 1, 'O'); b.set('objects', 7, 1, 'V');
@@ -158,6 +171,20 @@
     b.set('objects', 2, 9, 'C'); b.set('objects', 3, 9, 'C');    // crates
     b.set('objects', 13, 9, 'U'); b.set('objects', 14, 9, 'U');  // barrels
     [6, 7, 8].forEach((x) => b.set('above', x, 2, '*'));         // lanterns over the table
+
+    // --- lived-in dressing: side windows, a kitchen counter, pipes, extra seating, warm lamps ---
+    b.set('objects', 0, 4, 'O'); b.set('objects', 15, 4, 'O');                 // round-ish side windows on the wall
+    b.hline('objects', 10, 3, 3, 'E');                                         // kitchen counter under the pantry shelves
+    b.set('objects', 13, 2, 'J'); b.set('objects', 13, 3, 'M');                // copper boiler and stove beside the hearth
+    b.set('objects', 5, 6, 'H'); b.set('objects', 8, 6, 'H');                  // chairs at the table's sides
+    b.vline('objects', 1, 4, 2, 'P');                                          // brass pipe running down from the shelves
+    b.set('objects', 1, 8, 'C'); b.set('objects', 1, 9, 'U');                  // stores by the bunk
+    b.set('objects', 2, 8, 'C');
+    b.set('objects', 12, 9, 'B');                                              // potted shrub near the barrels
+    b.set('objects', 15, 8, 'S');                                              // wall shelf of jars
+    [11, 12, 13].forEach((x) => b.set('above', x, 4, '*'));                    // a second cluster of lamps over the kitchen
+    b.rect('ground', 11, 6, 3, 2, 'c');                                        // a second rug by the save lamp
+    b.set('objects', 4, 3, 'F').set('objects', 9, 9, 'F').set('objects', 13, 6, 'F');   // wildflowers in jars
     b.ev([
       { id: 'galley_exit', x: 8, y: 10, sprite: null, trigger: 'step', solid: false,
         run: async (c) => { c.sfx('door'); await c.transfer('marigold_deck', 11, 8, 'up'); } },

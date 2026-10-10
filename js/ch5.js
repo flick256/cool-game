@@ -99,6 +99,19 @@
   gate.set('objects', 28, 17, 'U').set('objects', 28, 18, 'C').set('objects', 27, 19, 'U');
   gate.set('objects', 23, 15, 'C');
   gate.set('objects', 21, 18, 'I');            // the campfire
+  // --- desolate night camp: a ruined colonnade and clockwork at the Spire's flanks, a tent ring round the fire ---
+  gate.set('objects', 10, 3, 'Q').set('objects', 10, 5, 'e').set('objects', 25, 3, 'Q').set('objects', 25, 5, 'e');
+  gate.set('objects', 5, 3, 'Q').set('objects', 5, 6, 'Q').set('objects', 30, 3, 'Q').set('objects', 30, 6, 'Q');
+  gate.set('objects', 6, 8, 'r').set('objects', 29, 9, 'r').set('objects', 4, 11, 'r');
+  gate.blob('ground', 3, 19, 2, 2, 'h');                                         // more Hollow on the western ash
+  gate.set('objects', 21, 15, 'U').set('objects', 21, 21, 'C').set('objects', 24, 21, 'U');   // the fire's ring of crates
+  gate.set('objects', 19, 18, 'H').set('objects', 23, 18, 'H');                  // log seats around the fire
+  gate.set('objects', 31, 8, 'L').set('objects', 6, 14, 'L').set('objects', 19, 13, 'L');  // lamps on the wild ash
+  gate.house(31, 16, 3, 3, { roof: '2', wall: 'X', doorAt: 1, windows: false });  // a traveller's tent on the east ash
+  // glowing crystals on the ash, clear of the road and the camp
+  [[4, 12], [2, 17], [6, 22], [32, 11], [30, 14], [33, 22], [8, 3], [27, 2]].forEach(([x, y]) => gate.set('objects', x, y, 'i'));
+  // dead trees along the outer edges
+  [[2, 4], [3, 13], [1, 20], [4, 25], [33, 3], [32, 9], [30, 24], [9, 26]].forEach(([x, y]) => gate.set('objects', x, y, 'd'));
   // scatter the wild ash and wreckage ONLY outside the camp and the road
   const gateAvoid = [{ x: 8, y: 0, w: 22, h: 12 }, { x: 8, y: 13, w: 21, h: 14 }, { x: 15, y: 0, w: 6, h: 28 }];
   gate.scatter('objects', 'd', 6, { seed: 11, avoid: gateAvoid });
@@ -238,6 +251,15 @@
   h1.set('objects', 14, 3, 's').set('objects', 11, 2, 'L').set('objects', 18, 2, 'L');
   h1.set('objects', 14, 0, 'u');                 // stairs north, to the second hall
   h1.set('objects', 14, 25, 'D');                // the way back out to the gate
+  // --- the lower halls: a carpeted processional between the pillars, statues, banners, side-rooms of machinery ---
+  h1.rect('ground', 13, 1, 3, 24, 'c');          // the processional carpet, stairs to door
+  h1.set('objects', 10, 4, 's').set('objects', 19, 4, 's').set('objects', 10, 18, 's').set('objects', 19, 18, 's');
+  h1.set('objects', 10, 25, 'V').set('objects', 19, 25, 'V');   // banners of the Hearth Order flank the south door
+  h1.set('objects', 7, 0, 'V').set('objects', 22, 0, 'V');      // ...and the north wall
+  h1.set('objects', 6, 9, 'J').set('objects', 7, 2, 'C').set('objects', 7, 3, 'U');   // the west room's stores and boiler
+  h1.set('objects', 22, 6, 'M').set('objects', 21, 2, 'C').set('objects', 23, 8, 'U'); // the east room's machinery
+  h1.set('objects', 3, 16, 'C');
+  h1.set('above', 10, 10, '*').set('above', 19, 10, '*').set('above', 10, 22, '*').set('above', 19, 22, '*');  // lanterns on the statues
   h1.ev([
     H.save('hall1_entry', 12, 22),
     H.save('hall1_mid', 14, 9),
@@ -277,7 +299,7 @@
   // MAP: spire_hall_2 — the Cold Foundry halls: valves, the lock, Bram
   // ==================================================================
   const h2 = G.maps.build('spire_hall_2', 30, 26, {
-    name: 'Spire Cold Foundry', bgm: 'spire', spawn: { x: 14, y: 23, dir: 'up' }, ground: 'g', interior: true,
+    name: 'Spire Cold Foundry', bgm: 'spire', spawn: { x: 14, y: 23, dir: 'up' }, ground: 'g', interior: true, tint: 'rgba(70,120,190,0.12)',
   });
   h2.border('objects', '7', 1);
   h2.rect('ground', 1, 1, 28, 24, 'g');
@@ -295,6 +317,14 @@
   h2.set('objects', 14, 25, 'D');               // back down to the lower halls
   h2.set('objects', 11, 2, 'L').set('objects', 18, 2, 'L');
   h2.set('objects', 16, 9, 'L');
+  // --- the Cold Foundry: a riveted walkway down the middle, boilers, gears and cold crystal veins ---
+  h2.rect('ground', 13, 1, 3, 24, 'm');          // the riveted walkway (the Foundry's own floor)
+  h2.set('objects', 6, 12, 'J').set('objects', 4, 16, 'e').set('objects', 8, 16, 'J');   // west-room boilers and gears
+  h2.set('objects', 7, 12, 'C').set('objects', 3, 18, 'U');
+  h2.vline('objects', 27, 7, 6, 'P');            // steam pipes from the gears down to the boiler
+  h2.set('objects', 21, 3, 'U').set('objects', 21, 21, 'C').set('objects', 27, 22, 'M');
+  h2.set('objects', 22, 21, 'i').set('objects', 26, 23, 'i').set('objects', 4, 23, 'i');   // cold glowing crystals
+  h2.set('objects', 12, 21, 'Q').set('objects', 17, 21, 'Q');
   const valve = (id, x, y, order, label) => ({
     id, x, y, sprite: 'obj_beacon', trigger: 'action', solid: true,
     if: () => !flag('ch5_valves_done'),
@@ -423,6 +453,12 @@
   up.set('objects', 2, 1, 'u').set('objects', 4, 19, 'u');     // stairs to the Hearthstar, and back down
   up.scatter('objects', 'F', 8, { seed: 21, avoid: [{ x: 1, y: 1, w: 25, h: 18 }] });
   up.scatter('objects', 'B', 6, { seed: 22, avoid: [{ x: 1, y: 0, w: 25, h: 19 }] });
+  // --- the ghostly memory garden: statues flank the carpet, crystals and columns, grass with white flowers ---
+  up.set('objects', 11, 8, 's').set('objects', 16, 8, 's').set('objects', 11, 12, 's').set('objects', 16, 12, 's');
+  up.set('objects', 8, 3, 'i').set('objects', 17, 16, 'i').set('objects', 31, 4, 'i').set('objects', 29, 15, 'i');
+  up.set('objects', 31, 6, 'Q').set('objects', 31, 12, 'Q');
+  const gardenRnd = G.util.rng(77);
+  for (let y = 1; y < 19; y++) for (let x = 27; x < 35; x++) up.set('ground', x, y, gardenRnd() < 0.6 ? ',' : '.');
   up.ev([
     H.save('upper_save', 10, 10),
     H.sign('upper_portrait', 14, 1, 'A portrait under a cracked gilt frame: a smiling woman with a lantern glowing in her chest. The plaque says only ELOWEN.'),
@@ -522,16 +558,20 @@
   });
   hs.border('objects', '7', 1);
   // a round chamber: marble floor, sigil rings of lantern-light, cold walls outside the circle
+  // concentric floor: a carpeted heart, a gold sigil ring, a marble band, a riveted Engine ring, the Hollow outside
   for (let y = 1; y < 21; y++) for (let x = 1; x < 25; x++) {
     const d = Math.hypot(x - 12.5, y - 10.5);
     if (d > 10.6) hs.set('objects', x, y, 'W');
     else if ((d >= 8.5 && d < 9.5) || (d >= 4.5 && d < 5.5)) hs.set('ground', x, y, 'l');
     else if (d >= 9.5) hs.set('ground', x, y, 'h');
+    else if (d < 4.5) hs.set('ground', x, y, 'c');
+    else if (d >= 7.2 && d < 8.2) hs.set('ground', x, y, 'm');
   }
-  // pillars of the old Lampwrights around the sigil ring
+  // pillars of the old Lampwrights around the sigil ring, each crowned with a lantern
   for (let k = 0; k < 8; k++) {
     const a = (Math.PI / 4) * k + Math.PI / 8;
-    hs.set('objects', Math.round(12.5 + 7 * Math.cos(a)), Math.round(10.5 + 7 * Math.sin(a)), 'Q');
+    const px = Math.round(12.5 + 7 * Math.cos(a)), py = Math.round(10.5 + 7 * Math.sin(a));
+    hs.set('objects', px, py, 'Q').set('above', px, py, '*');
   }
   // the Cold Engine throne: a brass-and-iron machine with gears and boilers
   hs.rect('objects', 12, 9, 2, 2, 'M');
@@ -539,6 +579,9 @@
   hs.set('objects', 6, 6, 'z').set('objects', 19, 15, 'z').set('objects', 20, 6, 'z');
   hs.set('objects', 3, 10, 'P').set('objects', 22, 10, 'P');
   hs.set('objects', 13, 2, 'I').set('objects', 12, 2, 'I');       // the old Hearthstar hearth, cold
+  hs.set('objects', 12, 3, 'u').set('objects', 13, 3, 'u');       // stairs up behind the throne to the hearth
+  // Engine machinery on the outer Hollow ring, and crystal veins where the ring is corrupted
+  hs.set('objects', 6, 4, 'M').set('objects', 19, 17, 'M').set('objects', 21, 5, 'i').set('objects', 4, 16, 'i').set('objects', 20, 17, 'i');
   hs.ev([
     H.save('chamber_save', 13, 16),
     H.auto('chamber_arrival', async (c) => {
