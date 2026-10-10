@@ -490,8 +490,8 @@
   en({ id: 'order_guard', name: 'Order Guard', level: 7, hp: 230, shields: 3, weak: ['fire', 'spear'], resist: ['dark'],
     stats: ST(27, 22, 6, 12, 10, 5, 5), skills: [{ skill: 'e_halberd_crack', weight: 3 }], exp: 12, gold: 22,
     drops: [{ item: 'potion', chance: 0.3 }, { item: 'mail_1', chance: 0.05 }], steal: [{ item: 'hi_potion', chance: 0.15 }] });
-  en({ id: 'brass_sentinel', name: 'Brass Sentinel', level: 11, hp: 1130, shields: 6, weak: ['lightning', 'axe'], resist: ['fire'], boss: true,
-    stats: ST(46, 34, 20, 22, 12, 4, 2), skills: [{ skill: 'e_steam_piston', weight: 3 }, { skill: 'e_boiler_vent', weight: 2 }], exp: 81, gold: 150,
+  en({ id: 'brass_sentinel', name: 'Brass Sentinel', level: 11, hp: 800, shields: 5, weak: ['lightning', 'axe'], resist: ['fire'], boss: true,
+    stats: ST(33, 26, 18, 20, 12, 4, 2), skills: [{ skill: 'e_steam_piston', weight: 3 }, { skill: 'e_boiler_vent', weight: 2 }], exp: 81, gold: 150,
     drops: [{ item: 'hi_potion', chance: 1 }, { item: 'axe_2', chance: 0.5 }, { item: 'brass_cog', chance: 1 }], steal: [{ item: 'hi_potion', chance: 0.3 }] });
 
   // -- Arena & Aqueduct (lv 11-16, boss champion 17)
@@ -530,8 +530,8 @@
   en({ id: 'hollow_choir', name: 'Hollow Choir', level: 20, hp: 2190, shields: 6, weak: ['light', 'staff'], resist: ['dark'], boss: true,
     stats: ST(62, 32, 52, 38, 18, 8, 10), skills: [{ skill: 'e_dissonant_hymn', weight: 3 }, { skill: 'e_hollow_harmony', weight: 2 }], exp: 150, gold: 400,
     drops: [{ item: 'hi_ether', chance: 1 }, { item: 'silver_locket', chance: 0.5 }, { item: 'star_chart', chance: 0.2 }], steal: [{ item: 'hi_ether', chance: 0.3 }] });
-  en({ id: 'briar_matron', name: 'Briar Matron', level: 22, hp: 3440, shields: 6, weak: ['fire', 'axe'], resist: ['wind'], boss: true,
-    stats: ST(93, 40, 50, 38, 16, 8, 8), skills: [{ skill: 'e_bramble_lash', weight: 3 }, { skill: 'e_matron_bloom', weight: 2 }], exp: 180, gold: 450,
+  en({ id: 'briar_matron', name: 'Briar Matron', level: 22, hp: 2700, shields: 5, weak: ['fire', 'axe'], resist: ['wind'], boss: true,
+    stats: ST(70, 36, 44, 34, 16, 8, 8), skills: [{ skill: 'e_bramble_lash', weight: 3 }, { skill: 'e_matron_bloom', weight: 2 }], exp: 180, gold: 450,
     drops: [{ item: 'elixir', chance: 0.5 }, { item: 'ribbon', chance: 1 }], steal: [{ item: 'moonpetal', chance: 0.2 }] });
 
   // -- Ashen Road (lv 20-25, boss Hale 26)

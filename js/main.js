@@ -23,6 +23,7 @@
     },
   };
   function boot() {
+    if (G.maps && G.maps.dressAll) { const n = G.maps.dressAll(); if (q.has('debugdress')) console.log('[dress] dressed', n, 'maps'); }
     if (q.has('map')) {
       G.debug.start({ map: q.get('map'), x: q.get('x'), y: q.get('y'), chapter: q.get('chapter'), gold: q.get('gold'), level: q.get('level'),
         party: (q.get('party') || '').split(',').filter(Boolean), flags: (q.get('flags') || '').split(',').filter(Boolean) });

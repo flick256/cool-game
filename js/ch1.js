@@ -20,11 +20,6 @@
   const me = (c, text, expr) => c.say(G.name(), text, { face: 'rowan', expr: expr || 'normal' });
   const who = (c, name, face, text, expr) => c.say(name, text, { face, expr: expr || 'normal' });
   const nar = (c, text) => c.say(null, text);
-  const once = (k) => !G.flag(k);
-  // grants a flag (one-off guard) and returns true the first time it is called
-  const claim = (k) => { if (G.flag(k)) return false; G.setFlag(k); return true; };
-  // Ch1 soft helper: award affection only once per reason flag
-  const aff = (c, id, n, flag, reason) => { if (claim(flag)) return c.affection(id, n, reason); return null; };
 
   // ============================================================ MAP 1 — Rowan's house
   function buildWickholmHouse() {
@@ -179,7 +174,6 @@
     m.scatter('objects', 'G', 40, { seed: 14, on: 'v.,' });
     m.scatter('objects', 'F', 22, { seed: 15, on: 'v.,', avoid: [{ x: 0, y: 13, w: 40, h: 4 }] });
     m.scatter('objects', 'R', 6, { seed: 16, on: 'v.', avoid: [{ x: 0, y: 13, w: 40, h: 4 }] });
-    m.scatter('objects', 'x', 0, { seed: 17 });
     // keep the ruin interior and its lane clear of random scatter
     m.rect('objects', 32, 2, 5, 3, ' '); m.set('objects', 34, 2, 's');
     m.rect('objects', 32, 6, 4, 1, ' '); m.set('objects', 34, 5, ' ');
@@ -190,9 +184,12 @@
     m.set('above', 17, 11, '*').set('above', 18, 11, '*').set('above', 19, 11, '*').set('above', 20, 11, '*');
     m.set('above', 21, 11, '*').set('above', 22, 11, '*').set('above', 23, 11, '*');
 
+    // ---- airship landing beacon next to the arrival point
+    m.set('objects', 11, 11, ' ');
     // ---- portals & shop
     m.ev([
       H.transfer(6, 9, 'wickholm_house', 5, 7, 'up', { id: 'wh_home_door' }),
+      H.shipPad(11, 11, { id: 'wh_ship_pad' }),
       H.transfer(39, 14, 'mossgrave_wood', 1, 15, 'right', { id: 'wh_to_wood', h: 2, if: () => !!G.flag('ch0_compass') }),
       H.shop('wh_shop', 27, 11, 'merchant', 'wickholm_shop', 'Potions, salves, and one suspicious jar of honey. Mind the honey.', 'Dorrin'),
       H.sign('wh_sign_square', 19, 19, 'WICKHOLM\nLanterns keep the Dark away.\n(The Dark has been away a long time. Nobody asks why.)'),
@@ -469,9 +466,9 @@
       if: () => !G.flag('ch0_stag_done'),
       run: async (c) => {
         await nar(c, 'A great stag stands at the centre of the clearing. Violet cracks run through its antlers like broken glass. It does not charge. It only looks at you with wet, tired eyes.');
-        await who(c, 'Hollow Stag', 'hollow', 'You... carry a light. I have not seen one for so long. Does it hurt, to be warm?', 'sad');
+        await who(c, 'Hollow Stag', 'unknown', 'You... carry a light. I have not seen one for so long. Does it hurt, to be warm?', 'sad');
         await me(c, 'It hurts a little, when you share it. It\'s also the best thing I know. I\'m sorry you forgot.', 'worried');
-        await who(c, 'Hollow Stag', 'hollow', 'I guarded this wood. The lamps asked me to stop the blight... and I did, and I forgot who I was guarding.', 'sad');
+        await who(c, 'Hollow Stag', 'unknown', 'I guarded this wood. The lamps asked me to stop the blight... and I did, and I forgot who I was guarding.', 'sad');
         const r = await c.battle('boss_stag', {
           canEscape: false, loseOk: true, bg: 'forest', bgm: 'boss',
           intro: async (c) => {
@@ -479,7 +476,7 @@
           },
           onHalf: async (c) => {
             c.flash('#f4c26a', 30); c.shake(3, 30);
-            await who(c, 'Hollow Stag', 'hollow', 'Stop. Please. That light... it is in my chest too. Let it out. I have been holding it in for years.', 'sad');
+            await who(c, 'Hollow Stag', 'unknown', 'Stop. Please. That light... it is in my chest too. Let it out. I have been holding it in for years.', 'sad');
           },
           outro: async (c) => {
             await nar(c, 'The stag bows its head. The violet cracks fade like frost in a warm room. A single antler, glowing soft gold, drops into the moss.');
@@ -487,8 +484,8 @@
         });
         if (r === 'win') {
           G.setFlag('ch0_stag_done', true);
-          c.sfx('victory'); c.flash('#ffd27a', 40); await c.wait(30);
-          await who(c, 'Hollow Stag', 'hollow', 'Walk south-east. Follow the compass. It will guide you to the workshop of the Vane.', 'normal');
+          c.sfx('levelup'); c.flash('#ffd27a', 40); await c.wait(30);
+          await who(c, 'Hollow Stag', 'unknown', 'Walk south-east. Follow the compass. It will guide you to the workshop of the Vane.', 'normal');
           await nar(c, 'In your pocket, the Ember Compass warms. Its needle swings past the trees and points straight toward the sea. It is glowing like it has been waiting for you.');
           c.sfx('lantern');
           c.toast('The Ember Compass glows toward the sea', 'good');
@@ -674,6 +671,75 @@
       await who(c, 'Order Guard Hask', 'unknown', 'Move along. Don\'t hang about the gate, it makes the Order nervous. Everything makes the Order nervous.', 'normal');
     }, { once: true }));
 
+    // ---- the morning launch (Ch1 finale): Hale glimpsed, two heart choices, the Marigold rises
+    m.ev([{
+      id: 'hale_dock', x: 24, y: 23, sprite: 'hale', trigger: 'action', solid: true, dir: 'left', name: 'Inquisitor Hale',
+      if: () => !!G.flag('ch1_slept') && !G.flag('ch1_launched'),
+      run: async (c) => { await who(c, 'Inquisitor Hale', 'hale', 'Lovely morning for a flight, Captain Vane. Mind the fog. It has ears, and the Warden keeps a list.', 'smirk'); },
+    }]);
+    m.ev(H.auto('bh_launch', async (c) => {
+      c.bgm('marigold');
+      c.titleCard('Morning', 'The Marigold rises', 110);
+      await c.wait(40);
+      await nar(c, 'The dawn over Brasshaven is the colour of a lantern turned low: honey, rose, a little brass. The copper roofs catch it and pass it along, roof to roof, until the whole city is blushing.');
+      await who(c, 'Claret', 'claret', "You're late, Rowan. I've been standing here for twenty minutes pretending I'm not nervous about flying a ship I patched with a hat.", 'smirk');
+      await me(c, "You said morning. This is morning. It's very early morning, Claret, you should be proud.", 'smirk');
+      c.camera(24, 22, 30);
+      await c.emote('hale_dock', 'question');
+      await nar(c, 'On the pier, a tall figure in a silver-white coat watches the Marigold with a lantern brooch glinting at his collar. Inquisitor Hale. He tips his hat, unhurried, as if he has all the time in Auren.');
+      await who(c, 'Inquisitor Hale', 'hale', 'Good morning, Captain. Good morning, wickless youth. The Warden sends his warmest regards. He says the sky will be very clear for you.', 'smirk');
+      await c.walk('hale_dock', ['left', 'left', 'up', 'up']);
+      await nar(c, 'He steps into the fog and is gone. The fog closes behind him like a door that was never opened.');
+      c.camReset(30);
+      // heart choice 1 — before takeoff
+      const i = await c.choice([
+        '"I\'m right here. Take my hand and we\'ll go up together."',
+        '"Relax, Captain. If anyone gets airsick, it\'ll be me."',
+        '"Your father built a beautiful ship, Claret. You\'re flying it for both of you."',
+      ], { prompt: 'Claret is pale and gripping a spanner. What do you say?' });
+      if (i === 0) {
+        await who(c, 'Claret', 'claret', "...Fine. Fine. Your hand is warm, which is unfair. Don't let go.", 'blush');
+        await c.affection('claret', 3, 'Held her hand');
+      } else if (i === 1) {
+        await who(c, 'Claret', 'claret', "If you get airsick, I'm putting you in the bilge with the spare rivets. Ha. I mean it. Kind of.", 'smirk');
+        await c.affection('claret', 2, 'A joke to ease the nerves');
+      } else {
+        await who(c, 'Claret', 'claret', "Don't. Don't say his name like that. I'll cry on the controls and the Marigold will sulk for a week.", 'sad');
+        await c.affection('claret', 3, 'Honoured her father');
+      }
+      // the Marigold rises
+      c.sfx('lantern'); c.flash('#9fd8ff', 36); c.shake(4, 60);
+      c.camera(21, 6, 150);
+      await nar(c, 'The Marigold lifts from the pier with a sigh of steam and a groan of old brass that turns, halfway up, into a hymn. Her propeller spins up straight and true. Gulls scatter. The copper roofs fall away below.');
+      await c.wait(60);
+      // heart choice 2 — sweet beat, in the air
+      const j = await c.choice([
+        '"Give him a hug first. Then a spanner."',
+        '"Make him fix your hull. Every single gouge."',
+        '"Then we\'ll find him, and he can tell you all the things you never let anyone say."',
+      ], { prompt: 'Above the rooftops, Claret asks: what will you do when you find your father?' });
+      if (j === 0) {
+        await who(c, 'Claret', 'claret', "A spanner, first. Then a hug. He'd complain about the order, and I'd hit him, and then he'd hug me back. Mostly fair.", 'happy');
+        await c.affection('claret', 3, 'A sweet plan');
+      } else if (j === 1) {
+        await who(c, 'Claret', 'claret', "Ha! He'd say the gouge was artistic. I'd say he's a liar. We'd both be right, and it would be perfect.", 'smirk');
+        await c.affection('claret', 2, 'Laughter in the sky');
+      } else {
+        await who(c, 'Claret', 'claret', "...Rowan. Don't. I've got to keep my goggles on for the wind, and you're making my eyes do something embarrassing.", 'blush');
+        await c.affection('claret', 3, 'Something real');
+      }
+      // sweet ending beat
+      await c.emote('player', 'heart');
+      await me(c, "Look at the city, Claret. It's so small from up here. And the lamps are still warm.", 'happy');
+      await who(c, 'Claret', 'claret', 'It is small. Everything gets small when you look at it from the right height. Even the Order. Even... me.', 'sad');
+      await who(c, 'Claret', 'claret', "Thanks for not letting me fall, Rowan. Don't read into that. I'm just saying thanks. Shut up. I'm saying it again. Thanks.", 'happy');
+      G.setFlag('ch1_launched', true);
+      G.setFlag('ch1_done', true);
+      c.toast('Claret ♥ Friend of the sky', 'heart');
+      await c.wait(60);
+      await c.chapterEnd(1);
+    }, { once: false, if: () => !!G.flag('ch1_slept') && !G.flag('ch1_launched') }));
+
     return m.finish({ onEnter: null });
   }
   buildBrasshaven();
@@ -723,6 +789,23 @@
       },
     ]);
 
+    // ---- a secret drawer: Bram's note (emotional beat, one-off)
+    m.ev([{
+      id: 'ws_drawer', x: 6, y: 2, sprite: null, trigger: 'action', solid: false, name: 'Drawer',
+      run: async (c) => {
+        if (G.flag('ch1_bram_note')) { await nar(c, 'The drawer holds only spare rivets and a single brass button. Your hand lingers on it for a second longer than you mean it to.'); return; }
+        G.setFlag('ch1_bram_note', true);
+        c.sfx('chest');
+        await nar(c, 'Tucked under a stack of blueprints is a folded note, the paper soft from being read too many times. The handwriting is big, careless, and kind.');
+        await nar(c, '"Claret, love. If you find this, the Coil went down the old lift and I\'m sorry I couldn\'t stop them. Don\'t come after me. Keep the ship honest. Keep your goggles on. Dad."');
+        if (G.flag('ch1_met_claret')) {
+          await who(c, 'Claret', 'claret', 'He wrote that the week before they came. Of course he did. He always wrote me notes when he was going to be stubborn about something.', 'sad');
+          await me(c, 'Then we bring him home, Claret. And we tell him the note was rubbish.', 'smirk');
+          await who(c, 'Claret', 'claret', 'It was not rubbish. It was very Dad. Shut up. I\'m going to stop talking now.', 'blush');
+        }
+      },
+    }]);
+
     // ---- Claret, the meeting (runs once)
     m.ev([{
       id: 'claret_ws', x: 9, y: 7, sprite: 'claret', trigger: 'action', solid: true, dir: 'up', name: 'Claret',
@@ -753,7 +836,7 @@
       await who(c, 'Claret', 'claret', 'Three weeks ago the Order came with a warrant and a cart. They took my father, Bram Vane, to the Cold Foundry. Shipwright. Brilliant, stubborn, mine.', 'sad');
       await who(c, 'Claret', 'claret', 'And they took the Aether Coil. The Marigold\'s heart. Their bots dragged it down the old lift into the undercroft. Nobody comes back from down there.', 'sad');
       await c.bgm('tender');
-      await me(c, 'Then we get the Coil back. And we get your father back. If I\'m good for nothing else, I can at least carry things.', 'earnest');
+      await me(c, 'Then we get the Coil back. And we get your father back. If I\'m good for nothing else, I can at least carry things.', 'happy');
       await who(c, 'Claret', 'claret', 'Hmm. Deal, then. You get the Coil out of the undercroft, and I patch the Marigold and take you wherever that stupid compass wants to go.', 'smirk');
       const i = await c.choice([
         '"Your father isn\'t lost. We\'ll find him together."',
@@ -782,7 +865,8 @@
       await me(c, 'Like this?', 'smirk');
       await c.fade('out', 60);
       await c.wait(40);
-      await nar(c, 'Hours pass in a blur of sparks, hissing rivets, and Claret swearing at a propeller in three languages. You hold lamps. You fetch things. At one point you are asked to not breathe on the gears. You do not breathe on the gears.');
+      await nar(c, 'Hours pass in a blur of sparks, hissing rivets, and Claret swearing at a propeller in three languages.');
+      await nar(c, 'You hold lamps. You fetch things. At one point you are asked to not breathe on the gears. You do not breathe on the gears.');
       await c.fade('in', 60);
       await who(c, 'Claret', 'claret', 'Propeller: straight. Struts: sound. Hull: patched with my second-best hat. And the Coil is in. She\'s ready, Rowan.', 'happy');
       G.setFlag('ch1_fixed', true);
@@ -842,7 +926,7 @@
       await nar(c, 'Night in the Brass Kettle. The copper roof sings a little as it cools. Somewhere a lamp is humming a lullaby, badly. You sleep the sleep of the very tired and the very fixed.');
       await c.fade('in', 50);
       await who(c, 'Claret', 'claret', 'Morning, sleepyhead. I didn\'t sleep either. I just sat by the Coil and listened to it purr. Don\'t tell anyone I did that.', 'smirk');
-      await me(c, 'Your secret\'s safe. Thank you, Claret. For fixing her. For fixing... this.', 'earnest');
+      await me(c, 'Your secret\'s safe. Thank you, Claret. For fixing her. For fixing... this.', 'happy');
       await who(c, 'Claret', 'claret', 'Shut up and go outside. The sky is doing something ridiculous. I want to see your face when the Marigold lifts.', 'blush');
       G.setFlag('ch1_slept', true);
       await c.transfer('brasshaven', undefined, undefined, 'down');
@@ -992,7 +1076,6 @@
     m.ev([
       H.save('uc2_save_1', 21, 4),
       H.save('uc2_save_2', 6, 7),
-      H.transfer(29, 4, 'undercroft_1', undefined, undefined, 'up', { id: 'uc2_back', if: () => false }),
       H.sign('uc2_sign', 25, 4, 'THE LOWEST SECTOR\nValve Room: turn all three valves to open the steam gate. Please. The gate is very heavy.'),
     ]);
 
@@ -1056,7 +1139,7 @@
         });
         if (r === 'win') {
           G.setFlag('ch1_boss_sentinel', true);
-          c.sfx('victory');
+          c.sfx('levelup');
           await who(c, 'Claret', 'claret', 'Did it just say something nice? Don\'t be sentimental. Hold the lamp, we\'re going home. Home is the workshop. Be quick, I want to get the coil in before my hands stop shaking.', 'sad');
           await c.transfer('brasshaven_workshop', 6, 9, 'up');
         } else {

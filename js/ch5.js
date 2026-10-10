@@ -197,6 +197,7 @@
       c.bgm('tender');
       c.chapter(5);
       G.setFlag('ch5_started');
+      for (const id of ['claret', 'caspian', 'rook', 'seraphine', 'wren']) await c.join(id);   // safety: the finale needs the whole crew
       await c.wait(40);
       await c.camera(18, 9, 90);
       await c.wait(70);
