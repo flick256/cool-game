@@ -61,8 +61,8 @@ fs.mkdirSync(outDir, { recursive: true });
         }
         if (m.cursor !== 0) btn = 'up';
       }
-      if (m.kind === 'target' && m.cands.length > 1 && s.round % 2 === 0) btn = 'down';
-      if (btn === 'down') { G.input.press('down'); G.advance(2); G.input.release('down'); G.advance(2); continue; }
+      // cycle the target cursor once, then confirm (keeps the driver from looping on a single menu)
+      if (m.kind === 'target' && m.cands.length > 1 && !m.__moved) { m.__moved = true; G.input.press('down'); G.advance(2); G.input.release('down'); G.advance(2); continue; }
       if (m.kind === 'list' && m.mode === 'cmd' && btn === 'up') { G.input.press('up'); G.advance(2); G.input.release('up'); G.advance(2); continue; }
       G.input.press('ok'); G.advance(2); G.input.release('ok'); G.advance(2);
     }

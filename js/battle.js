@@ -137,17 +137,12 @@
     if (def.hasStatus('defup')) mult *= 0.7;
     if (def.hasStatus('defdown')) mult *= 1.3;
     if (def.defending) mult *= 0.5;
+    if (def.hasStatus && def.hasStatus('guard')) mult *= 0.8;
     const raw = (A * power / 100 * 2 - Dv * 0.9) * variance * mult;
     info.dmg = Math.max(1, Math.round(raw));
     return info;
   }
   G.battle.computeDamage = computeDamage;
-
-  function evades(att, def, skill) {
-    if (skill.kind === 'heal' || skill.kind === 'buff' || skill.kind === 'bond' && false) return false;
-    if (skill.noMiss) return false;
-    return rnd() * 100 < (def.stats.eva || 0);
-  }
 
   // ---------------------------------------------------------------- shields / break
   // Returns {broke:bool} after a weakness hit. Applies per hit.
@@ -288,10 +283,9 @@
   // Expose for the presentation part (below)
   G.battle._internal = {
     STATUSES, ELEMENTS, WTYPES, MAX_BP, MAX_BOOST, skillDef, enemyDef, itemDef, statusInfo, actorDef, actorState,
-    actorStats, actorSkills, weaponTypesOf, tierOf, rnd, rint, pickR, clamp, aliveOf, tauntedBy, evades, orderSpeed,
+    actorStats, actorSkills, weaponTypesOf, tierOf, rnd, rint, pickR, clamp, aliveOf, tauntedBy, orderSpeed,
   };
   G.battle._computeDamage = computeDamage;
-  G.battle._evades = evades;
   // ---------------------------------------------------------------- action resolution (pure; no drawing)
   // action: {actor, kind:'attack'|'skill'|'item'|'defend'|'escape', skill?, weaponType?, targets?, boost?, item?}
   // ctx: {party:[units], enemies:[units], loot:[], onEvent?(ev)} ; returns events array (also pushed through ctx.onEvent)
@@ -382,7 +376,7 @@
       const isPhysKind = sk.kind === 'phys' || sk.kind === 'bond' || sk.kind === 'special' && !elem;
       let token = elem || (isPhysKind ? (action.weaponType || sk.weapon || (a.weapons && a.weapons[0]) || null) : null);
       const targets = (action.targets || []).filter(Boolean);
-      const eff = { kind: sk.kind, power: sk.power || 100, element: elem, weapon: sk.weapon, shield: sk.shield, noMiss: sk.kind === 'heal' || sk.kind === 'buff' || sk.kind === 'bond' && false };
+      const eff = { kind: sk.kind, power: sk.power || 100, element: elem, weapon: sk.weapon, shield: sk.shield, noMiss: sk.kind === 'heal' || sk.kind === 'buff' };
       if (sk.kind === 'heal') {
         for (const t of targets) {
           if (!t.alive && sk.special !== 'revive') continue;
@@ -1012,9 +1006,8 @@
     // step a unit toward a target and hold until stepBack
     async lunge(u, tgt) {
       const a = this.posOf(u), b = this.posOf(tgt);
-      const dir = u.side === 'party' ? -1 : 1;
       u.posing = 'attack';
-      const dx = Math.round((b.x - a.x) * 0.55) + dir * 16 * (u.side === 'party' ? 1 : -1) * 0 , dy = Math.round((b.y - a.y) * 0.18);
+      const dx = Math.round((b.x - a.x) * 0.55), dy = Math.round((b.y - a.y) * 0.18);
       for (let i = 1; i <= 8; i++) { u.lx = (dx * i) / 8; u.ly = (dy * i) / 8; await G.wait(1); }
       u.lxImpact = u.lx; u.lyImpact = u.ly;
     }
@@ -1193,7 +1186,10 @@
       // party back-to-front
       const pList = this.party.map((u) => ({ u, p: this.posOf(u) })).sort((a, b) => a.p.y - b.p.y);
       for (const { u, p } of pList) {
-        gBattler(ctx, u.id, this.partyPose(u), p.x, p.y, frame, { flash: u.flashA || 0, alpha: u.alive ? 1 : 0.7 });
+        const pose = this.partyPose(u);
+        // timed poses (attack lunge, hurt, win) use frames since the pose started; idle breathes on the global clock
+        const ft = (pose === 'idle' || pose === 'weak') ? frame : (u.pt || 0);
+        gBattler(ctx, u.id, pose, p.x, p.y, ft, { flash: u.flashA || 0, alpha: u.alive ? 1 : 0.7 });
       }
       // active-member marker
       if (this.actor && this.actor.alive && this.menu && this.menu.kind !== 'ack') {
@@ -1400,8 +1396,12 @@
       this.t++;
       if (this.introT !== undefined && this.encounterT >= 0) this.encounterT++;
       this.handleInput();
+      for (const u of this.party) {
+        const ps = this.partyPose(u);
+        if (ps !== u._lastPose) { u._lastPose = ps; u.pt = 0; } else u.pt = (u.pt || 0) + 1;
+      }
       for (const u of this.party.concat(this.enemies)) {
-        const ease = (cur, tgt) => { const d = tgt - cur; if (Math.abs(d) < 0.5) return tgt; return cur + d * 0.12; };
+        const ease =(cur, tgt) => { const d = tgt - cur; if (Math.abs(d) < 0.5) return tgt; return cur + d * 0.12; };
         u.dispHp = ease(u.dispHp == null ? u.hp : u.dispHp, u.hp);
         u.dispSp = ease(u.dispSp == null ? u.sp : u.dispSp, u.sp);
         if (u.hurt > 0) u.hurt--;
