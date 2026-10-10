@@ -163,14 +163,18 @@
     dither(c, rr, 0, 0, T, T, base[2], 0.45);
     speckle(c, rr, 0, 0, T, T, base[1], 50);
     // travelling ripple lines; each frame shifts by 8px
-    const shift = (frame | 0) * 8;
+    // (shift is not a multiple of the 4px dash period, so every frame differs)
+    const fr = frame | 0;
+    const shift = fr * 3;
     for (let i = 0; i < 3; i++) {
-      const y = (6 + i * 10 + (rr() * 3 | 0)) % T;
+      const y = (6 + i * 10 + (rr() * 3 | 0) + Math.round(Math.sin(fr * 1.57 + i * 2.1))) % T;
       for (let x = 0; x < 9; x++) {
         const xx = (x * 4 + shift + i * 7) % T;
         px(c, xx, y, P_.waterLt); px(c, (xx + 1) % T, y, shallow ? '#c9ecf0' : '#7fc2f5');
       }
     }
+    // sparkles that drift per frame
+    for (let i = 0; i < 4; i++) { const sx = (i * 9 + fr * 5 + 3) % T, sy = (i * 7 + fr * 3 + 5) % T; px(c, sx, sy, '#e6f6ff'); }
     if (shallow) {
       // reeds in the marsh
       for (let i = 0; i < 3; i++) { const x = 4 + i * 9 + (frame % 2); const h = 6 + (i % 2) * 3; rect(c, x, 32 - h, 1, h, '#3d6b3a'); px(c, x - 1, 32 - h + 1, '#4c8a46'); }

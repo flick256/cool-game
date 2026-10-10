@@ -330,6 +330,88 @@
 
   function tavernEvents(m) {
     m.ev(H.transfer(10, 13, 'gladius_citadel', 31, 27, 'up', { id: 'tav_to_cit', sfx: true }));
+
+    // ---- Rook at the dice table (visible until he joins the party) ----
+    m.ev({
+      id: 'tav_rook', x: 16, y: 6, sprite: 'rook', trigger: 'action', solid: true, dir: 'left', name: 'Rook',
+      if: () => !inParty('rook'),
+      run: async (c) => {
+        if (!flag('ch2_met_rook')) {
+          await c.say('Rook', 'Oh? You found the Dice! Sit down, Kindler, the house always wins, but I make it a fun way to lose.', 'rook', 'smirk');
+          G.setFlag('ch2_met_rook', true);
+        }
+        const first = !flag('ch2_dice_played');
+        if (first) await c.say('Rook', "Dice, not cards. Cards are for cheats, dice are for honest liars. Now, what's your bet?", 'rook', 'happy');
+        else await c.say('Rook', "Back for more? I like a regular. It makes my dice feel loved.", 'rook', 'smirk');
+        const pick = await c.choice(['Bet 10 gold', 'Bet 30 gold', 'Ask Rook about his coin', 'Just watch'], { prompt: 'Roll the dice' });
+        if (pick === 3) { await c.say('Rook', 'Watching is free. Lovely of you. Hold my drink, would you?', 'rook', 'smirk'); return; }
+        if (pick === 2) {
+          await c.say('{name}', 'Your coin. Where did you get it?', null);
+          await c.say('Rook', "From my mum. She said the luckiest coins are the ones you give away. I keep giving it back to myself, so I'm very lucky.", 'rook', 'smirk');
+          await c.affection('rook', 1, 'Asked about the lucky coin');
+          return;
+        }
+        const bet = pick === 0 ? 10 : 30;
+        if (G.state.gold < bet) {
+          await c.say('Rook', "Rowan, your pouch is lighter than my rent. Come back with the coin and we'll play.", 'rook', 'worried');
+          return;
+        }
+        await c.gold(-bet);
+        await c.say('Rook', 'Call it: high roll or low roll.', 'rook', 'smirk');
+        const call = await c.choice(['High roll', 'Low roll'], { prompt: 'Your call' });
+        c.sfx('ok');
+        const roll = Math.random() < 0.5 ? 'high' : 'low';
+        const won = (roll === 'high') === (call === 0);
+        await c.say(null, 'The dice rattle across the felt... ' + roll.toUpperCase() + ' roll.');
+        if (won) {
+          await c.gold(bet * 2);
+          await c.say('Rook', 'Oh! The dice fell in your favour. How unfair. Next time, I rig the table, just for you.', 'rook', 'happy');
+          await c.affection('rook', bet >= 30 ? 2 : 1, 'Won a dice round with Rook');
+          if (!hasItemState('lucky_coin') && !flag('ch2_rook_coin')) {
+            G.setFlag('ch2_rook_coin', true);
+            await c.say('Rook', 'Here. Take my lucky coin. Keep it. Luck is better when it is shared, and I have never once been lucky alone.', 'rook', 'smirk');
+            await c.addItem('lucky_coin', 1);
+          }
+        } else {
+          await c.say('Rook', 'Ouch. Losing is just winning someone else a rest. Want to try again? Only one of us is nervous, and it\'s not me.', 'rook', 'smirk');
+          await c.affection('rook', 1, 'Lost a round, but stayed to laugh');
+        }
+        G.setFlag('ch2_dice_played', true);
+      },
+    });
+
+    // ---- Mirela the barmaid: free ember wine for a regular ----
+    m.ev(H.npc('tav_barmaid', 9, 2, 'innkeeper', [
+      { who: 'Mirela', text: 'Tavern rule number one: drink the wine, leave a tip, and never tell Rook your real name. He will use it at the wrong moment.' },
+    ], {
+      name: 'Mirela',
+      after: async (c) => {
+        if (!flag('ch2_wine_given')) {
+          G.setFlag('ch2_wine_given', true);
+          await c.say('Mirela', 'And one for the road, on the house. Ember wine. Don\'t tell the Warden I had it made in a bathtub.', null);
+          await c.addItem('ember_wine', 1);
+        }
+      },
+    }));
+
+    // ---- the innkeeper (rest for a fee) ----
+    m.ev(H.innkeeper('tav_inn', 17, 11, 'innkeeper', 25, 'Innkeeper Bastel'));
+
+    // ---- a drunk patron at the bar, and a sailor who lost a bet ----
+    m.ev(H.npc('tav_drunk', 11, 6, 'villager_m2', [
+      { who: 'Drunk', text: 'The lamps are very warm, friend. So warm I can\'t remember where I left my hat. Maybe the hat is in the lamp.' },
+    ], { name: 'Drunk' }));
+    m.ev(H.npc('tav_sailor', 7, 10, 'sailor', [
+      { who: 'Sailor', text: 'Rook owes me five gold and a boot. Swear he has my boot. Good crew, though. Good crew.' },
+    ], { name: 'Sailor' }));
+
+    // ---- dealer behind the dice table ----
+    m.ev(H.npc('tav_dealer', 4, 5, 'noble', [
+      { who: 'Dealer Nyx', text: 'Five dice, one rule: never bet on a lie. The house does not care who wins. The house only cares that you keep coming back.' },
+    ], { name: 'Dealer Nyx' }));
+
+    // ---- cellar chest with a little coin ----
+    m.ev(H.chest('g_tavern_cellar', 18, 12, { gold: 60 }));
     // @@TAV_EV@@
   }
 

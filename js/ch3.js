@@ -240,6 +240,109 @@
 
   pa.finish();
 
+  // ============================================================ pale_abbey_hall (18 x 14)
+  const ph = M.build('pale_abbey_hall', 18, 14, { name: 'Chapel of the Pale Choir', bgm: 'abbey', interior: true, spawn: { x: 9, y: 12, dir: 'up' } });
+  ph.room(0, 0, 18, 14, { floor: 'g', wall: '9', topWall: 2 });
+  ph.rect('ground', 7, 2, 4, 11, 'c');                 // red carpet aisle
+  ph.tiles('objects', [[3, 1], [6, 1], [11, 1], [14, 1]], 'O');   // glowing "stained glass" windows
+  ph.tiles('objects', [[5, 3], [12, 3], [5, 11], [12, 11]], 'Q');
+  ph.tiles('objects', [[8, 3], [9, 3]], 'E');          // altar
+  ph.set('objects', 2, 2, 'M');                        // the organ bellows, all brass dials
+  ph.hline('objects', 2, 5, 4, 'E').hline('objects', 2, 6, 4, 'H');     // left pews
+  ph.hline('objects', 12, 5, 4, 'E').hline('objects', 12, 6, 4, 'H');   // right pews
+  ph.hline('objects', 2, 8, 4, 'E').hline('objects', 2, 9, 4, 'H');
+  ph.hline('objects', 12, 8, 4, 'E').hline('objects', 12, 9, 4, 'H');
+  ph.vline('objects', 1, 6, 3, 'Y');                   // hymnal shelves
+  ph.vline('objects', 16, 6, 2, 'S');
+  ph.tiles('above', [[9, 6], [9, 9]], '*');            // chandeliers
+  ph.ev(H.transfer(9, 13, 'pale_abbey', 18, 11, 'down'));
+
+  // Sera: rehearsing at the altar, then a long talk (heart choice, the abbey seal)
+  ph.ev(H.auto('ph_meet', async (c) => {
+    c.emote('ph_sera', 'music');
+    await c.walk('ph_sera', ['down', 'down'], { wait: true });
+    sera(c, 'Oh! Pilgrims. I am not allowed to be alarmed. Please don\'t tell the Abbess I was alarmed.', 'surprised');
+    rowan(c, 'The door was open. Is the chapel always this empty?');
+    sera(c, 'Only when the hymn is wrong. I keep singing it and it keeps coming out sad. As if the building is sighing.', 'worried');
+    sera(c, 'I\'m Seraphine. Sera. Cantor of the Pale Choir. Supposedly.');
+    claret(c, 'Supposedly?', 'normal');
+    sera(c, 'Supposedly is the correct word for a cantor who has begun to doubt her own hymns, Captain. You have a captain face, by the way.', 'smirk');
+    const i = await c.choice([
+      '"Doubt is just listening harder."',
+      '"Do the hymns really hurt people?"',
+      '"I think you\'re brave to sing at all."',
+    ], { prompt: 'How do you answer?' });
+    if (i === 0) {
+      rowan(c, 'Doubt is just listening harder, I think.', 'normal');
+      sera(c, 'That was annoyingly profound. Shall I write it down? I will. In the margins of the Vigil book.', 'blush');
+      await c.affection('seraphine', 3, 'listened');
+    } else if (i === 1) {
+      rowan(c, 'Do the hymns really hurt people?', 'worried');
+      sera(c, 'You ask the question my confessor forbids. I like you already. Quietly. Please be quiet about it.', 'smirk');
+      await c.affection('seraphine', 2, 'asked');
+    } else {
+      rowan(c, 'I think you\'re brave to sing at all, with that much doubt in you.', 'happy');
+      sera(c, 'Don\'t. My face has rules, and you are breaking several of them.', 'blush');
+      await c.affection('seraphine', 2, 'brave');
+    }
+    setF('ch3_met_sera');
+    sera(c, 'Listen. Under this hall are the Hymn Stones. The Choir sings, the stones drink the warmth from the hymn, and the warmth goes up to the Hearthstar.', 'worried');
+    rowan(c, 'The lamps. The Tithe. The Order said the lamps were a blessing.');
+    sera(c, 'Lamps are a blessing the way a leech is a healing tool. We are singing the world\'s warmth away, and the pilgrims are paying for every verse.', 'sad');
+    sera(c, 'The crypt gate is sealed with the Abbey seal. Orla keeps it in the vestry. She won\'t open it for anyone, and I have a key to the vestry and very little regard for rules.');
+    c.sfx('chest');
+    await c.addItem('abbey_seal', 1);
+    narr(c, 'Sera presses a heavy wax-sealed medallion into your palm. It is still warm from her hands.');
+    sera(c, 'Careful with it. The seal goes cold if you are carrying a grudge. Mine has been freezing since Tuesday.', 'smirk');
+    sera(c, 'The briar on the crypt stair won\'t part for steel, though. Only a hedge-witch can part it. There is one in Whisperwood, past the west gate. Wren Alder.');
+    sera(c, 'They are blunt. Don\'t take it personally. They take everything personally, but in a fair way.', 'smirk');
+  }, { if: () => !flag('ch3_met_sera') }));
+
+  ph.ev(npc('ph_sera', 9, 5, 'seraphine', async (c) => {
+    if (!flag('ch3_met_sera')) {
+      sera(c, 'Oh, you are still here. Stand somewhere else while I finish the verse, please.', 'normal');
+      return;
+    }
+    if (!flag('ch3_sera_talk2')) {
+      setF('ch3_sera_talk2');
+      sera(c, 'You came back. Nobody comes back to this chapel, except the rats, and they only come for the bread.', 'happy');
+      const i = await c.choice([
+        '"Tell me about your first hymn."',
+        '"Would you sing for me?"',
+        '"Do you want to run away?"',
+      ], { prompt: 'Sera waits for you to speak.' });
+      if (i === 0) {
+        sera(c, 'I was six. I sang the Vigil so badly the bishop cried. I wanted to be forgiven for it. I still do.', 'sad');
+        await c.affection('seraphine', 3, 'first hymn');
+      } else if (i === 1) {
+        sera(c, 'Fine. Only the quiet verse, though. The loud ones have teeth.', 'blush');
+        await c.affection('seraphine', 2, 'sing');
+        narr(c, 'Her voice is clear and low and sad, and for a moment the hall stops sighing.');
+      } else {
+        sera(c, 'Run away? I cannot. Orla would find me, and I\'d have to apologise for the mess. Maybe one day. With snacks.', 'smirk');
+        await c.affection('seraphine', 3, 'run away');
+      }
+      return;
+    }
+    const lines = [
+      'Lavender helps when the hymn sounds wrong. I hide sachets in the pews. Don\'t tell Orla.',
+      'Pilgrims come in here and cry about their lamps. I give them bread and tell them their lamps are fine. Liars are allowed to be kind.',
+      'The stones are louder at night. Like something knocking politely from underneath.',
+    ];
+    const n = (G.state.flags.ch3_sera_n = ((G.state.flags.ch3_sera_n || 0) % lines.length));
+    G.state.flags.ch3_sera_n = n + 1;
+    sera(c, lines[n], n === 2 ? 'worried' : 'normal');
+  }));
+
+  ph.ev(npc('ph_choir', 4, 12, 'choir_m', async (c) => {
+    talk(c, 'Choir Brother', null, 'We sing forty verses a day. I stopped counting the sins after the first week.', 'smirk');
+    talk(c, 'Choir Brother', null, 'Do not ask me what the sins were. I have a lovely memory of the tune, though.', 'sad');
+  }));
+
+  ph.ev(H.chest('ph_chest_hymnal', 16, 12, 'pressed_flower'));
+  ph.ev(H.chest('ph_chest_vestry', 1, 12, { gold: 120 }));
+  ph.finish();
+
   /*@@MORE@@*/
   G.provide('ch3');
 })();

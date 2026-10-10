@@ -1167,6 +1167,232 @@
       }
     }
 
+    // -------- drawing
+    partyPose(u) {
+      if (!u.alive) return 'dead';
+      if (u.posing) return u.posing;
+      if (u.hurt > 0) return 'hurt';
+      if (u.defending) return 'defend';
+      if (u.hp / u.mhp < 0.25) return 'weak';
+      return 'idle';
+    }
+    draw(ctx) {
+      const frame = G.frame | 0;
+      ctx.save();
+      // background
+      if (this.bgImg) ctx.drawImage(this.bgImg, 0, 0, G.W, G.H);
+      else { const g = ctx.createLinearGradient(0, 0, 0, G.H); g.addColorStop(0, '#2b3d6e'); g.addColorStop(1, '#14182c'); ctx.fillStyle = g; ctx.fillRect(0, 0, G.W, G.H); }
+      // enemies back-to-front
+      const eList = this.enemies.filter((e) => e.alive || e.dying > 0).map((e) => ({ u: e, p: this.posOf(e) })).sort((a, b) => a.p.y - b.p.y);
+      for (const { u, p } of eList) {
+        const alpha = u.alive ? 1 : Math.max(0, u.dying / 40);
+        gEnemy(ctx, u.id, p.x, p.y, frame, { flash: u.flashA || 0, alpha, scale: u.scale || 1 });
+      }
+      for (const { u, p } of eList) if (u.alive) this.drawEnemyHud(ctx, u, p);
+      // party back-to-front
+      const pList = this.party.map((u) => ({ u, p: this.posOf(u) })).sort((a, b) => a.p.y - b.p.y);
+      for (const { u, p } of pList) {
+        gBattler(ctx, u.id, this.partyPose(u), p.x, p.y, frame, { flash: u.flashA || 0, alpha: u.alive ? 1 : 0.7 });
+      }
+      // active-member marker
+      if (this.actor && this.actor.alive && this.menu && this.menu.kind !== 'ack') {
+        const ap = this.posOf(this.actor);
+        const bob = Math.round(Math.sin(frame / 5) * 2);
+        ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(ap.x - 6, ap.y - 80 + bob); ctx.lineTo(ap.x + 6, ap.y - 80 + bob); ctx.lineTo(ap.x, ap.y - 72 + bob); ctx.fill();
+      }
+      // target marker
+      if (this.menu && this.menu.kind === 'target' && this.menu.cands.length) {
+        const t = this.menu.cands[this.menu.cursor];
+        if (t) {
+          const p = this.posOf(t);
+          const blink = (frame % 24) < 14 ? 1 : 0.45;
+          const y0 = p.y - p.h - 22 + Math.round(Math.sin(frame / 4) * 2);
+          ctx.globalAlpha = blink; ctx.fillStyle = t.side === 'party' ? '#8fe0ff' : '#ffe38a';
+          ctx.beginPath(); ctx.moveTo(p.x - 7, y0 - 8); ctx.lineTo(p.x + 7, y0 - 8); ctx.lineTo(p.x, y0); ctx.fill(); ctx.globalAlpha = 1;
+        }
+      }
+      // effects & texts
+      for (const f of this.fxs) gFx(ctx, f.name, f.x, f.y, Math.min(1, f.f / f.dur), { big: f.big, color: f.color });
+      for (const x of this.texts) {
+        const a = x.t > x.life - 14 ? Math.max(0, (x.life - x.t) / 14) : 1;
+        ctx.globalAlpha = a;
+        gText(ctx, x.s, Math.round(x.x), Math.round(x.y), { size: x.big ? 26 : (x.label ? 14 : x.size || 18), color: x.color, bold: x.big, align: 'center' });
+        ctx.globalAlpha = 1;
+      }
+      this.drawBanners(ctx, frame);
+      this.drawTurnBar(ctx, frame);
+      this.drawWindows(ctx, frame);
+      ctx.restore();
+    }
+    drawEnemyHud(ctx, u, p) {
+      const nameY = Math.max(46, p.y - p.h - 14);
+      const label = u.name + (u.isBoss ? '' : '');
+      gText(ctx, label, p.x, nameY, { size: 12, bold: true, align: 'center', color: u.isBoss ? '#ffd27a' : '#ffffff' });
+      // HP gauge (always shown for bosses; others when damaged or revealed)
+      if (u.isBoss || u.hp < u.mhp || Object.keys(u.revealed).length) {
+        gGauge(ctx, p.x - 26, nameY + 14, 52, 4, (u.dispHp || 0) / u.mhp, '#ff7a86', '#b3263a', { bg: '#1a0c24' });
+      }
+      // shield pips & weakness icons under the feet
+      if (u.shieldMax > 0) gShieldPips(ctx, p.x - u.shieldMax * 5, p.y + 6, u.shield, u.shieldMax, u.broken);
+      if (u.weak && u.weak.length) gWeakIcons(ctx, p.x - u.weak.length * 8, p.y + 18, u.weak, u.revealed);
+    }
+    drawBanners(ctx, frame) {
+      if (this.banner) {
+        const b = this.banner;
+        const a = b.t < 8 ? b.t / 8 : (b.t > b.life - 10 ? Math.max(0, (b.life - b.t) / 10) : 1);
+        const w = Math.max(160, gTextW(b.text, 18, true) + 40);
+        ctx.globalAlpha = a;
+        gWindow(ctx, 320 - w / 2, 54, w, 30, { style: 'dark', alpha: 0.9 });
+        gText(ctx, b.text, 320, 60, { size: 18, bold: true, align: 'center', color: b.color });
+        ctx.globalAlpha = 1;
+      }
+      if (this.roundBanner) gText(ctx, this.roundBanner, 630, 46, { size: 12, align: 'right', color: '#cfe6ff' });
+      if (this.big) {
+        const b = this.big;
+        const pop = b.t < 10 ? 1 + (10 - b.t) * 0.04 : 1;
+        const a = b.t > b.life - 16 ? Math.max(0, (b.life - b.t) / 16) : 1;
+        ctx.globalAlpha = a;
+        gText(ctx, b.text, 320, 190 - Math.round((pop - 1) * 40), { size: Math.round(40 * pop), bold: true, align: 'center', color: b.color });
+        ctx.globalAlpha = 1;
+      }
+      if (this.encounterT >= 0) {
+        const a = Math.min(1, this.encounterT / 16);
+        ctx.globalAlpha = a * 0.55; ctx.fillStyle = '#000'; ctx.fillRect(0, 170, G.W, 80); ctx.globalAlpha = 1;
+        gText(ctx, 'Encounter!', 320, 186, { size: 34, bold: true, align: 'center', color: '#ffe38a' });
+      }
+    }
+    drawTurnBar(ctx, frame) {
+      gWindow(ctx, 4, 4, 632, 40, { style: 'dark', alpha: 0.7 });
+      let x = 12;
+      const cur = this.order.slice(this.idx || 0).filter((u) => u.alive).slice(0, 9);
+      cur.forEach((u, i) => { const s = i === 0 ? 34 : 28; this.drawTurnIcon(ctx, u, x, 9 + (34 - s) / 2, s, i === 0, frame); x += s + 4; });
+      x += 8;
+      ctx.save(); ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fillRect(x, 10, 2, 28); ctx.restore(); x += 12;
+      const nxt = this.preview.slice(0, 9);
+      nxt.forEach((u) => { this.drawTurnIcon(ctx, u, x, 17, 18, false, frame, true); x += 20; });
+    }
+    drawTurnIcon(ctx, u, x, y, s, active, frame, small) {
+      ctx.save();
+      ctx.globalAlpha = small ? 0.7 : 1;
+      ctx.fillStyle = '#0b0f1f'; ctx.fillRect(x - 1, y - 1, s + 2, s + 2);
+      const border = u.side === 'party' ? '#6ec5ff' : '#ff6b6b';
+      ctx.fillStyle = active ? '#ffe38a' : border; ctx.fillRect(x - 2, y - 2, s + 4, 2); ctx.fillRect(x - 2, y + s, s + 4, 2);
+      ctx.fillRect(x - 2, y - 2, 2, s + 4); ctx.fillRect(x + s, y - 2, 2, s + 4);
+      if (u.side === 'party') gFace(ctx, u.id, x, y, s);
+      else {
+        const cv = enemyIconCanvas(u.id);
+        ctx.fillStyle = '#2a1830'; ctx.fillRect(x, y, s, s);
+        if (cv) { const k = Math.min(s / cv.width, s / cv.height); const w = cv.width * k, h = cv.height * k; ctx.drawImage(cv, x + (s - w) / 2, y + (s - h) / 2, w, h); }
+      }
+      ctx.restore();
+    }
+    drawWindows(ctx, frame) {
+      const L = LAY;
+      // result / level windows take the whole middle
+      if (this.resultView && this.result && this.result.levelups !== undefined && !this.levelView) {
+        this.drawRewards(ctx);
+        return;
+      }
+      if (this.levelView) { this.drawLevel(ctx); return; }
+      const m = this.menu;
+      // party status panel (always)
+      this.drawStatus(ctx);
+      if (!m) return;
+      if (m.kind === 'list') {
+        if (m.mode === 'cmd') {
+          gWindow(ctx, L.cmdX, L.cmdY, L.cmdW, L.cmdH, { style: 'blue', alpha: 0.92 });
+          gText(ctx, m.title || '', L.cmdX + 12, L.cmdY + 8, { size: 13, bold: true, color: '#e6f3ff' });
+          gText(ctx, 'BOOST ' + this.boost, L.cmdX + L.cmdW - 12, L.cmdY + 8, { size: 13, align: 'right', color: this.boost ? '#ffd86b' : '#8fa6c8' });
+          m.items.forEach((it, i) => {
+            const y = L.cmdY + 30 + i * 22;
+            const col = it.enabled === false ? '#6d7a96' : '#ffffff';
+            if (i === m.cursor) gCursor(ctx, L.cmdX + 6, y + 3, frame);
+            gText(ctx, it.label, L.cmdX + 22, y, { size: 15, color: col });
+          });
+          this.drawInfo(ctx, m.items[m.cursor] ? m.items[m.cursor].desc : '');
+        } else {
+          this.drawSubList(ctx, m, frame);
+        }
+      } else if (m.kind === 'target') {
+        this.drawTargetInfo(ctx, m);
+      }
+    }
+    drawInfo(ctx, text) {
+      gWindow(ctx, 6, 280, 420, 40, { style: 'dark', alpha: 0.85 });
+      gText(ctx, text || '', 16, 290, { size: 13, color: '#e8f1ff', maxWidth: 400 });
+    }
+    drawSubList(ctx, m, frame) {
+      const x = LAY.subX, y = LAY.cmdY, w = LAY.subW, h = LAY.cmdH;
+      gWindow(ctx, x, y, w, h, { style: 'blue', alpha: 0.92 });
+      gText(ctx, m.title || '', x + 12, y + 8, { size: 13, bold: true, color: '#e6f3ff' });
+      const rows = 6, rowH = 20, top = y + 28;
+      if (m.cursor < m.scroll) m.scroll = m.cursor;
+      if (m.cursor >= m.scroll + rows) m.scroll = m.cursor - rows + 1;
+      for (let r = 0; r < rows; r++) {
+        const i = m.scroll + r; const it = m.items[i]; if (!it) break;
+        const ry = top + r * rowH;
+        const col = it.enabled === false ? '#6d7a96' : (it.color || '#ffffff');
+        if (i === m.cursor) gCursor(ctx, x + 6, ry + 3, frame);
+        gText(ctx, it.label, x + 22, ry, { size: 14, color: col });
+        if (it.right) gText(ctx, it.right, x + w - 12, ry + 1, { size: 12, align: 'right', color: it.enabled === false ? '#6d7a96' : '#cfe6ff' });
+      }
+      if (m.items.length > rows) gText(ctx, (m.cursor + 1) + '/' + m.items.length, x + w - 12, y + h - 18, { size: 10, align: 'right', color: '#8fa6c8' });
+      const cur = m.items[m.cursor];
+      this.drawInfo(ctx, cur ? (cur.desc || '') : '');
+    }
+    drawTargetInfo(ctx, m) {
+      const t = m.cands[m.cursor];
+      gWindow(ctx, 6, 280, 420, 40, { style: 'dark', alpha: 0.85 });
+      if (!t) return;
+      gText(ctx, (m.label ? m.label + ' → ' : '') + t.name, 16, 288, { size: 14, bold: true, color: t.side === 'party' ? '#bfeaff' : '#ffffff' });
+      if (t.side === 'enemy') {
+        if (t.shieldMax > 0) gShieldPips(ctx, 16, 306, t.shield, t.shieldMax, t.broken);
+        gWeakIcons(ctx, 110, 306, t.weak, t.revealed);
+      } else {
+        gText(ctx, 'HP ' + t.hp + '/' + t.mhp, 16, 306, { size: 11, color: '#cfe6ff' });
+      }
+    }
+    drawStatus(ctx) {
+      const L = LAY;
+      gWindow(ctx, L.statX, L.statY, L.statW, L.statH, { style: 'blue', alpha: 0.92 });
+      this.party.forEach((u, i) => {
+        const y = L.statY + 6 + i * L.statRow;
+        gFace(ctx, u.id, L.statX + 6, y + 2, 32);
+        const nameCol = u.alive ? '#ffffff' : '#7d7d8c';
+        gText(ctx, u.name, L.statX + 44, y, { size: 13, bold: true, color: nameCol });
+        gPips(ctx, L.statX + 130, y + 5, u.bp, MAX_BP, '#ffd86b');
+        gText(ctx, 'BP', L.statX + 124, y + 1, { size: 9, align: 'right', color: '#ffd86b' });
+        const hpR = u.alive ? clamp((u.dispHp || 0) / u.mhp, 0, 1) : 0;
+        gText(ctx, 'HP', L.statX + 44, y + 14, { size: 10, color: '#e6f3ff' });
+        gText(ctx, u.alive ? String(Math.round(u.dispHp || 0)) + '/' + u.mhp : 'KO', L.statX + L.statW - 8, y + 14, { size: 11, align: 'right', color: u.alive ? '#ffffff' : '#ff9b9b' });
+        gGauge(ctx, L.statX + 44, y + 26, 156, 5, hpR, hpR > 0.5 ? '#6cf0a0' : hpR > 0.25 ? '#ffd27a' : '#ff7a86', '#1f6b4a', { bg: '#0d1733' });
+        gText(ctx, 'SP', L.statX + 44, y + 32, { size: 9, color: '#bfe6ff' });
+        const spR = u.msp ? clamp((u.dispSp || 0) / u.msp, 0, 1) : 0;
+        gGauge(ctx, L.statX + 62, y + 35, 138, 3, spR, '#7fc8ff', '#2a5fa0', { bg: '#0d1733' });
+      });
+    }
+    drawRewards(ctx) {
+      const r = this.result; if (!r) return;
+      gWindow(ctx, 150, 120, 340, 230, { style: 'blue', alpha: 0.94 });
+      gText(ctx, 'Battle Results', 320, 132, { size: 16, bold: true, align: 'center', color: '#ffe38a' });
+      const lines = [];
+      lines.push('EXP  ' + this.party.map((u) => (r.exp[u.id] || 0)).join(' / ') + '  (per member)');
+      lines.push('Gold  +' + r.gold);
+      const drops = r.drops || [];
+      if (drops.length) lines.push('Items  ' + drops.map((d) => itemDef(d).name).join(', '));
+      else lines.push('Items  none');
+      lines.forEach((s, i) => gText(ctx, s, 166, 164 + i * 22, { size: 13, color: '#e6f3ff', maxWidth: 310 }));
+      gText(ctx, 'Press Z to continue', 320, 326, { size: 11, align: 'center', color: '#8fa6c8' });
+    }
+    drawLevel(ctx) {
+      const v = this.levelView; if (!v) return;
+      gWindow(ctx, 170, 150, 300, 160, { style: 'blue', alpha: 0.94 });
+      gText(ctx, (G.party && G.party.nameOf ? G.party.nameOf(v.id) : v.id) + ' reached Lv ' + v.level + '!', 320, 166, { size: 17, bold: true, align: 'center', color: '#ffe38a' });
+      if (v.learned.length) gText(ctx, 'Learned: ' + v.learned.map((s) => skillDef(s).name).join(', '), 186, 210, { size: 13, color: '#e6f3ff', maxWidth: 270 });
+      else gText(ctx, 'Stats grew!', 320, 210, { size: 13, align: 'center', color: '#e6f3ff' });
+      gText(ctx, 'Press Z to continue', 320, 286, { size: 11, align: 'center', color: '#8fa6c8' });
+    }
+
     // -------- per-frame update (input + animation timers)
     update() {
       this.t++;
