@@ -31,6 +31,13 @@
       const pick = await c.choice(['Earnest', 'Teasing', 'Flustered', 'Brave'], { cancel: -1 });
       window.__demoDone = pick;
     });
+  } else if (demo === 'prompt') {
+    G.scenes.replace('blank', {});
+    G.script.run(async (c) => {
+      await c.say('Caspian', 'The road to Lumen is long, and the lanterns grow dim the further we walk. Shall we rest, or press on through the night?', { expr: 'worried', side: 'right' });
+      const pick = await c.choice(['Rest at the inn', 'Press on', 'Ask Pip what he thinks'], { prompt: 'What does Rowan say?', cancel: 0 });
+      window.__demoDone = pick;
+    });
   } else if (demo === 'card') {
     G.scenes.replace('blank', {});
     G.script.run(async (c) => {

@@ -56,7 +56,7 @@
     cobble: ['#8d8c92', '#a3a2a8', '#777680'], mortar: '#5b5a62',
     sand: ['#e3cc96', '#eed9a6', '#d4bb84'],
     water: ['#3b7fd0', '#4b92e0', '#2f6cb8'], waterLt: '#9fd6ff', waterDk: '#1f4f94',
-    shallow: ['#5a9fb0', '#6cb4bf'],
+    shallow: ['#5a9fb0', '#6cb4bf', '#4a8a9c'],
     woodFloor: ['#b07a46', '#a06c3c', '#c08854'], woodDk: '#6e4524',
     stone: ['#9b9aa3', '#88878f', '#aeadb5'],
     iron: ['#4a4f5c', '#5d6474', '#353a45'], brass: ['#c79a3b', '#e0b657', '#8e6a25'], brassLt: '#ffe39a',
@@ -291,15 +291,22 @@
         const x = k * 8 + off;
         const x0 = Math.max(0, x), x1 = Math.min(T, x + 8);
         if (x1 <= x0) continue;
-        const tone = r() < 0.5 ? R.b : shade(R.b, (r() - 0.5) * 0.12);
-        rect(c, x0, y, x1 - x0, 7, tone);
-        rect(c, x0, y, x1 - x0, 1, R.l);               // top highlight
-        rect(c, x0, y + 6, x1 - x0, 1, R.d);            // scalloped bottom edge
-        if (x1 - x0 >= 3) px(c, x0 + 1, y + 6, shade(R.d, -0.2));
-        // seam between shingles
-        if (x0 >= 0 && x0 < T) px(c, x0, y + 1, R.d);
+        const w = x1 - x0;
+        const tone = r() < 0.5 ? R.b : shade(R.b, (r() - 0.5) * 0.14);
+        rect(c, x0, y, w, 7, tone);
+        // lit upper bevel and a slightly darker lower band give each shingle its lip
+        rect(c, x0, y, w, 1, R.l);
+        rect(c, x0 + 1, y + 1, Math.max(0, w - 3), 1, shade(tone, 0.14));
+        rect(c, x0, y + 5, w, 1, shade(tone, -0.16));
+        // scalloped bottom: rounded corners drop to the dark colour
+        rect(c, x0, y + 6, w, 1, R.d);
+        if (w >= 6) { px(c, x0, y + 6, shade(R.d, 0.1)); px(c, x1 - 1, y + 6, shade(R.d, 0.1)); }
+        // dark seams between neighbouring shingles (full height)
+        if (x0 < T) rect(c, x0, y, 1, 7, R.d);
         // moss tint dither on some shingles (Wickholm reclaimed look)
-        if (key !== 'roof_copper' && r() < 0.28) { dither(c, r, x0, y + 2, x1 - x0, 4, R.m, 0.6); }
+        if (key !== 'roof_copper' && r() < 0.35) { dither(c, r, x0 + 1, y + 2, Math.max(1, w - 2), 3, R.m, 0.7); }
+        // occasional glint
+        if (r() < 0.12) px(c, x0 + 2 + (r() * 3 | 0), y + 2, R.l);
       }
     }
     // gentle sun-bleach gradient down the tile
@@ -379,7 +386,6 @@
     rect(c, 0, 0, T, 2, shade(P_.arena[0], 0.2));
     // arched niche
     rect(c, 8, 8, 16, 24, '#6c4f2e');
-    for (let y = 0; y < 8; y++) { const w = 16 - Math.round(Math.sqrt(Math.max(0, 64 - (y - 8) * (y - 8)))); }
     for (let i = 0; i < 8; i++) { const hw = Math.round(Math.sqrt(Math.max(0, 64 - (8 - i) * (8 - i)))); rect(c, 16 - hw, 8 + i, hw * 2, 1, '#6c4f2e'); }
     rect(c, 8, 8, 2, 24, shade(P_.arena[0], 0.1)); rect(c, 22, 8, 2, 24, shade(P_.arena[2], -0.2));
     speckle(c, r, 0, 0, T, T, P_.arena[1], 30); speckle(c, r, 0, 0, T, T, '#a9854e', 25);
@@ -633,7 +639,6 @@
     rect(c, 9, 27, 14, 3, P_.marble[0]); rect(c, 7, 29, 18, 2, P_.marble[2]);
     rect(c, 9, 27, 14, 1, '#ffffff');
   }
-  function paintArenaWallTile(c, r) { paintArenaWall(c, r); }
   function paintBanner(c, r) {
     paintStoneWall(c, r);
     // hanging cloth
@@ -653,7 +658,6 @@
       speckle(c, r, 0, y + 1, T, 6, '#6e6d76', 6);
     }
   }
-  function paintArenaWallIt(c, r) { paintArenaWall(c, r); }
 
   // ------------------------------------------------------------------ steampunk
   function paintPipe(c, r) {
@@ -712,26 +716,19 @@
     leafy(c, r, 16, 14, 16, 13, '#4f9a3e');
     // semi transparent fringe: fade bottom rows
     for (let y = 22; y < T; y++) for (let x = 0; x < T; x++) {
-      const id = c.getImageData(x, y, 1, 1).data; if (id[3] === 0) continue;
-      c.clearRect(x, y, 1, 1);
-      if (r() < 0.6) { c.fillStyle = 'rgba(79,154,62,0.75)'; c.fillRect(x, y, 1, 1); }
+      const v = r();
+      if (v < 0.35) c.clearRect(x, y, 1, 1);                              // ragged, see-through lower fringe
+      else if (v < 0.5) { c.fillStyle = 'rgba(79,154,62,0.7)'; c.fillRect(x, y, 1, 1); }
     }
     for (let i = 0; i < 9; i++) px(c, 4 + Math.floor(r() * 24), 3 + Math.floor(r() * 12), '#8fd060');
   }
   function paintArch(c, r) {
     // stone arch top piece: thick arc with opening at the bottom
     rect(c, 0, 16, T, 16, P_.stone[1]);
-    for (let y = 0; y < 16; y++) {
-      for (let x = 0; x < T; x++) {
-        const dx = (x - 16) / 16, dy = (y + 16 - 32) / 16;
-        const d = dx * dx + (y - 16 + 0) / 16 * 0; // placeholder
-      }
-    }
-    // draw arch band: outer radius 16, inner 9, centred at (16,32)
+    // arch band: outer radius 16, inner 10, centred at (16,32); opening stays transparent
     for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) {
       const dx = x - 16, dy = y - 32, d = Math.sqrt(dx * dx + dy * dy);
       if (d <= 16 && d >= 10) px(c, x, y, shade(P_.stone[1], (d > 14 ? -0.25 : 0.12)));
-      else if (y >= 16 && d < 10) { /* opening: transparent */ }
     }
     for (let x = 0; x < 6; x++) { px(c, x, 30, P_.stone[2]); px(c, 25 + x, 30, P_.stone[2]); }
     speckle(c, r, 0, 0, T, 16, '#6e6d76', 6);
@@ -1098,9 +1095,9 @@
     drawHeadBase(c, S, view);
     if (S.hairStyle !== 'bald' || view === 'back') hairCap(c, S, view);
     hairStyle(c, S, view);
-    if (S.hairStyle !== 'hood' && S.hairStyle !== 'veil' && S.hairStyle !== 'helm' && S.hairStyle !== 'hat' && S.hairStyle !== 'tall' && S.hairStyle !== 'witch' && S.hairStyle !== 'cap') { /* base hair already drawn */ }
     drawFace(c, S, view);
-    drawAccessories(c, S, view, step);
+    const front = Object.assign({}, S, { acc: (S.acc || []).filter((a) => a !== 'wings' && a !== 'bow' && a !== 'backpack') });
+    drawAccessories(c, front, view, step);
     const outlineCol = S.outline || '#2b2a33';
     const out = outlined(cv, outlineCol);
     if (dir !== 'left') return out;
@@ -1108,5 +1105,287 @@
     return fl;
   }
   G.gfx._charCell = charCell;
-  /*__PART6__*/
+
+  // ------------------------------------------------------------------ character specs
+  const CHARS = {
+    // heroes -------------------------------------------------------
+    rowan: { skin: '#f2c9a0', eye: '#4a3a2a', hair: '#6b4226', hairStyle: 'short', top: '#f0e0b0', sleeve: '#e8d290', coat: '#d9a53a', trim: '#ffe39a', pants: '#5a4030', boots: '#3a2412', acc: ['lantern'], outline: '#3a2412' },
+    claret: { skin: '#f2c2a0', eye: '#3a6fa8', hair: '#1f2340', hairStyle: 'short', top: '#2f6fb8', sleeve: '#8a5a2e', pants: '#4a5a3a', boots: '#3a2412', belt: '#3a2412', buckle: '#c79a3b', acc: ['goggles', 'spear'] },
+    caspian: { skin: '#e8b890', eye: '#5a4a3a', hair: '#2e3240', hairStyle: 'short', top: '#e8e4d8', sleeve: '#d4d0c4', armor: '#e8e4d8', trim: '#d4a83a', pants: '#e8e4d8', boots: '#7a6a50', belt: '#c79a3b', sigil: true, acc: ['sword', 'cape'], cape: '#f3f0e6', outline: '#4a4a52' },
+    rook: { skin: '#f0c4a0', eye: '#3aa070', hair: '#c4402a', hairStyle: 'shaggy', top: '#2a2d36', sleeve: '#2e7a48', coat: '#2e7a48', trim: '#c8c8d0', scarf: '#e0b657', pants: '#2a2d36', boots: '#2a1a10', belt: '#3a2412', acc: ['coin', 'sword'] },
+    seraphine: { skin: '#f6d6c0', eye: '#5ab0b8', hair: '#2fb4a0', hairStyle: 'long', top: '#eef4f2', sleeve: '#dff2ee', trim: '#8fd0c8', pants: '#eef4f2', boots: '#d8e4e0', belt: '#8fd0c8', wing: '#f5f5ff', acc: ['wings', 'staff'], staffGem: '#9ad8ff' },
+    wren: { skin: '#f0c8a8', eye: '#3a6a5a', hair: '#6f8ba0', hairStyle: 'hat', hat: '#2c4fa0', hatBand: '#e8c15a', top: '#8a6a3a', sleeve: '#7a5a8a', pants: '#3a3a4a', boots: '#4a3020', belt: '#3a2412', cape: '#7a5a8a', acc: ['patch', 'cape', 'staff'] },
+    // named npcs ---------------------------------------------------
+    maren: { skin: '#e8b890', eye: '#3a2a20', hair: '#9a9aa8', hairStyle: 'bun', top: '#7a4a2a', sleeve: '#8a5a3a', coat: '#c9a86a', pants: '#5a4030', boots: '#2a1a10', acc: ['knit'] },
+    pip: { skin: '#f2c9a0', eye: '#2a2030', hair: '#7a4a2a', hairStyle: 'cap', cap: '#c04a2a', top: '#3a7a3a', sleeve: '#3a7a3a', pants: '#4a3a2a', boots: '#2a1a10', acc: ['lantern'] },
+    bram: { skin: '#e0b08a', eye: '#4a4a50', hair: '#8a8a92', hairStyle: 'short', top: '#4a4a40', sleeve: '#4a4a40', apron: '#c8a878', pants: '#3a3a40', boots: '#2a1a10', acc: ['goggles'] },
+    torvald: { skin: '#c8906a', eye: '#2a1a10', hair: '#3a2a20', hairStyle: 'bald', top: '#b03030', sleeve: '#b03030', coat: '#b03030', trim: '#e0b657', pants: '#5a3a20', boots: '#2a1a10', acc: ['shoulder_pads'] },
+    abbess: { skin: '#f0d4c0', eye: '#5a4a6a', hair: '#e8e0c8', hairStyle: 'veil', veil: '#fff6e0', top: '#f6f0e0', sleeve: '#f6f0e0', trim: '#c9a25a', pants: '#f6f0e0', boots: '#c9a25a', acc: [] },
+    hale: { skin: '#e8c0a0', eye: '#2a2a40', hair: '#2a2030', hairStyle: 'tall', hat: '#20202a', hatBand: '#e0b657', top: '#f0f0f5', sleeve: '#f0f0f5', coat: '#f0f0f5', trim: '#e0b657', pants: '#2a2a34', boots: '#1a1a20', acc: ['sword'] },
+    vael: { skin: '#e0c0a8', eye: '#8a7aa8', hair: '#c8c8d8', hairStyle: 'long', top: '#c8ccd8', sleeve: '#b8bccb', coat: '#b8bccb', trim: '#e8c060', pants: '#3a3a48', boots: '#1a1a22', cape: '#7a8098', acc: ['cape', 'lantern'] },
+    elowen: { skin: '#e8e0f0', eye: '#c7a8ff', eyeGlow: '#c7a8ff', hair: '#d8d0f0', hairStyle: 'long', top: '#4a3a6a', sleeve: '#5a4a7a', pants: '#4a3a6a', boots: '#2a2040', outline: '#8a6ad0', acc: ['lantern'] },
+    // generic npcs -------------------------------------------------
+    villager_m1: { skin: '#e8b890', eye: '#3a2a20', hair: '#5a3a20', hairStyle: 'short', top: '#4f8f52', sleeve: '#4f8f52', pants: '#5a4a30', boots: '#3a2412', acc: [] },
+    villager_m2: { skin: '#d8a880', eye: '#3a2a20', hair: '#9a9aa8', hairStyle: 'short', top: '#e8e0c8', sleeve: '#e8e0c8', coat: '#3a4a8a', pants: '#4a4a58', boots: '#2a1a10', acc: ['cane'] },
+    villager_f1: { skin: '#f2c9a0', eye: '#4a3a2a', hair: '#d86a2a', hairStyle: 'long', top: '#8a4aa8', sleeve: '#8a4aa8', pants: '#8a4aa8', boots: '#4a2a20', acc: [] },
+    villager_f2: { skin: '#e0b08a', eye: '#2a2030', hair: '#1a1a22', hairStyle: 'bun', top: '#e8e0d0', sleeve: '#e8e0d0', pants: '#6a4a2a', boots: '#2a1a10', apron: '#f5f5f5', acc: ['belt_pouch'] },
+    elder: { skin: '#e6b890', eye: '#4a4a50', hair: '#e8e8ec', hairStyle: 'short', top: '#6a4a2a', sleeve: '#6a4a2a', pants: '#4a3a2a', boots: '#2a1a10', acc: ['cane'] },
+    child1: { skin: '#f5cfae', eye: '#3a6a9a', hair: '#e8c060', hairStyle: 'short', top: '#d03a3a', sleeve: '#d03a3a', pants: '#3a4a6a', boots: '#3a2412', acc: [] },
+    child2: { skin: '#e8b890', eye: '#3a2a20', hair: '#2a2030', hairStyle: 'bun', top: '#e8c040', sleeve: '#e8c040', pants: '#5a4a6a', boots: '#3a2412', acc: [] },
+    guard: { skin: '#e8b890', eye: '#2a2030', hair: '#3a2a20', hairStyle: 'helm', helm: '#b8bcc8', plume: '#c0392b', top: '#8a929e', sleeve: '#8a929e', armor: '#8a929e', tabard: '#b02d39', trim: '#e0b657', pants: '#3a3f4a', boots: '#2a2d36', acc: ['spear', 'tabard'] },
+    merchant: { skin: '#dca88a', eye: '#2a2030', hair: '#6a4a2a', hairStyle: 'hat', hat: '#7a4a2a', hatBand: '#e0b657', top: '#6a5a3a', sleeve: '#6a5a3a', coat: '#7a4a2a', pants: '#4a3a2a', boots: '#2a1a10', acc: ['bag'] },
+    innkeeper: { skin: '#e6b890', eye: '#3a2a20', hair: '#3a2a20', hairStyle: 'bald', top: '#e8e0d0', sleeve: '#e8e0d0', pants: '#4a3a6a', boots: '#2a1a10', apron: '#f5f5f5', acc: [] },
+    choir_f: { skin: '#f6dccc', eye: '#6a5a8a', hair: '#e8e0f0', hairStyle: 'veil', veil: '#f4f4f8', top: '#eef0f8', sleeve: '#eef0f8', trim: '#c9a25a', pants: '#eef0f8', boots: '#c9a25a', acc: [] },
+    choir_m: { skin: '#e8c0a0', eye: '#3a2a20', hair: '#3a3a4a', hairStyle: 'hood', hood: '#f0f0f8', top: '#eef0f8', sleeve: '#eef0f8', pants: '#eef0f8', boots: '#c9a25a', acc: [] },
+    gladiator: { skin: '#c8906a', eye: '#2a1a10', hair: '#2a1a10', hairStyle: 'helm', helm: '#b08a50', plume: '#e0b657', top: '#8a5a3a', sleeve: '#b08a50', armor: '#b08a50', pants: '#a0303a', boots: '#5a3a20', acc: ['sword', 'shoulder_pads'] },
+    engineer: { skin: '#e8b890', eye: '#3a6a9a', hair: '#8a5a2a', hairStyle: 'short', top: '#e07a2a', sleeve: '#e07a2a', pants: '#3a4a6a', boots: '#3a2412', belt: '#c79a3b', acc: ['goggles'] },
+    sailor: { skin: '#d8a880', eye: '#2a2a40', hair: '#2a2a40', hairStyle: 'cap', cap: '#2a4a6a', top: '#f2f2f2', sleeve: '#f2f2f2', trim: '#2a4a7a', pants: '#2a3a5a', boots: '#2a1a10', acc: [] },
+    noble: { skin: '#f2d0b0', eye: '#4a3a6a', hair: '#2a1a30', hairStyle: 'hat', hat: '#5a2a6a', hatBand: '#e0b657', top: '#5a2a6a', sleeve: '#5a2a6a', coat: '#7a3a8a', trim: '#e0b657', pants: '#3a2a4a', boots: '#2a1a10', acc: [] },
+    hollow: { skin: '#2a2236', eye: '#c7a8ff', eyeGlow: '#c7a8ff', hair: '#120c1c', hairStyle: 'hood', hood: '#1a1024', top: '#1a1024', sleeve: '#120c1c', pants: '#0e0a16', boots: '#0a0710', outline: '#6a4aa8', acc: [] },
+    // placeholder for unknown keys
+    __placeholder: { skin: '#a8a8b8', eye: '#4a4a58', hair: '#6a6a78', hairStyle: 'short', top: '#8a8a98', sleeve: '#8a8a98', pants: '#5a5a68', boots: '#3a3a44', acc: [] },
+  };
+
+  // ------------------------------------------------------------------ animals
+  function animalCell(kind, dir, frame) {
+    const cv = mk(T, T), c = cv.getContext('2d');
+    const body = kind === 'cat' ? '#e08a3a' : '#a06a3a', belly = kind === 'cat' ? '#f6d0a0' : '#d8b890', dk = shade(body, -0.3);
+    const legStep = frame === 0 ? 1 : (frame === 2 ? -1 : 0);
+    if (dir === 'up') {
+      rect(c, 10, 14, 12, 10, body); rect(c, 10, 14, 12, 1, shade(body, 0.2)); rect(c, 11, 10, 10, 6, body);
+      if (kind === 'cat') { px(c, 11, 10, dk); px(c, 20, 10, dk); } else { rect(c, 9, 13, 3, 3, body); rect(c, 20, 13, 3, 3, body); }
+      rect(c, 12, 22, 3, 4, dk); rect(c, 17, 22, 3, 4, dk);
+      rect(c, 24, 16, 4, 2, body); rect(c, 26, 12, 2, 5, body);
+    } else if (dir === 'down') {
+      rect(c, 9, 13, 14, 10, body); rect(c, 11, 19, 10, 4, belly);
+      rect(c, 8, 8, 16, 10, body); rect(c, 10, 14, 12, 4, belly);
+      if (kind === 'cat') { px(c, 9, 7, body); px(c, 9, 6, dk); px(c, 22, 7, body); px(c, 22, 6, dk); }
+      else { rect(c, 7, 9, 3, 6, dk); rect(c, 22, 9, 3, 6, dk); }
+      px(c, 12, 11, '#2a2030'); px(c, 19, 11, '#2a2030'); px(c, 15, 14, '#c05a4a'); px(c, 16, 14, '#c05a4a');
+      if (kind === 'cat') { rect(c, 14, 12, 4, 1, dk); }
+      rect(c, 10, 22, 3, 4 - (legStep === 1 ? 1 : 0), dk); rect(c, 19, 22, 3, 4 - (legStep === -1 ? 1 : 0), dk);
+      rect(c, 14, 22, 2, 4, body); rect(c, 14, 24, 2, 2, dk);
+    } else {
+      // side view (right)
+      rect(c, 6, 13, 20, 9, body); rect(c, 8, 18, 14, 4, belly);
+      rect(c, 22, 8, 7, 9, body); rect(c, 26, 8, 2, 4, dk);
+      if (kind === 'cat') { px(c, 22, 6, body); px(c, 23, 6, body); px(c, 22, 5, dk); } else { rect(c, 23, 9, 3, 3, dk); px(c, 22, 10, body); }
+      px(c, 26, 11, '#2a2030'); px(c, 28, 13, '#c05a4a');
+      rect(c, 6, 8, 3, 6, body); px(c, 7, 6, body);  // tail hint
+      const f = legStep === 1 ? 1 : 0, b = legStep === -1 ? 1 : 0;
+      rect(c, 9, 22, 3, 4 - b, dk); rect(c, 20, 22, 3, 4 - f, dk);
+      rect(c, 8, 22, 1, 2, body); rect(c, 19, 22, 1, 2, body);
+    }
+    if (kind === 'cat' && dir === 'side') { rect(c, 3, 5, 2, 6, body); }
+    const out = outlined(cv, '#2b2a33');
+    if (dir !== 'left') return out;
+    const fl = mk(T, T), f2 = fl.getContext('2d'); f2.translate(T, 0); f2.scale(-1, 1); f2.drawImage(out, 0, 0); return fl;
+  }
+
+  // ------------------------------------------------------------------ objects (one image, replicated per cell)
+  function objCell(key, frame) {
+    const cv = mk(T, T), c = cv.getContext('2d');
+    const r = rnd(G.util.hash('obj:' + key));
+    if (key === 'obj_chest' || key === 'obj_chest_open') {
+      const open = key === 'obj_chest_open';
+      const wood = '#8a5a2e', wd = shade(wood, -0.3), wl = shade(wood, 0.2);
+      if (!open) {
+        rect(c, 4, 13, 24, 15, wood); rect(c, 4, 13, 24, 1, wl); rect(c, 4, 27, 24, 1, wd);
+        rect(c, 4, 8, 24, 6, wood); rect(c, 4, 8, 24, 1, wl); rect(c, 4, 13, 24, 1, wd);
+        for (let x = 6; x < 26; x += 6) rect(c, x, 9, 1, 5, wd);
+        rect(c, 4, 16, 24, 2, P_.brass[0]); rect(c, 4, 16, 24, 1, P_.brassLt);
+        rect(c, 14, 15, 4, 6, P_.brass[1]); rect(c, 15, 17, 2, 2, '#2a1a10');
+        rect(c, 4, 13, 1, 15, wd); rect(c, 27, 13, 1, 15, wd);
+      } else {
+        rect(c, 4, 15, 24, 13, wood); rect(c, 4, 15, 24, 1, wl); rect(c, 4, 27, 24, 1, wd);
+        rect(c, 5, 15, 22, 3, '#2a170c');
+        rect(c, 4, 3, 24, 9, wood); rect(c, 4, 3, 24, 1, wl); rect(c, 4, 11, 24, 1, wd);
+        rect(c, 4, 9, 24, 2, P_.brass[0]); rect(c, 14, 9, 4, 3, P_.brass[1]);
+        rect(c, 5, 6, 22, 3, '#2a170c');
+        for (let i = 0; i < 6; i++) { px(c, 8 + i * 3, 16 + (i % 2), P_.gold); px(c, 9 + i * 3, 16, '#fff3a0'); }
+        addGlow(c, 16, 14, 13, 'rgba(255,220,120,0.35)', 1);
+      }
+    } else if (key === 'obj_sign') {
+      rect(c, 15, 14, 2, 16, '#6b4424'); rect(c, 15, 14, 1, 16, '#8a5c34');
+      rect(c, 5, 5, 22, 11, '#a6743f'); rect(c, 5, 5, 22, 1, '#c79a5a'); rect(c, 5, 15, 22, 1, '#5a3a1e');
+      rect(c, 4, 5, 1, 11, '#5a3a1e'); rect(c, 26, 5, 1, 11, '#5a3a1e');
+      for (let y = 8; y < 14; y += 3) rect(c, 8, y, 16, 1, '#4a2c17');
+      px(c, 6, 7, '#3a2412'); px(c, 25, 7, '#3a2412');
+    } else if (key === 'obj_crate') {
+      paintCrate(c, r);
+    } else if (key === 'obj_beacon') {
+      rect(c, 10, 23, 12, 7, P_.iron[0]); rect(c, 10, 23, 12, 1, P_.iron[1]);
+      rect(c, 14, 9, 4, 15, P_.iron[1]); rect(c, 14, 9, 1, 15, '#7d8494');
+      rect(c, 12, 5, 8, 5, P_.brass[0]); rect(c, 13, 6, 6, 3, '#ffe89a'); rect(c, 15, 1, 2, 4, P_.iron[2]);
+      px(c, 15, 0, '#ff6b6b');
+      for (let y = 12; y < 22; y += 4) rect(c, 14, y, 4, 1, P_.brass[1]);
+      addGlow(c, 16, 7, 12 + (frame | 0) % 2, 'rgba(255,220,130,' + (0.45 + 0.1 * ((frame | 0) % 2)).toFixed(2) + ')', 1);
+    } else if (key === 'obj_marigold_wheel') {
+      const cx = 16, cy = 16, R = 12;
+      for (let y = -R; y <= R; y++) for (let x = -R; x <= R; x++) {
+        const d = Math.sqrt(x * x + y * y);
+        if (d > R || d < R - 3) continue;
+        px(c, cx + x, cy + y, d > R - 1 ? P_.brass[2] : P_.brass[0]);
+      }
+      for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; for (let t = 3; t < R - 2; t++) px(c, Math.round(cx + Math.cos(a) * t), Math.round(cy + Math.sin(a) * t), P_.brass[1]); }
+      for (let y = -3; y <= 3; y++) for (let x = -3; x <= 3; x++) if (x * x + y * y <= 9) px(c, cx + x, cy + y, P_.brassLt);
+      px(c, cx, cy, '#5a3a1e');
+      // little pegs
+      for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4 + Math.PI / 8; px(c, Math.round(cx + Math.cos(a) * (R + 1)), Math.round(cy + Math.sin(a) * (R + 1)), '#8a5c34'); }
+    } else if (key === 'obj_lamp') {
+      paintLampPost(c, r, frame | 0);
+    } else {
+      // unknown object key: small grey placeholder block
+      rect(c, 8, 8, 16, 16, '#6a6a78'); rect(c, 8, 8, 16, 1, '#9a9aa8');
+    }
+    const outCol = key === 'obj_lamp' ? '#1a1d24' : '#2b2a33';
+    return outlined(cv, outCol);
+  }
+  const OBJECT_KEYS = ['obj_chest', 'obj_chest_open', 'obj_lamp', 'obj_sign', 'obj_beacon', 'obj_crate', 'obj_marigold_wheel'];
+  const CHAR_ORDER = ['down', 'left', 'right', 'up'];
+
+  // ------------------------------------------------------------------ sheet cache
+  const sheetCache = new Map();
+  function buildSheet(key) {
+    const sh = mk(96, 128), c = sh.getContext('2d');
+    const isObj = OBJECT_KEYS.indexOf(key) >= 0;
+    const isAnimal = key === 'cat' || key === 'dog';
+    const S = CHARS[key] || CHARS.__placeholder;
+    for (let row = 0; row < 4; row++) {
+      const dir = CHAR_ORDER[row];
+      for (let col = 0; col < 3; col++) {
+        let cell;
+        if (isObj) cell = objCell(key, col);
+        else if (isAnimal) cell = animalCell(key, dir, col);
+        else cell = charCell(S, dir, col);
+        c.drawImage(cell, col * T, row * T);
+      }
+    }
+    return sh;
+  }
+  function charSheet(key) {
+    const k = String(key);
+    let sh = sheetCache.get(k);
+    if (!sh) { sh = buildSheet(k); sheetCache.set(k, sh); }
+    return sh;
+  }
+  const DIR_ROW = { down: 0, left: 1, right: 2, up: 3 };
+  function drawChar(ctx, key, dir, frame, x, y) {
+    try {
+      const sh = charSheet(key);
+      const row = DIR_ROW[dir] != null ? DIR_ROW[dir] : 0;
+      const col = Math.max(0, Math.min(2, frame | 0));
+      ctx.drawImage(sh, col * T, row * T, T, T, x | 0, y | 0, T, T);
+    } catch (e) { /* never throw from art */ }
+  }
+  G.gfx.charSheet = function (key) { return charSheet(key); };
+  G.gfx.drawChar = drawChar;
+  G.gfx.charKeys = function () { return Object.keys(CHARS).filter((k) => k !== '__placeholder').concat(['cat', 'dog'], OBJECT_KEYS); };
+  // ------------------------------------------------------------------ glow & emotes
+  // additive radial light centred at x,y (canvas coords)
+  function glow(ctx, x, y, radius, color, alpha) {
+    const r = Math.max(1, radius | 0);
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, color || 'rgba(255,200,120,1)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.globalAlpha = alpha == null ? 0.6 : alpha;
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+    ctx.restore();
+  }
+  G.gfx.glow = glow;
+
+  const EMOTE_LEN = 40;
+  function heartPath(ctx, cx, cy, s) {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + s * 0.9);
+    ctx.bezierCurveTo(cx - s * 1.4, cy, cx - s * 0.7, cy - s * 1.1, cx, cy - s * 0.35);
+    ctx.bezierCurveTo(cx + s * 0.7, cy - s * 1.1, cx + s * 1.4, cy, cx, cy + s * 0.9);
+    ctx.closePath();
+  }
+  function drawBubbleBody(ctx, cx, cy, w, h) {
+    // pixel-ish rounded white bubble with dark outline and a tail
+    const x = Math.round(cx - w / 2), y = Math.round(cy - h / 2);
+    ctx.fillStyle = '#2b2a33';
+    ctx.fillRect(x + 2, y - 1, w - 4, h + 2); ctx.fillRect(x - 1, y + 2, w + 2, h - 4); ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(x + 2, y + 1, w - 4, h - 2); ctx.fillRect(x + 1, y + 2, w - 2, h - 4);
+    ctx.fillStyle = '#e8e4f4';
+    ctx.fillRect(x + 2, y + h - 3, w - 4, 1);
+    // tail
+    const tx = Math.round(cx);
+    ctx.fillStyle = '#2b2a33';
+    ctx.fillRect(tx - 3, y + h, 6, 1); ctx.fillRect(tx - 2, y + h + 1, 4, 1); ctx.fillRect(tx - 1, y + h + 2, 2, 1);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(tx - 2, y + h, 4, 1); ctx.fillRect(tx - 1, y + h + 1, 2, 1);
+  }
+  function drawEmote(ctx, kind, x, y, t) {
+    try {
+      t = t || 0;
+      if (t < 0 || t > EMOTE_LEN + 4) return;
+      // pop-in with overshoot, hold, fade out in last 10 frames
+      let s = 1;
+      if (t < 6) s = 0.2 + 0.8 * (1 - Math.pow(1 - t / 6, 3)) + (t < 4 ? 0.12 * Math.sin((t / 4) * Math.PI) : 0);
+      else if (t < 10) s = 1.08 - 0.08 * ((t - 6) / 4);
+      const alpha = t > EMOTE_LEN - 10 ? Math.max(0, (EMOTE_LEN - t) / 10) : 1;
+      const bob = Math.round(Math.sin(t * 0.25) * 1.2);
+      const w = 22, h = 18;
+      const cx = Math.round(x), cy = Math.round(y - 14 - bob);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy + h / 2);
+      ctx.scale(s, s);
+      ctx.translate(-cx, -(cy + h / 2));
+      const bx = cx, by = cy;
+      drawBubbleBody(ctx, bx, by, w, h);
+      const k = (kind || '').toLowerCase();
+      if (k === 'heart') {
+        ctx.fillStyle = '#2b2a33'; heartPath(ctx, bx, by + 1, 6.4); ctx.lineWidth = 1; ctx.strokeStyle = '#2b2a33'; ctx.stroke();
+        ctx.fillStyle = '#ff4f7a'; heartPath(ctx, bx, by + 0.5, 5.4); ctx.fill();
+        ctx.fillStyle = '#ffd0dc'; ctx.fillRect(bx - 4, by - 3, 2, 2);
+      } else if (k === 'exclaim') {
+        ctx.fillStyle = '#e0302a'; ctx.fillRect(bx - 2, by - 6, 4, 9); ctx.fillRect(bx - 2, by + 5, 4, 3);
+      } else if (k === 'question') {
+        ctx.fillStyle = '#2a6fd0'; ctx.font = 'bold 14px "Trebuchet MS",Arial,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('?', bx, by + 1);
+      } else if (k === 'sweat') {
+        ctx.fillStyle = '#7fc8ff'; heartPath(ctx, bx + 1, by + 1, 0); ctx.beginPath(); ctx.moveTo(bx, by - 6); ctx.quadraticCurveTo(bx + 5, by + 1, bx + 3, by + 4); ctx.quadraticCurveTo(bx, by + 7, bx - 3, by + 4); ctx.quadraticCurveTo(bx - 5, by + 1, bx, by - 6); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(bx - 2, by + 1, 1, 2);
+      } else if (k === 'music') {
+        ctx.fillStyle = '#2a2030';
+        ctx.fillRect(bx - 1, by - 6, 2, 8); ctx.fillRect(bx + 3, by - 7, 2, 8);
+        ctx.fillRect(bx - 1, by - 7, 6, 2);
+        ctx.beginPath(); ctx.arc(bx - 3, by + 2, 2.5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(bx + 5, by + 1, 2.5, 0, Math.PI * 2); ctx.fill();
+      } else if (k === 'dots') {
+        const phase = Math.floor(t / 6) % 4;
+        for (let i = 0; i < 3; i++) { ctx.fillStyle = i < phase ? '#2a2030' : '#b8b4c8'; ctx.fillRect(bx - 6 + i * 5, by - 1, 3, 3); }
+      } else if (k === 'anger') {
+        ctx.strokeStyle = '#d03030'; ctx.lineWidth = 2;
+        for (let i = 0; i < 4; i++) {
+          const a = i * Math.PI / 2 + Math.PI / 4;
+          ctx.beginPath(); ctx.moveTo(bx + Math.cos(a) * 3, by + Math.sin(a) * 3); ctx.lineTo(bx + Math.cos(a) * 6.5, by + Math.sin(a) * 6.5); ctx.stroke();
+        }
+        ctx.fillStyle = '#d03030'; ctx.fillRect(bx - 1, by - 1, 2, 2);
+      } else if (k === 'bulb') {
+        ctx.fillStyle = '#ffe066'; ctx.beginPath(); ctx.arc(bx, by - 1, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#8a6a10'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.fillStyle = '#b8a040'; ctx.fillRect(bx - 2, by + 4, 4, 2);
+        ctx.fillStyle = '#fffbe0'; ctx.fillRect(bx - 3, by - 4, 2, 2);
+        glow(ctx, bx, by - 1, 10, 'rgba(255,230,120,0.6)', 0.6);
+      } else {
+        // unknown kind: plain dot
+        ctx.fillStyle = '#2a2030'; ctx.fillRect(bx - 1, by - 1, 2, 2);
+      }
+      ctx.restore();
+    } catch (e) { /* art must never throw */ }
+  }
+  G.gfx.drawEmote = drawEmote;
+  G.gfx.EMOTE_LEN = EMOTE_LEN;
+
+  // ------------------------------------------------------------------ misc
+  G.gfx.clearCaches = function () { tileCache.clear(); sheetCache.clear(); };
+  G.provide('gfx_world');
 })();

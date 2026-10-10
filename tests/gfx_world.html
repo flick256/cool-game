@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>gfx_world test</title>
+<style>
+  body { background: #15131c; color: #ddd; font: 12px sans-serif; margin: 8px; }
+  canvas { image-rendering: pixelated; display: block; margin: 6px 0 12px; background: #1d1a26; }
+  h3 { margin: 6px 0 2px; color: #ffd27a; }
+</style>
+</head>
+<body>
+<h3>(b) mini village scene (canvas#game, run through tools/run.js)</h3>
+<canvas id="game" width="640" height="480"></canvas>
+<h3>(a) tile gallery</h3>
+<canvas id="tiles"></canvas>
+<h3>(c) character / object sheets (down, left, right, up at 2x; walk frame 1)</h3>
+<canvas id="chars"></canvas>
+<script src="../js/core.js"></script>
+<script src="../js/tiles.js"></script>
+<script src="../js/mapbuilder.js"></script>
+<script src="../js/gfx_world.js"></script>
+<script>
+(function () {
+  'use strict';
+  const G = window.G;
+  const T = 32;
+  const log = (...a) => console.log(...a);
+
+  // ------------------------------------------------------------ mini village map (20 x 15 = one screen)
+  const b = G.maps.build('gfx_test_village', 20, 15, { name: 'Wickholm Green', ground: '.' });
+  b.blob('ground', 3, 9, 2.5, 2, 'v');
+  b.blob('ground', 16, 4, 2, 1.5, 'v');
+  b.path([[9, 14], [9, 7], [3, 7]], '=', 2, 'ground');
+  b.path([[9, 7], [14, 7]], ':', 1, 'ground');
+  b.blob('ground', 5, 13, 2.8, 1.9, 'w');
+  b.pond(5, 13, 1.5, 0.9);
+  b.house(1, 1, 6, 5, { roof: '1', wall: 'W', doorAt: 2 });   // mossy green stone
+  b.house(9, 1, 5, 4, { roof: '3', wall: 'X', doorAt: 2 });   // brown wood with windows
+  b.house(15, 1, 4, 5, { roof: '2', wall: 'W', doorAt: 1 });  // ochre thatch
+  b.house(1, 9, 4, 4, { roof: '4', wall: 'X', doorAt: 1 });   // slate blue
+  b.house(14, 9, 4, 4, { roof: '6', wall: '7', doorAt: 1 });  // copper steam shop
+  b.set('objects', 0, 8, 'T'); b.set('objects', 0, 13, 'N'); b.set('objects', 19, 3, 'T');
+  b.set('objects', 19, 12, 'N'); b.set('objects', 12, 13, 'T');
+  b.set('objects', 7, 4, 'B'); b.set('objects', 11, 11, 'R'); b.set('objects', 16, 13, 'r');
+  b.set('objects', 8, 10, 'L'); b.set('objects', 11, 5, 'L'); b.set('objects', 12, 6, 's');
+  b.set('objects', 7, 6, 'o'); b.set('objects', 18, 8, 'd');
+  b.set('objects', 3, 11, 'B'); b.set('objects', 6, 11, 'B');
+  b.set('objects', 12, 9, 'F'); b.set('objects', 13, 10, 'F');
+  b.hline('objects', 11, 14, 3, 'x'); b.vline('objects', 6, 3, 2, 'x');
+  b.scatter('objects', 'F', 10, { seed: 5 });
+  b.scatter('objects', 'G', 14, { seed: 7 });
+  b.scatter('objects', 'B', 5, { seed: 9 });
+  b.finish();
+
+  // ------------------------------------------------------------ scene (drawn by the real G render loop)
+  const heroes = ['rowan', 'claret', 'caspian', 'rook', 'seraphine', 'wren'];
+  G.scenes.register('gfx_test', () => ({
+    opaque: true,
+    update() {},
+    draw(ctx) {
+      const def = G.maps.get('gfx_test_village');
+      const f = Math.floor(G.frame / 20) % 4;
+      for (let y = 0; y < def.h; y++) for (let x = 0; x < def.w; x++) G.gfx.drawTile(ctx, def.ground[y][x], x * T, y * T, f);
+      for (let y = 0; y < def.h; y++) for (let x = 0; x < def.w; x++) { const ch = def.objects[y][x]; if (ch !== ' ') G.gfx.drawTile(ctx, ch, x * T, y * T, f); }
+      // ---- characters: hero 4 directions + walk frames, then NPC row
+      const walk = [0, 1, 2, 1][Math.floor(G.frame / 10) % 4];
+      const dirs = ['down', 'left', 'right', 'up'];
+      dirs.forEach((d, i) => G.gfx.drawChar(ctx, 'rowan', d, walk, (12 + i) * T, 13 * T - 2));
+      heroes.slice(1).forEach((k, i) => G.gfx.drawChar(ctx, k, 'down', 1, (3 + i * 1) * T, 11 * T - 4));
+      ['villager_m1', 'villager_f1', 'villager_f2', 'elder', 'child1', 'child2', 'guard', 'merchant', 'innkeeper', 'sailor'].forEach((k, i) =>
+        G.gfx.drawChar(ctx, k, i % 2 ? 'left' : 'down', 1, (i % 10) * T + 2, 14 * T - 2 - ((i >> 3) * 0)));
+      // lantern-glow lamp and waypoint + chest, emotes above the hero
+      G.gfx.drawChar(ctx, 'obj_lamp', 'down', (G.frame / 8 | 0) % 3, 16 * T + 4, 3 * T);
+      G.gfx.drawChar(ctx, 'obj_chest', 'down', 0, 17 * T, 12 * T - 4);
+      const em = ['heart', 'exclaim', 'question', 'sweat', 'music', 'dots', 'anger', 'bulb'];
+      em.forEach((k, i) => G.gfx.drawEmote(ctx, k, (i * 2 + 1) * T + 16, 8 * T + 6, (G.frame + i * 5) % (G.gfx.EMOTE_LEN + 20)));
+    },
+  }));
+  G.scenes.push('gfx_test', {});
+
+  // ------------------------------------------------------------ gallery (a) tiles
+  function drawTileGallery() {
+    const list = G.tiles.list, cols = 10, cell = 72, rows = Math.ceil(list.length / cols);
+    const cv = document.getElementById('tiles');
+    cv.width = cols * cell; cv.height = rows * (cell + 14);
+    const c = cv.getContext('2d'); c.imageSmoothingEnabled = false;
+    c.fillStyle = '#1d1a26'; c.fillRect(0, 0, cv.width, cv.height);
+    list.forEach((t, i) => {
+      const x = (i % cols) * cell + 4, y = Math.floor(i / cols) * (cell + 14);
+      c.fillStyle = '#2a2638'; c.fillRect(x - 1, y - 1, 66, 66);
+      G.gfx.drawTile(c, t.ch, x, y, 0);
+      c.font = '9px sans-serif'; c.fillStyle = '#e8e0ff'; c.fillText(t.name.slice(0, 14), x, y + 47);
+      if (G.tiles.ANIMATED.indexOf(t.ch) >= 0) {
+        c.fillStyle = '#ffd27a'; c.fillText('anim x4', x, y + 58);
+      }
+    });
+    // animation strip for animated tiles
+    return { w: cv.width, h: cv.height };
+  }
+
+  // ------------------------------------------------------------ gallery (c) characters
+  function drawCharGallery() {
+    const keys = G.gfx.charKeys();
+    const perRow = 4, blockW = 4 * 66 + 18, blockH = 80;
+    const cv = document.getElementById('chars');
+    const rows = Math.ceil(keys.length / perRow);
+    cv.width = perRow * blockW; cv.height = rows * blockH;
+    const c = cv.getContext('2d'); c.imageSmoothingEnabled = false;
+    c.fillStyle = '#1d1a26'; c.fillRect(0, 0, cv.width, cv.height);
+    keys.forEach((k, i) => {
+      const bx = (i % perRow) * blockW + 6, by = Math.floor(i / perRow) * blockH + 4;
+      ['down', 'left', 'right', 'up'].forEach((d, j) => {
+        c.fillStyle = '#2a2638'; c.fillRect(bx + j * 66, by, 62, 62);
+        const sheet = G.gfx.charSheet(k);
+        const row = { down: 0, left: 1, right: 2, up: 3 }[d];
+        c.drawImage(sheet, 32, row * 32, 32, 32, bx + j * 66 + 1, by + 1, 60, 60);
+      });
+      c.font = '10px sans-serif'; c.fillStyle = '#e8e0ff'; c.fillText(k, bx, by + 74);
+    });
+  }
+
+  // ------------------------------------------------------------ timings + debug hooks
+  window.__gfxTest = {
+    timings() {
+      const t0 = performance.now(); G.gfx.warmTiles(); const t1 = performance.now();
+      const dummy = G.gfx.charSheet('rowan'); const t2 = performance.now();
+      G.gfx.charSheet('claret'); G.gfx.charSheet('caspian'); G.gfx.charSheet('seraphine'); G.gfx.charSheet('wren');
+      const t3 = performance.now();
+      return { tilesMs: +(t1 - t0).toFixed(1), firstSheetMs: +(t2 - t1).toFixed(1), fourSheetsMs: +(t3 - t2).toFixed(1), dummy: !!dummy };
+    },
+    drawTileGallery, drawCharGallery,
+  };
+  const tg = performance.now();
+  drawTileGallery();
+  drawCharGallery();
+  log('[gfx_test] galleries built in', (performance.now() - tg).toFixed(0), 'ms');
+})();
+</script>
+</body>
+</html>

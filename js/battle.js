@@ -623,6 +623,681 @@
   }
   G.battleSim = function (troopId, partyIds, opts) { return battleSim(troopId, partyIds || ['rowan'], opts); };
 
+  // ================================================================ PRESENTATION
+  // ---------------------------------------------------------------- soft gfx wrappers (fallbacks if gfx is absent)
+  const GX = () => G.gfx || {};
+  function gWindow(ctx, x, y, w, h, o) {
+    if (GX().window) return GX().window(ctx, x, y, w, h, o);
+    ctx.save(); ctx.fillStyle = 'rgba(16,30,84,0.92)'; ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = '#cfe6ff'; ctx.lineWidth = 2; ctx.strokeRect(x + 1, y + 1, w - 2, h - 2); ctx.restore();
+  }
+  function gText(ctx, s, x, y, o) {
+    o = o || {};
+    if (GX().text) return GX().text(ctx, String(s), x, y, o);
+    ctx.save(); ctx.font = (o.bold ? 'bold ' : '') + (o.size || 16) + 'px Trebuchet MS, Segoe UI, Arial, sans-serif';
+    ctx.textAlign = o.align || 'left'; ctx.textBaseline = 'top';
+    ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeText(String(s), x, y);
+    ctx.fillStyle = o.color || '#fff'; ctx.fillText(String(s), x, y); ctx.restore();
+  }
+  function gTextW(s, size, bold) {
+    if (GX().textWidth) return GX().textWidth(String(s), size || 16, bold);
+    return String(s).length * (size || 16) * 0.55;
+  }
+  function gGauge(ctx, x, y, w, h, ratio, c1, c2, o) {
+    if (GX().gauge) return GX().gauge(ctx, x, y, w, h, ratio, c1, c2, o);
+    ctx.save(); ctx.fillStyle = '#1a0c24'; ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = c1 || '#7fd3ff'; ctx.fillRect(x, y, Math.round(w * clamp(ratio, 0, 1)), h); ctx.restore();
+  }
+  function gPips(ctx, x, y, n, max, color) {
+    if (GX().pips) return GX().pips(ctx, x, y, n, max, color);
+    ctx.save(); for (let i = 0; i < max; i++) { ctx.fillStyle = i < n ? color : '#333'; ctx.fillRect(x + i * 8, y, 6, 6); } ctx.restore();
+  }
+  function gIcon(ctx, name, x, y, size) {
+    if (GX().icon) return GX().icon(ctx, name, x, y, size || 16);
+    ctx.save(); ctx.fillStyle = '#9ad'; ctx.fillRect(x, y, size || 16, size || 16); ctx.restore();
+  }
+  function gFace(ctx, id, x, y, size, expr) {
+    if (GX().drawFace) return GX().drawFace(ctx, id, x, y, size, expr);
+    ctx.save(); ctx.fillStyle = (actorDef(id).color || '#ccc'); ctx.fillRect(x, y, size, size); ctx.restore();
+  }
+  function gBattler(ctx, id, pose, x, y, frame, opts) {
+    if (GX().drawBattler) { try { return GX().drawBattler(ctx, id, pose, x, y, frame, opts); } catch (e) { /* fall through */ } }
+    ctx.save(); ctx.fillStyle = (actorDef(id).color || '#ccc'); ctx.globalAlpha = 0.9;
+    ctx.fillRect(Math.round(x - 14), Math.round(y - 56), 28, 56); ctx.restore();
+  }
+  function gEnemy(ctx, key, x, y, frame, opts) {
+    if (GX().drawEnemy) { try { return GX().drawEnemy(ctx, key, x, y, frame, opts); } catch (e) { /* fall through */ } }
+    ctx.save(); ctx.fillStyle = '#6a3c8a'; ctx.beginPath(); ctx.ellipse(x, y - 30, 30, 28, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+  }
+  function gFx(ctx, name, x, y, t, o) {
+    if (GX().drawFx) { try { return GX().drawFx(ctx, name, x, y, t, o); } catch (e) { /* fall */ } }
+    ctx.save(); ctx.globalAlpha = 1 - t; ctx.strokeStyle = (o && o.color) || '#fff'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(x, y, 8 + t * 26, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+  }
+  function gFxDur(name) { return GX().fxDuration ? GX().fxDuration(name) : 24; }
+  function gShieldPips(ctx, x, y, n, max, broken) {
+    if (GX().drawShieldPips) return GX().drawShieldPips(ctx, x, y, n, max, broken);
+    gText(ctx, broken ? 'BREAK' : ('SH ' + n + '/' + max), x, y, { size: 11, color: broken ? '#ff8a8a' : '#cfe6ff' });
+  }
+  function gWeakIcons(ctx, x, y, weak, revealed) {
+    if (GX().drawWeakIcons) return GX().drawWeakIcons(ctx, x, y, weak, revealed);
+    let cx = x; for (const k of weak) { gText(ctx, revealed && revealed[k] ? k.slice(0, 2) : '?', cx, y, { size: 11, color: '#ffe38a' }); cx += 16; }
+  }
+  function gBg(key) {
+    if (GX().battleBg) { try { return GX().battleBg(key); } catch (e) { /* fall */ } }
+    return null;
+  }
+  function gCursor(ctx, x, y, frame) {
+    if (GX().cursor) return GX().cursor(ctx, x, y, frame);
+    ctx.save(); ctx.fillStyle = '#fff'; ctx.beginPath(); const b = Math.sin(frame / 6) * 2;
+    ctx.moveTo(x + b, y); ctx.lineTo(x + b + 8, y + 5); ctx.lineTo(x + b, y + 10); ctx.fill(); ctx.restore();
+  }
+  function enemyIconCanvas(key) {
+    const c = G.gfx && G.gfx.enemy ? G.gfx.enemy(key) : null;
+    return c && c.width ? c : null;
+  }
+
+  // ---------------------------------------------------------------- layout (640x480)
+  const LAY = {
+    turnY: 6, turnH: 36,
+    cmdX: 6, cmdY: 326, cmdW: 176, cmdH: 148,
+    subX: 186, subW: 214,
+    statX: 430, statY: 318, statW: 206, statH: 158, statRow: 39,
+    tgtY: 280,
+    partySlots: [[462, 300], [520, 266], [404, 262], [578, 232]],
+  };
+  function enemySlot(i, n) {
+    // left side layouts by count (x,y = bottom centre)
+    const layouts = {
+      1: [[190, 280]],
+      2: [[150, 300], [236, 262]],
+      3: [[112, 296], [206, 300], [158, 246]],
+      4: [[100, 298], [190, 300], [70, 250], [226, 248]],
+      5: [[92, 300], [184, 304], [40, 262], [236, 262], [140, 246]],
+    };
+    const L = layouts[Math.min(5, Math.max(1, n))] || layouts[3];
+    return L[Math.min(i, L.length - 1)];
+  }
+  // Pull enemy positions in toward centre for big enemies
+  function enemyPos(u, i, n) {
+    const s = enemySlot(i, n);
+    const big = u.isBoss ? 1.0 : 0;
+    return [s[0] + (big ? 10 : 0), s[1] + (big ? 6 : 0)];
+  }
+  G.battle._layout = { LAY, enemySlot, enemyPos };
+
+  // Canvas text colours for damage numbers
+  const DMG_COL = { normal: '#ffffff', weak: '#ffe04a', heal: '#7dffb0', crit: '#ffb347', poison: '#c77dff', resist: '#9aa4b8' };
+
+  // ---------------------------------------------------------------- small helpers for the scene
+  function cap(s) { return String(s).charAt(0).toUpperCase() + String(s).slice(1); }
+  function wtFallback(u) { return (u.weapons && u.weapons[0]) || 'sword'; }
+  // consumables usable in battle that the bag holds
+  function usableItems() {
+    const inv = (G.state && G.state.inventory) || {};
+    return Object.keys(inv).filter((id) => inv[id] > 0 && (() => { const d = itemDef(id); return d.type === 'consumable' && (d.use === 'battle' || d.use === 'both'); })());
+  }
+
+  // ---------------------------------------------------------------- scene: BattleScene
+  // Scene update() only pumps input/animation; the battle itself is an async coroutine (main()) using G.wait.
+  function pace(n) { const f = (G.input && G.input.down && G.input.down('dash')) ? Math.max(1, Math.round(n / 3)) : n; return G.wait(f); }
+  function sfx(n) { if (G.audio && G.audio.sfx) { try { G.audio.sfx(n); } catch (e) { /* audio locked */ } } }
+  function shake(p, f) { if (G.fx && G.fx.doShake) G.fx.doShake(p, f); }
+  function flash(c, f) { if (G.fx && G.fx.doFlash) G.fx.doFlash(c, f); }
+
+  class BattleScene {
+    constructor(params) {
+      this.p = params || {};
+      this.opts = this.p;
+      this.opaque = true;
+      this.t = 0;                       // frames since enter
+      this.party = []; this.enemies = [];
+      this.ctx = null;
+      this.round = 0;
+      this.order = []; this.preview = [];
+      this.texts = []; this.fxs = []; this.banner = null; this.big = null;
+      this.menu = null;                 // active input request {kind, ...}
+      this.boost = 0;
+      this.actor = null;
+      this.halfDone = false;
+      this.encounterT = -1;
+      this.outcome = null;
+      this.bgKey = this.p.bg || 'forest';
+      this.result = null;
+      this.onEnd = this.p.onEnd || null;
+      this.ended = false;
+      this.dimA = 0;
+      this.stats = null;
+    }
+    // Called by G.scenes.push
+    enter() {
+      const troop = (D().troops && D().troops[this.p.troop]) || { bg: 'forest', bgm: 'battle' };
+      this.troop = troop;
+      this.bgKey = this.p.bg || troop.bg || 'forest';
+      const bgm = this.p.bgm || troop.bgm || 'battle';
+      const partyIds = (G.party && G.party.members) ? G.party.members() : (G.state.party || ['rowan']);
+      const s = setupUnits(this.p.troop, partyIds);
+      this.party = s.party; this.enemies = s.enemies;
+      this.party.forEach((u, i) => { u.slot = i; });
+      this.enemies.forEach((u, i) => { u.slot = i; u.dispHp = u.hp; u.enterOff = -140; });
+      this.party.forEach((u) => { u.dispHp = u.hp; u.enterOff = 140; u.dispSp = u.sp; u.dispBp = u.bp; });
+      this.ctx = makeCtx(this.party, this.enemies, null);
+      this.ctx.consumeItem = (id) => { if (G.party && G.party.removeItem) G.party.removeItem(id, 1); };
+      this.bgm = bgm;
+      this.canEscape = this.p.canEscape !== false && !this.enemies.some((e) => e.isBoss);
+      this.hasBoss = this.enemies.some((e) => e.isBoss);
+      this.bgImg = gBg(this.bgKey);
+      this.dimA = 0.85;
+      this.lastLayout = true;
+      if (G.audio && G.audio.playBgm) { try { G.audio.playBgm(bgm, { fade: 20 }); } catch (e) { /* ignore */ } }
+      this.co = this.main().catch((e) => { console.error('[battle] error', e); this.finish('win'); });
+    }
+    exit() { this.ended = true; }
+
+    // -------- timing helpers
+    pace(n) { return pace(n); }
+    // run an async script callback while this scene stays active
+    runScript(fn) { if (!fn) return Promise.resolve(); return G.script.run(fn); }
+
+    // -------- main coroutine
+    async main() {
+      await this.pace(10);
+      await this.intro();
+      if (this.p.intro) await this.runScript(this.p.intro);
+      await this.pace(6);
+      for (;;) {
+        this.round++;
+        const all = this.party.concat(this.enemies);
+        this.order = buildOrder(all);
+        all.forEach((u) => { u.defendNext = false; });
+        this.preview = all.filter((u) => u.alive).sort((a, b) => orderSpeed(b) - orderSpeed(a));
+        this.roundBanner = 'Round ' + this.round;
+        await this.pace(12);
+        this.roundBanner = null;
+        for (let i = 0; i < this.order.length; i++) {
+          const u = this.order[i];
+          this.idx = i;
+          if (!u.alive) continue;
+          if (this.checkOver()) break;
+          const cont = await this.turn(u);
+          if (cont === 'escape') { this.finish('escape'); return; }
+          if (this.checkOver()) break;
+        }
+        if (this.checkOver()) break;
+      }
+      if (this.party.some((u) => u.alive)) await this.victory();
+      else await this.defeat();
+    }
+
+    checkOver() {
+      return !this.enemies.some((u) => u.alive) || !this.party.some((u) => u.alive);
+    }
+
+    async intro() {
+      sfx('encounter');
+      this.encounterT = 0;
+      await this.pace(8);
+      // fade the enemies and party in, sliding
+      this.introT = 0;
+      await G.wait(0);
+      await this.waitFrames(36, () => {
+        const k = Math.min(1, this.introT / 30);
+        this.enemies.forEach((u) => { u.enterOff = -140 * (1 - k); });
+        this.party.forEach((u) => { u.enterOff = 140 * (1 - k); });
+      });
+      this.enemies.forEach((u) => { u.enterOff = 0; }); this.party.forEach((u) => { u.enterOff = 0; });
+      this.encounterT = -1;
+      await this.pace(10);
+    }
+    // waits n frames, calling fn each frame (independent of G.wait so draw/update stay in sync)
+    async waitFrames(n, fn) {
+      for (let i = 0; i < n; i++) {
+        this.introT = i;
+        if (fn) fn(i);
+        await G.wait(1);
+      }
+    }
+
+    // -------- one unit's turn
+    async turn(u) {
+      if (u.side === 'party') { u.defending = false; gainBP(u); u.dispBp = u.bp; }
+      if (u.side === 'party') this.ensurePulse(u);
+      this.current = u;
+      const ticks = tickStatuses(u);
+      for (const ev of ticks) await this.showEvent(ev, null);
+      if (!u.alive) { this.current = null; return 'ok'; }
+      if (u.broken) {
+        this.addText(u, 'Stunned', '#ffd27a');
+        await this.pace(24);
+        u.broken = false; u.breakSkip = false; u.shield = u.shieldMax;
+        this.addText(u, 'Recovered', '#cfe6ff');
+        await this.pace(10);
+        this.current = null; return 'ok';
+      }
+      if (u.hasStatus('sleep')) { this.addText(u, 'Asleep', '#c9b8ff'); await this.pace(14); this.current = null; return 'ok'; }
+      let act;
+      if (u.side === 'party') act = await this.playerCommand(u);
+      else act = enemyAction(u, this.ctx);
+      if (!act) { this.current = null; return 'ok'; }
+      if (act.kind === 'escape') {
+        const evs = resolveAction(this.ctx, act);
+        const esc = evs.some((e) => e.type === 'escaped');
+        await this.showEvent({ type: esc ? 'escaped' : 'escapeFail', actor: u }, null);
+        await this.pace(20);
+        this.current = null;
+        return esc ? 'escape' : 'ok';
+      }
+      spendBP(act);
+      this.current = u;
+      await this.performAction(act);
+      this.current = null;
+      if (this.hasBoss && !this.halfDone) {
+        const boss = this.enemies.find((e) => e.isBoss && e.alive);
+        if (boss && boss.hp <= boss.mhp / 2) {
+          this.halfDone = true;
+          await this.pace(10);
+          await this.runScript(this.p.onHalf);
+        }
+      }
+      return 'ok';
+    }
+    ensurePulse(u) { u.pulse = 0; }
+
+    // -------- input requests (resolved from update())
+    // list menu: returns chosen item.value or null (cancel). Items: {label, value, enabled, desc, right, icon, color}
+    menuPick(spec) {
+      return new Promise((resolve) => {
+        this.menu = Object.assign({ kind: 'list', cursor: 0, scroll: 0, items: [], resolve, ready: 2 }, spec);
+        this.menu.cursor = Math.max(0, (spec.items || []).findIndex((i) => i.enabled !== false));
+      });
+    }
+    // target picker: candidates = array of units; returns unit or null
+    targetPick(cands, spec) {
+      return new Promise((resolve) => {
+        const sorted = cands.slice();
+        this.menu = Object.assign({ kind: 'target', cands: sorted, cursor: 0, resolve, ready: 2 }, spec || {});
+        // default to a foe with a revealed weakness matching the weapon, else first
+        const tok = spec && spec.token;
+        const good = tok ? sorted.findIndex((u) => u.weak.indexOf(tok) >= 0) : -1;
+        this.menu.cursor = good >= 0 ? good : 0;
+      });
+    }
+    closeMenu() { this.menu = null; }
+
+    // -------- screen positions
+    posOf(u) {
+      const L = LAY;
+      let x, y;
+      if (u.side === 'party') {
+        const s = L.partySlots[Math.min(u.slot, L.partySlots.length - 1)];
+        x = s[0]; y = s[1];
+        x += (u.enterOff || 0);
+      } else {
+        const n = this.enemies.length;
+        const p = enemyPos(u, u.slot, n);
+        x = p[0]; y = p[1];
+        x += (u.enterOff || 0);
+      }
+      x += (u.lx || 0) + (u.shk ? (rnd() * 2 - 1) * u.shk : 0);
+      y += (u.ly || 0);
+      return { x: Math.round(x), y: Math.round(y), h: this.heightOf(u) };
+    }
+    heightOf(u) {
+      if (u.side === 'party') return 64;
+      const cv = enemyIconCanvas(u.id);
+      return cv ? Math.round(cv.height * (u.scale || 1)) : 60;
+    }
+
+    // -------- floating text / fx spawning
+    addNum(u, amount, kind, big) {
+      const p = this.posOf(u);
+      const color = kind === 'heal' ? DMG_COL.heal : kind === 'crit' ? DMG_COL.crit : kind === 'weak' ? DMG_COL.weak : kind === 'poison' ? DMG_COL.poison : DMG_COL.normal;
+      this.texts.push({ s: String(amount), x: p.x + (rnd() * 20 - 10), y: p.y - p.h - 6, t: 0, life: 52, color, size: big ? 24 : 18, big: !!big });
+    }
+    addText(u, s, color) {
+      const p = this.posOf(u);
+      this.texts.push({ s, x: p.x, y: p.y - p.h - 6, t: 0, life: 46, color: color || '#fff', size: 15, big: false, label: true });
+    }
+    spawnFx(name, u, o) {
+      if (!u) return;
+      const p = this.posOf(u);
+      this.fxs.push({ name, x: p.x, y: p.y - (u.side === 'party' ? 34 : Math.round(p.h * 0.5)), f: 0, dur: gFxDur(name), big: !!(o && o.big), color: o && o.color });
+    }
+
+    // Skill name banner
+    showBanner(text, color) { this.banner = { text, t: 0, life: 60, color: color || '#ffffff' }; }
+
+    // -------- player/enemy action presentation
+    async performAction(act) {
+      const u = act.actor;
+      if (act.kind === 'defend') {
+        u.defending = true; u.defendNext = true;
+        u.posing = 'defend';
+        const evs = resolveAction(this.ctx, act);
+        for (const e of evs) await this.showEvent(e, act);
+        await this.pace(10);
+        u.posing = null;
+        return;
+      }
+      // banner for skills/items
+      if (act.kind === 'skill') {
+        const sk = act.skill;
+        if (sk.kind === 'bond' && sk.partner) {
+          const pn = (actorDef(sk.partner).name || sk.partner);
+          this.showBanner('Kindled Link — ' + pn + '!', '#ffb3d1');
+        } else this.showBanner(sk.name, sk.kind === 'bond' ? '#ffb3d1' : '#ffffff');
+      } else if (act.kind === 'item') this.showBanner(itemDef(act.item).name, '#c9ffd9');
+      else if (act.kind === 'attack') this.showBanner(cap(act.weaponType || 'Attack'), '#e8f1ff');
+
+      const tgt = (act.targets || []).find((t) => t && t.alive) || (act.targets || [])[0] || null;
+      const evs = resolveAction(this.ctx, act);
+      const isAtk = act.kind === 'attack' || (act.kind === 'skill' && (act.skill.kind === 'phys' || act.skill.kind === 'elem' || act.skill.kind === 'bond'));
+      const pose = isAtk ? 'attack' : 'cast';
+      if (act.kind === 'skill' && act.skill.kind === 'bond' && act.skill.partner) {
+        const pu = this.party.find((p) => p.id === act.skill.partner);
+        if (pu) this.stepForward(pu, u, 'cast');
+      }
+      const lunging = (isAtk && tgt && u.side === 'party' && act.kind !== 'item') || (act.kind === 'attack' && u.side === 'enemy');
+      if (lunging && tgt) await this.lunge(u, tgt);
+      else { u.posing = pose; if (act.kind !== 'item') await this.pace(6); }
+      // cast/heal visual at actor
+      if (pose === 'cast' && act.kind === 'skill') { this.spawnFx(act.skill.anim || 'buff', act.skill.target === 'self' ? u : (tgt || u), { big: act.skill.kind === 'bond' }); }
+      for (const e of evs) await this.showEvent(e, act);
+      if (lunging && tgt) await this.lungeBack(u);
+      u.posing = null;
+      await this.pace(8);
+      if (this.banner) { this.banner.t = this.banner.life - 14; }
+    }
+    // step a unit toward a target and hold until stepBack
+    async lunge(u, tgt) {
+      const a = this.posOf(u), b = this.posOf(tgt);
+      const dir = u.side === 'party' ? -1 : 1;
+      u.posing = 'attack';
+      const dx = Math.round((b.x - a.x) * 0.55) + dir * 16 * (u.side === 'party' ? 1 : -1) * 0 , dy = Math.round((b.y - a.y) * 0.18);
+      for (let i = 1; i <= 8; i++) { u.lx = (dx * i) / 8; u.ly = (dy * i) / 8; await G.wait(1); }
+      u.lxImpact = u.lx; u.lyImpact = u.ly;
+    }
+    async lungeBack(u) {
+      const dx = u.lx || 0, dy = u.ly || 0;
+      for (let i = 7; i >= 0; i--) { u.lx = (dx * i) / 8; u.ly = (dy * i) / 8; await G.wait(1); }
+      u.lx = 0; u.ly = 0;
+    }
+    // side step for partners in bond skills
+    stepForward(pu, _target, pose) {
+      pu.posing = pose || 'cast';
+      pu.lx = (pu.slot === 0 ? -20 : -14); pu.ly = -6;
+      G.wait(30).then(() => { pu.lx = 0; pu.ly = 0; pu.posing = null; });
+    }
+
+    // Visuals for a single resolved event. Awaits pacing so the sequence reads well.
+    async showEvent(ev, act) {
+      const skAnim = act && act.kind === 'skill' ? (act.skill.anim || null) : null;
+      const weapAnim = act && act.kind === 'attack' ? (ev.unit ? ({ sword: 'slash', spear: 'pierce', dagger: 'pierce', axe: 'blunt', bow: 'arrow', staff: 'blunt' })[act.weaponType] || 'slash' : 'slash') : null;
+      switch (ev.type) {
+        case 'hit': {
+          const u = ev.unit;
+          const anim = ev.element && skAnim ? (skAnim) : (skAnim || weapAnim || 'slash');
+          const fxName = ev.element ? (ELEMENT_FX[ev.element] || anim) : anim;
+          this.spawnFx(fxName, u, { big: ev.crit });
+          u.hurt = 16; u.flashA = 1; if (u.side === 'enemy') u.shk = 4;
+          this.addNum(u, ev.amount, ev.crit ? 'crit' : (ev.weak ? 'weak' : 'normal'), ev.crit);
+          if (ev.crit) { flash('#ffffff', 6); shake(3, 8); sfx('crit'); } else sfx('hit');
+          if (ev.weak && !ev.crit) sfx('hit');
+          await this.pace(12);
+          return;
+        }
+        case 'miss': this.addText(ev.unit, 'Miss', '#dfe6ff'); sfx('cursor'); await this.pace(12); return;
+        case 'break': {
+          const u = ev.unit;
+          this.spawnFx('break', u, { big: true });
+          this.big = { text: 'BREAK!', t: 0, life: 70, color: '#8fe6ff' };
+          u.shk = 6; shake(7, 26); flash('#cfeaff', 14); sfx('break');
+          await this.pace(40);
+          return;
+        }
+        case 'death': {
+          const u = ev.unit;
+          if (u.side === 'enemy') { u.dying = 40; sfx('hit'); }
+          else { u.posing = null; }
+          await this.pace(14); return;
+        }
+        case 'heal': {
+          this.spawnFx('heal', ev.unit);
+          this.addNum(ev.unit, ev.amount, 'heal');
+          sfx('heal'); await this.pace(16); return;
+        }
+        case 'dmg': { // poison tick
+          this.addNum(ev.unit, ev.amount, 'poison');
+          ev.unit.hurt = 10; sfx('hit'); await this.pace(14); return;
+        }
+        case 'status': {
+          const info = statusInfo(ev.status);
+          const buff = info.buff || /up$|regen/.test(ev.status);
+          this.addText(ev.unit, info.name || ev.status, buff ? '#9fe6ff' : '#d9a6ff');
+          this.spawnFx(buff ? 'buff' : 'debuff', ev.unit);
+          sfx(buff ? 'buff' : 'debuff'); await this.pace(14); return;
+        }
+        case 'revive': this.spawnFx('heal', ev.unit, { big: true }); this.addText(ev.unit, 'Revived!', '#7dffb0'); sfx('heal'); await this.pace(22); return;
+        case 'cleanse': this.addText(ev.unit, 'Cleansed', '#bdf7ff'); this.spawnFx('buff', ev.unit); await this.pace(12); return;
+        case 'bp': this.addText(ev.unit, '+' + ev.n + ' BP', '#ffd86b'); sfx('buff'); await this.pace(12); return;
+        case 'spHeal': this.addText(ev.unit, '+' + ev.amount + ' SP', '#8fd6ff'); sfx('heal'); await this.pace(12); return;
+        case 'steal': this.addText(ev.unit, 'Stole ' + itemDef(ev.item).name + '!', '#ffe38a'); sfx('coin'); await this.pace(26); return;
+        case 'stealFail': this.addText(ev.unit, 'Nothing!', '#cfcfcf'); await this.pace(12); return;
+        case 'itemUsed': sfx('heal'); await this.pace(10); return;
+        case 'defend': this.addText(ev.unit, 'Defend', '#cfe6ff'); await this.pace(10); return;
+        case 'escaped': this.big = { text: 'Escaped!', t: 0, life: 50, color: '#ffffff' }; sfx('escape'); await this.pace(40); return;
+        case 'escapeFail': this.addText(ev.actor, 'Failed!', '#ffffff'); sfx('buzzer'); await this.pace(18); return;
+        default: return;
+      }
+    }
+
+    // -------- end of battle
+    finish(result, o) {
+      if (this.ended) return;
+      this.ended = true;
+      this.result = result;
+      const cb = this.onEnd;
+      if (o && o.gameover) { G.scenes.replace('gameover', {}); }
+      else { G.scenes.pop(); }
+      if (typeof cb === 'function') { try { cb(result); } catch (e) { console.error('[battle] onEnd', e); } }
+    }
+    ackPress() { return new Promise((res) => { this.menu = { kind: 'ack', resolve: res, ready: 8 }; }); }
+
+    async victory() {
+      this.party.forEach((u) => { if (u.alive) u.posing = 'win'; });
+      if (G.audio && G.audio.jingle) { try { G.audio.jingle('victory'); } catch (e) { /* ignore */ } }
+      this.big = { text: 'VICTORY!', t: 0, life: 110, color: '#ffe38a' };
+      await this.pace(90);
+      const roster = (G.state.roster || {});
+      const ids = this.party.map((u) => u.id);
+      const reserve = Object.keys(roster).filter((id) => ids.indexOf(id) < 0);
+      const fought = this.party.map((u) => ({ id: u.id, alive: u.alive, reserve: false }));
+      const members = fought.concat(reserve.map((id) => ({ id, alive: true, reserve: true })));
+      const totalExp = this.enemies.reduce((s, e) => s + ((e.def && e.def.exp) || 5), 0);
+      const shares = expSplit(totalExp, members);
+      const gold = this.enemies.reduce((s, e) => s + ((e.def && e.def.gold) || 0), 0);
+      const drops = [];
+      for (const e of this.enemies) {
+        for (const d of ((e.def && e.def.drops) || [])) if (rnd() < (d.chance == null ? 0.2 : d.chance)) drops.push(d.item);
+      }
+      for (const it of this.ctx.loot) drops.push(it);
+      const levelups = [];
+      for (const m of members) {
+        const gain = shares[m.id] || 0;
+        let r = [];
+        if (G.party && G.party.gainExp) { try { r = G.party.gainExp(m.id, gain) || []; } catch (e) { r = []; } }
+        if (r.length) levelups.push({ id: m.id, list: r });
+      }
+      // write back HP/SP (dead party members come back with 1 HP after the fight)
+      for (const u of this.party) {
+        const rr = roster[u.id]; if (!rr) continue;
+        rr.hp = Math.max(1, u.hp); rr.sp = u.sp;
+      }
+      for (const id of Object.keys(roster)) {
+        const rr = roster[id]; const st = G.party && G.party.stats ? G.party.stats(id) : null;
+        if (st) rr.sp = Math.min(st.msp, (rr.sp || 0) + Math.ceil(st.msp * 0.1));
+      }
+      G.state.gold = (G.state.gold || 0) + gold;
+      for (const it of drops) { if (G.party && G.party.addItem) G.party.addItem(it, 1); }
+      G.state.battles = (G.state.battles || 0) + 1;
+      this.result = { exp: shares, gold, drops, levelups };
+      this.resultView = { t: 0, phase: 'rewards' };
+      this.big = null;
+      await this.ackPress();
+      for (const lv of levelups) {
+        for (const l of lv.list) {
+          this.levelView = { id: lv.id, level: l.level, learned: l.learned || [] };
+          if (G.audio && G.audio.sfx) sfx('levelup');
+          await this.ackPress();
+        }
+      }
+      this.levelView = null; this.resultView = null;
+      if (this.p.outro) await this.runScript(this.p.outro);
+      this.finish('win');
+    }
+    async defeat() {
+      this.party.forEach((u) => { u.posing = 'dead'; });
+      this.big = { text: 'DEFEATED', t: 0, life: 110, color: '#ff9b9b' };
+      await this.pace(100);
+      if (this.p.loseOk) {
+        if (G.party && G.party.healAll) G.party.healAll();
+        this.finish('lose');
+      } else {
+        this.finish('lose', { gameover: true });
+      }
+    }
+
+    // -------- per-frame update (input + animation timers)
+    update() {
+      this.t++;
+      if (this.introT !== undefined && this.encounterT >= 0) this.encounterT++;
+      this.handleInput();
+      for (const u of this.party.concat(this.enemies)) {
+        const ease = (cur, tgt) => { const d = tgt - cur; if (Math.abs(d) < 0.5) return tgt; return cur + d * 0.12; };
+        u.dispHp = ease(u.dispHp == null ? u.hp : u.dispHp, u.hp);
+        u.dispSp = ease(u.dispSp == null ? u.sp : u.dispSp, u.sp);
+        if (u.hurt > 0) u.hurt--;
+        if (u.flashA > 0) u.flashA = Math.max(0, u.flashA - 0.08);
+        if (u.shk > 0) u.shk = Math.max(0, u.shk - 0.5);
+        if (u.dying > 0) u.dying--;
+      }
+      for (const f of this.fxs) f.f++;
+      this.fxs = this.fxs.filter((f) => f.f < f.dur);
+      for (const x of this.texts) { x.t++; x.y -= 0.6; }
+      this.texts = this.texts.filter((x) => x.t < x.life);
+      if (this.banner) { this.banner.t++; if (this.banner.t >= this.banner.life) this.banner = null; }
+      if (this.big) { this.big.t++; if (this.big.t >= this.big.life) this.big = null; }
+    }
+  }
+  const ELEMENT_FX = { fire: 'fire', ice: 'ice', lightning: 'lightning', wind: 'wind', light: 'light', dark: 'dark' };
+
+    // Process input for the active request. Called from update().
+    handleInput() {
+      const m = this.menu;
+      if (!m) return;
+      if (m.ready > 0) { m.ready--; return; }
+      const I = G.input;
+      if (m.kind === 'list') {
+        const n = m.items.length;
+        if (I.repeat('up')) { m.cursor = (m.cursor - 1 + n) % n; sfx('cursor'); }
+        if (I.repeat('down')) { m.cursor = (m.cursor + 1) % n; sfx('cursor'); }
+        if (m.onBoost && I.pressed('boost')) { m.onBoost(); }
+        if (I.pressed('ok')) {
+          const it = m.items[m.cursor];
+          if (it && it.enabled !== false) { sfx('ok'); this.menu = null; m.resolve(it.value); }
+          else sfx('buzzer');
+        } else if (I.pressed('cancel')) { sfx('cancel'); this.menu = null; m.resolve(null); }
+      } else if (m.kind === 'target') {
+        const n = m.cands.length;
+        if (n) {
+          if (I.repeat('left') || I.repeat('up')) { m.cursor = (m.cursor - 1 + n) % n; sfx('cursor'); }
+          if (I.repeat('right') || I.repeat('down')) { m.cursor = (m.cursor + 1) % n; sfx('cursor'); }
+        }
+        if (m.onBoost && I.pressed('boost')) { m.onBoost(); }
+        if (I.pressed('ok') && n) { sfx('ok'); const u = m.cands[m.cursor]; this.menu = null; m.resolve(u); }
+        else if (I.pressed('cancel')) { sfx('cancel'); this.menu = null; m.resolve(null); }
+      } else if (m.kind === 'ack') {
+        if (I.pressed('ok') || I.pressed('cancel')) { sfx('ok'); this.menu = null; m.resolve(true); }
+      }
+    }
+
+    // -------- player command selection
+    cmdItems(u) {
+      const sk = actorSkills(u.id).map(skillDef);
+      const invUsable = usableItems();
+      return [
+        { label: 'Attack', value: 'attack', enabled: true, desc: 'Strike a foe with a weapon. Boost adds hits.' },
+        { label: 'Skills', value: 'skill', enabled: sk.length > 0, desc: 'Use a learned skill. Costs SP.' },
+        { label: 'Item', value: 'item', enabled: invUsable.length > 0, desc: 'Use an item from your bag.' },
+        { label: 'Defend', value: 'defend', enabled: true, desc: 'Take half damage and act earlier next turn. +1 BP.' },
+        { label: 'Escape', value: 'escape', enabled: this.canEscape, desc: this.canEscape ? 'Try to flee. Chance depends on speed.' : 'Nowhere to run from this fight!' },
+      ];
+    }
+
+    async playerCommand(u) {
+      this.actor = u; this.boost = 0;
+      const boostUp = () => { const max = Math.min(MAX_BOOST, u.bp); if (this.boost < max) { this.boost++; sfx('boost'); } else sfx('buzzer'); };
+      for (;;) {
+        const cmd = await this.menuPick({ mode: 'cmd', title: u.name, items: this.cmdItems(u), onBoost: boostUp, desc: true });
+        if (!cmd) continue;
+        if (cmd === 'defend') return { actor: u, kind: 'defend', boost: 0 };
+        if (cmd === 'escape') return { actor: u, kind: 'escape', boost: 0 };
+        if (cmd === 'attack') {
+          const wts = u.weapons.length ? u.weapons : ['sword'];
+          let wt = wts[0];
+          if (wts.length > 1) {
+            wt = await this.menuPick({ mode: 'sub', title: 'Weapon', items: wts.map((w) => ({ label: cap(w), value: w, enabled: true, desc: 'Strike with a ' + w + '.' })), onBoost: boostUp });
+            if (!wt) continue;
+          }
+          const foes = this.enemies.filter((e) => e.alive);
+          const t = await this.targetPick(foes, { token: wt, label: 'Attack', onBoost: boostUp });
+          if (!t) continue;
+          return { actor: u, kind: 'attack', weaponType: wt, targets: [t], boost: this.boost };
+        }
+        if (cmd === 'skill') {
+          const sk = await this.menuPick({ mode: 'skill', title: 'Skills', items: this.skillItems(u), onBoost: boostUp });
+          if (!sk) continue;
+          const tg = await this.pickTargets(u, sk, boostUp);
+          if (!tg) continue;
+          return { actor: u, kind: 'skill', skill: sk, targets: tg, boost: this.boost, weaponType: sk.kind === 'phys' || sk.kind === 'bond' ? (sk.weapon || wtFallback(u)) : null };
+        }
+        if (cmd === 'item') {
+          const it = await this.menuPick({ mode: 'item', title: 'Items', items: usableItems().map((id) => ({ label: itemDef(id).name, value: id, right: '×' + ((G.state.inventory || {})[id] || 0), enabled: true, desc: itemDef(id).desc || '' })), onBoost: null });
+          if (!it) continue;
+          const ef = itemDef(it).effect || {};
+          const cands = ef.revive != null ? this.party.filter((p) => !p.alive) : this.party.filter((p) => p.alive);
+          if (!cands.length) { sfx('buzzer'); continue; }
+          const t = await this.targetPick(cands, { label: itemDef(it).name });
+          if (!t) continue;
+          return { actor: u, kind: 'item', item: it, targets: [t], boost: 0 };
+        }
+      }
+    }
+    skillItems(u) {
+      const allies = this.party.filter((p) => p.alive);
+      return actorSkills(u.id).map(skillDef).map((s) => {
+        const costOk = (s.cost || 0) <= u.sp;
+        const bondOk = s.kind !== 'bond' || (s.partner && allies.some((a) => a.id === s.partner) && tierOf(s.partner) >= 2 && u.bp >= 1);
+        const deadOk = s.target !== 'dead_ally' || this.party.some((p) => !p.alive);
+        const enabled = costOk && !!bondOk && deadOk;
+        return { label: s.name, value: s, enabled, right: s.cost ? 'SP ' + s.cost : '', desc: s.desc || '', color: s.kind === 'bond' ? '#ffb3d1' : null };
+      });
+    }
+    // resolve targets for a skill; returns array (possibly empty) or null for cancel
+    async pickTargets(u, sk, boostUp) {
+      const foes = this.enemies.filter((e) => e.alive), allies = this.party.filter((p) => p.alive), dead = this.party.filter((p) => !p.alive);
+      switch (sk.target) {
+        case 'all_enemies': case 'random_enemies': return foes;
+        case 'all_allies': return allies;
+        case 'self': return [u];
+        case 'one_ally': { const t = await this.targetPick(allies, { label: sk.name, onBoost: boostUp, friendly: true }); return t ? [t] : null; }
+        case 'dead_ally': { const t = await this.targetPick(dead, { label: sk.name, onBoost: boostUp, friendly: true }); return t ? [t] : null; }
+        default: { const t = await this.targetPick(foes, { token: sk.element || sk.weapon, label: sk.name, onBoost: boostUp }); return t ? [t] : null; }
+      }
+    }
+  }
+  G.battle._BattleScene = BattleScene;
+
   // @@NEXT@@
   G.provide && G.provide('battle_logic');
 })();

@@ -284,7 +284,7 @@
   // ------------------------------------------------------------------ settings
   const SETTINGS = { bgm: 7, sfx: 8, speed: 1, autoRun: false };
   const SKEY = 'lanternbound_settings';
-  const SPEEDS = [0.5, 1, 2, 99];
+  const SPEEDS = [0.45, 0.75, 1.5, 99];   // chars per frame: slow, normal (~45 cps), fast, instant
   const SPEED_NAMES = ['Slow', 'Normal', 'Fast', 'Instant'];
   function loadSettings() {
     try { const j = store && store.getItem(SKEY); if (j) { const o = JSON.parse(j); for (const k in SETTINGS) if (o[k] !== undefined) SETTINGS[k] = o[k]; } } catch (e) { /* optional */ }
@@ -661,7 +661,6 @@
     pgUp: () => G.input.pressed('pageup'), pgDn: () => G.input.pressed('pagedown'),
   };
   const CURSOR_SFX = () => sfx('cursor');
-  function drawPlayTime(c, x, y) { D.text(c, fmtTime(G.state.playtime), x, y, { color: '#cfd6ff' }); }
 
   // ============================================================== SCENE: TITLE
   G.scenes.register('title', () => {
@@ -889,7 +888,7 @@
     const formIds = () => {
       const act = partyIds().slice(), r = G.state.roster || {};
       const rest = Object.keys(r).filter((id) => act.indexOf(id) < 0)
-        .sort((a, b) => (rt(b).level - rt(a).level) || nameOf(a).localeCompare(nameOf(b)));
+        .sort((a, b) => (((rt(b) || {}).level || 1) - ((rt(a) || {}).level || 1)) || nameOf(a).localeCompare(nameOf(b)));
       return act.concat(rest);
     };
 
@@ -1705,7 +1704,7 @@
     ['Maren', 'Lampkeeper of Wickholm'], ['Pip', 'Lamplighter, and trouble'], ['Inquisitor Hale', 'Hearth Order'], ['Warden Vael', 'Archlampwright']];
   G.scenes.register('credits', (params) => {
     const ending = ENDING[params.ending] ? params.ending : 'common';
-    const S = { y: H + 20, t: 0, hold: 0, done: false };
+    const S = { y: H + 20, t: 0, done: false };
     let lines = null;
     const build = () => {
       const out = [];
@@ -1737,17 +1736,17 @@
     return {
       opaque: true,
       enter() {
-        lines = build(); S.y = H + 20; S.t = 0; S.hold = 0; S.done = false;
+        lines = build(); S.y = H + 20; S.t = 0; S.done = false;
         bgm(ENDING[ending].bgm); G.fx.doFade('in', 40);
       },
       exit() { if (params.done) params.done(); },
       update() {
         S.t++;
+        const ended = S.y < -total() - 30;
         const fast = G.input.down('ok') || G.input.down('dash');
-        S.y -= fast ? 2 : 0.6;
-        if (S.y < -total() - 30) { S.hold++; }
-        if ((S.hold > 90 && S.y < -total() - 30) || (K.ok() && S.y < -total() - 30) || K.cancel()) { sfx('ok'); finish(); return; }
-        if (K.ok() && S.y >= -total() - 30) S.y -= 60;   // ok jumps ahead
+        if (!ended) S.y -= fast ? 2.5 : 0.6;
+        if (ended && (K.ok() || K.cancel())) { sfx('ok'); finish(); return; }
+        if (!ended && K.ok()) S.y -= 60;                 // ok jumps ahead
       },
       draw(c) {
         D.titleBg(c, S.t);
@@ -1759,6 +1758,9 @@
             D.text(c, l.t, 320, Math.round(y), { align: 'center', size: SZ[l.s], bold: l.s === 'title' || l.s === 'head', color: COL[l.s] });
           }
           y += h;
+        }
+        if (S.y < -total() - 30 && Math.floor(S.t / 30) % 2 === 0) {
+          D.text(c, 'Press Z to return to the title', 320, 440, { align: 'center', size: 14, color: '#ffe6b0' });
         }
       },
     };

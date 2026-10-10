@@ -269,7 +269,129 @@
       { t: 'pad', g: 0.22, rv: 0.6 },
       { t: 'bass', v: 'tri', st: 'drone', g: 0.3, rv: 0.2 } ] },
   });
-  // @@TRACKS@@
+  Object.assign(TRACKS, {
+    crypt: { bpm: 84, key: 60, scale: 'phrygian', prog: [0, 1, 0, 6], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'soft', mel: ['0___1___0___....', '....0_1_2___....', '5___4___1___....', '0___1___0___....'], o: -1, g: 0.3, rv: 0.5 },
+      { t: 'arp', v: 'tri', pat: '0.2.', r: 4, o: 1, g: 0.14, rv: 0.5 },
+      { t: 'pad', g: 0.14, rv: 0.6 },
+      { t: 'bass', v: 'tri', st: 'drone', g: 0.4 },
+      { t: 'drums', kick: 'x.......x.......', hat: 'o.......o.......', g: 0.35 } ] },
+    whisperwood: { bpm: 96, key: 67, scale: 'dorian', prog: [0, 3, 5, 6], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'bell', mel: ['0_2_4___5___....', '6___5_4_3___....', 'L....2___', '1___0___3___....'], g: 0.3, rv: 0.5 },
+      { t: 'arp', v: 'pluck', pat: '0120', r: 1, o: 1, g: 0.12, rv: 0.45 },
+      { t: 'pad', g: 0.1, rv: 0.55 },
+      { t: 'bass', v: 'tri', st: 'pulse', g: 0.3 },
+      { t: 'drums', hat: 'g.g.g.g.g.g.g.g.', g: 0.2 } ] },
+    festival: { bpm: 116, key: 62, scale: 'major', prog: [0, 3, 4, 0], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'bell', mel: ['L5___4___', '3___4___5___6___', 'L4___2___', '5_4_3_2_1___0___'], g: 0.36, rv: 0.4 },
+      { t: 'arp', v: 'pluck', pat: '0212', r: 2, g: 0.15, rv: 0.3 },
+      { t: 'bass', v: 'tri', st: 'lift', g: 0.45 },
+      { t: 'drums', kick: 'x...x...x...x...', snare: '....x.......x...', hat: 'x.x.x.x.x.x.x.x.', g: 0.4 } ] },
+    ashen_road: { bpm: 76, key: 60, scale: 'minor', prog: [0, 5, 6, 4], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'soft', mel: ['4___....2___....', '3___2___1___....', 'L....0___', '1___0___....2___'], g: 0.28, rv: 0.45 },
+      { t: 'pad', g: 0.16, rv: 0.5 },
+      { t: 'bass', v: 'tri', st: 'drone', g: 0.4 },
+      { t: 'drums', kick: 'x.......x.......', g: 0.35 } ] },
+    spire: { bpm: 100, key: 62, scale: 'major', prog: [0, 4, 5, 3], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'brass', mel: ['0___2___4___5___', '7___6___5_4_3___', 'L....4___', '2___1___0___5___'], g: 0.3, rv: 0.3 },
+      { t: 'arp', v: 'saw', pat: '0121', r: 2, o: 1, g: 0.09, rv: 0.2 },
+      { t: 'pad', g: 0.1, rv: 0.4 },
+      { t: 'bass', v: 'tri', st: 'walk', g: 0.45 },
+      { t: 'drums', kick: 'x...x...x...x...', hat: 'x.x.x.x.x.x.x.x.', g: 0.4 } ] },
+    chamber: { bpm: 80, key: 62, scale: 'lydian', prog: [0, 1, 3, 0], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'soft', mel: ['0___4___7___....', '8___6___4___2___', 'L....5___', '4___2___0___....'], g: 0.28, rv: 0.6 },
+      { t: 'arp', v: 'pluck', pat: '0_2_', r: 4, o: 1, g: 0.12, rv: 0.55 },
+      { t: 'pad', g: 0.18, rv: 0.6 },
+      { t: 'bass', v: 'tri', st: 'drone', g: 0.35 } ] },
+    battle: { bpm: 156, key: 60, scale: 'minor', prog: [0, 5, 6, 4], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'brass', mel: ['0_0_3_3_4___....', '5_5_4_4_2___....', 'L....5___', '4_2_0_0_....0___'], g: 0.26, rv: 0.2 },
+      { t: 'arp', v: 'pulse25', pat: '0121', r: 1, o: 1, g: 0.08, rv: 0.1 },
+      { t: 'bass', v: 'saw', st: 'pulse', g: 0.35 },
+      { t: 'drums', kick: 'x...x...x...x...', snare: '....x.......x...', hat: 'x.x.x.x.x.x.x.x.', g: 0.5 } ] },
+    boss: { bpm: 140, key: 57, scale: 'minor', prog: [0, 5, 4, 6], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'brass', mel: ['0_0_1_2_3___....', '2_1_0___....6___', 'L....0___', '5___4_3_2___....'], g: 0.3, rv: 0.2 },
+      { t: 'arp', v: 'saw', pat: '0212', r: 1, g: 0.07, rv: 0.1 },
+      { t: 'bass', v: 'saw', st: 'root8', g: 0.35 },
+      { t: 'drums', kick: 'x.x.x...x.x.x...', snare: '....x.......x...', hat: 'x.x.x.x.x.x.x.x.', g: 0.5 } ] },
+    finalboss: { bpm: 150, key: 57, scale: 'minor', prog: [0, 5, 4, 6], chordLen: 2, bars: 8, layers: [
+      { t: 'mel', v: 'brass', mel: ['L....0___', '0_1_2___4___....', 'L3___2___', '1___0___4___....', '5___6___7___....', '8___7___6_5_4___', 'L....7___', '5_4_3_2_1___0___'], g: 0.3, rv: 0.3 },
+      { t: 'mel', v: 'bell', mel: ['................', '................', 'L........', '................', '................', '................', 'L........', '................'], o: 1, g: 0.2, rv: 0.45 },
+      { t: 'arp', v: 'saw', pat: '0121', r: 1, g: 0.07, rv: 0.1 },
+      { t: 'bass', v: 'saw', st: 'walk', g: 0.35 },
+      { t: 'drums', kick: 'x.x.x...x.x.x...', snare: '....x.......x...', hat: 'x.x.x.x.x.x.x.x.', g: 0.5 } ] },
+    victory: { bpm: 120, key: 62, scale: 'major', prog: [0, 4], chordLen: 1, bars: 2, once: true, layers: [
+      { t: 'mel', v: 'brass', mel: ['0_2_4___5___7___', '7_5_4___2___0___'], g: 0.34, rv: 0.25 },
+      { t: 'bass', v: 'tri', st: 'root8', g: 0.4 },
+      { t: 'drums', kick: 'x...x...x...x...', snare: '....x.......x...', g: 0.4 } ] },
+    gameover: { bpm: 60, key: 57, scale: 'minor', prog: [0, 5, 3, 4], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'soft', mel: ['4___3___2___....', '1___0___....0___', '2___3___4___....', '2___1___0___....'], g: 0.3, rv: 0.5 },
+      { t: 'pad', g: 0.14, rv: 0.5 },
+      { t: 'bass', v: 'tri', st: 'drone', g: 0.35 } ] },
+  });
+  Object.assign(TRACKS, {
+    marigold: { bpm: 120, key: 62, scale: 'major', prog: [0, 4, 5, 3], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'bell', mel: ['0_2_4___5___7___', '6_5_4___2___0___', 'L....4___', '5___7___5_4_3_2_'], g: 0.3, rv: 0.35 },
+      { t: 'arp', v: 'pulse12', pat: '0202', r: 2, g: 0.12, rv: 0.15 },
+      { t: 'pad', g: 0.12, rv: 0.4 },
+      { t: 'bass', v: 'tri', st: 'walk', g: 0.42 },
+      { t: 'drums', kick: 'x.......x.......', hat: '..x...x...x...x.', g: 0.4 } ] },
+    sky: { bpm: 96, key: 67, scale: 'major', prog: [0, 3, 4, 0], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'soft', mel: ['4___5___7___5___', '3___4___2___....', 'L....0___', '2___0___4___....'], g: 0.3, rv: 0.6 },
+      { t: 'arp', v: 'pluck', pat: '0121', r: 3, g: 0.13, rv: 0.5 },
+      { t: 'pad', g: 0.16, rv: 0.6 },
+      { t: 'bass', v: 'tri', st: 'drone', g: 0.3 } ] },
+    romance: { bpm: 66, key: 62, scale: 'major', prog: [0, 5, 3, 4], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'bell', mel: ['L....3___', '2___4___3___....', 'L5___4___', '3___2___0___....'], g: 0.34, rv: 0.4 },
+      { t: 'arp', v: 'bell', pat: '0120', r: 4, g: 0.1, rv: 0.3 },
+      { t: 'pad', g: 0.18, rv: 0.45 },
+      { t: 'bass', v: 'tri', st: 'lift', g: 0.3 } ] },
+    tender: { bpm: 76, key: 65, scale: 'major', prog: [0, 3, 0, 4], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'soft', mel: ['0_2_4___5___....', '4_3_2___1___....', 'L....2___', '1___0___3___....'], g: 0.3, rv: 0.4 },
+      { t: 'arp', v: 'pluck', pat: '0212', r: 2, g: 0.13, rv: 0.3 },
+      { t: 'pad', g: 0.2, rv: 0.4 },
+      { t: 'bass', v: 'tri', st: 'root8', g: 0.35 },
+      { t: 'drums', hat: '..g...g...g...g.', g: 0.25 } ] },
+    sad: { bpm: 66, key: 60, scale: 'minor', prog: [0, 5, 6, 4], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'soft', mel: ['4___3___2___....', '2___1___0___....', '3___2___0___....', 'L....4___'], g: 0.3, rv: 0.5 },
+      { t: 'pad', g: 0.22, rv: 0.55 },
+      { t: 'bass', v: 'tri', st: 'drone', g: 0.35 } ] },
+    tense: { bpm: 120, key: 60, scale: 'minor', prog: [0, 5, 4, 6], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'pulse25', mel: ['0_..1_..2___....', '3_..3_..4___....', 'L....5_..', '0_..1_..0___....'], g: 0.22, rv: 0.2 },
+      { t: 'arp', v: 'pulse12', pat: '0010', r: 1, g: 0.08, rv: 0.15 },
+      { t: 'bass', v: 'tri', st: 'pulse', g: 0.4 },
+      { t: 'drums', kick: 'x...x...x..x....', snare: '....x.......x...', hat: 'x.x.x.x.x.x.x.x.', g: 0.35 } ] },
+    mystery: { bpm: 92, key: 62, scale: 'dorian', prog: [0, 3, 0, 6], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'bell', mel: ['5___4_2_0___....', '1_..2_..3___4___', '....0_0_2___....', 'L....5___'], g: 0.3, rv: 0.5 },
+      { t: 'arp', v: 'pluck', pat: '0.2.', r: 2, g: 0.13, rv: 0.5 },
+      { t: 'pad', g: 0.14, rv: 0.6 },
+      { t: 'bass', v: 'tri', st: 'drone', g: 0.35 },
+      { t: 'drums', hat: 'o.......o.......', g: 0.3 } ] },
+    comic: { bpm: 140, key: 62, scale: 'major', prog: [0, 3, 4, 0], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'pulse50', mel: ['0_..0_..2_..4_..', '5_..4_..3_..2_..', 'L....1_..', '2_..4_..5_..7_..'], g: 0.22, rv: 0.1 },
+      { t: 'arp', v: 'pulse12', pat: '0202', r: 2, g: 0.12, rv: 0.1 },
+      { t: 'bass', v: 'tri', st: 'pulse', g: 0.4 },
+      { t: 'drums', kick: 'x.x.....x.x.....', snare: '....x.......x...', hat: 'x.x.x.x.x.x.x.x.', g: 0.42 } ] },
+    ending_love: { bpm: 72, key: 62, scale: 'major', prog: [0, 5, 3, 4], chordLen: 2, bars: 8, layers: [
+      { t: 'mel', v: 'soft', mel: ['L....4___', '5___4___3___2___', '1___2___3___....', 'L5___7___', '6___5___4___3___', '2___4___5___....', 'L....0___', '0___4___5___7___'], g: 0.26, rv: 0.45 },
+      { t: 'pad', g: 0.15, rv: 0.6 },
+      { t: 'bass', v: 'tri', st: 'lift', g: 0.35 },
+      { t: 'drums', kick: 'x.......x.......', g: 0.35 } ] },
+    ending_common: { bpm: 96, key: 62, scale: 'major', prog: [0, 4, 5, 3], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'pluck', mel: ['0_2_4___2___....', '5___4_3_2___....', 'L....3___', '4___5___0___....'], g: 0.36, rv: 0.3 },
+      { t: 'arp', v: 'pluck', pat: '0121', r: 2, g: 0.13, rv: 0.25 },
+      { t: 'bass', v: 'tri', st: 'walk', g: 0.4 },
+      { t: 'pad', g: 0.12, rv: 0.4 },
+      { t: 'drums', hat: '..x...x...x...x.', g: 0.25 } ] },
+    ending_lone: { bpm: 80, key: 62, scale: 'mixo', prog: [0, 3, 6, 4], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'soft', mel: ['5___4___2___....', '3___2___1___....', '2___3___4___....', 'L....0___'], g: 0.3, rv: 0.55 },
+      { t: 'pad', g: 0.2, rv: 0.6 },
+      { t: 'bass', v: 'tri', st: 'drone', g: 0.3 } ] },
+    credits: { bpm: 88, key: 62, scale: 'major', prog: [0, 5, 3, 4], chordLen: 2, bars: 8, layers: [
+      { t: 'mel', v: 'bell', mel: ['L....0___', '2___4___5___....', 'L....4___', '3___2___1___....', 'L5___4___', '3___2___1___0___', 'L....5___', '4___2___0___....'], g: 0.34, rv: 0.4 },
+      { t: 'pad', g: 0.14, rv: 0.5 },
+      { t: 'bass', v: 'tri', st: 'walk', g: 0.4 },
+      { t: 'drums', kick: 'x.......x.......', hat: '..x...x...x...x.', g: 0.25 } ] },
+  });
   const SFX = {};      // @@SFX@@
   const compiled = new Map();
 
@@ -312,8 +434,8 @@
         case 'arp': {
           if (i % ly.r !== 0) break;
           const ch = ly.pat[Math.floor(i / ly.r) % ly.pat.length];
-          if (ch === undefined || ch === '.' || ch === '-') break;
           const idx = parseInt(ch, 36), len = ct.length;
+          if (!(idx >= 0)) break;                                  // rest: '.', '-', '_' or junk
           const deg = ct[idx % len] + n * Math.floor(idx / len) + n * ly.o;
           voiceNote(S, inst.gain, ly.v, t, ly.r * sd * 0.9, mtof(midiOf(T, deg)), ly.g, ly.rv);
           break;
@@ -444,8 +566,8 @@
       tone(S, o, t, 0.28, { wave: 'pulse50', f: 153, g: 0.1, a: 0.005, d: 0.2, s: 0.8, r: 0.05, fc: 900 });
       return 0.32;
     },
-    step: function (S, o, t) { noiseBurst(S, o, t, 0.025, 'lowpass', 500, 0.7, 0.12); return 0.06; },
-    footstep_grass: function (S, o, t) { noiseBurst(S, o, t, 0.05, 'bandpass', 900, 0.9, 0.12); return 0.1; },
+    step: function (S, o, t) { noiseBurst(S, o, t, 0.04, 'lowpass', 900, 0.7, 0.8); return 0.07; },
+    footstep_grass: function (S, o, t) { noiseBurst(S, o, t, 0.07, 'bandpass', 900, 0.6, 0.8); return 0.12; },
     door: function (S, o, t) {
       noiseBurst(S, o, t, 0.22, 'lowpass', 420, 0.7, 0.25);
       tone(S, o, t, 0.25, { type: 'triangle', f: 110, f1: 78, g: 0.25, a: 0.01, d: 0.2, s: 0.4, r: 0.05, fc: 600 });
@@ -502,7 +624,7 @@
       tone(S, o, t, 0.22, { wave: 'pulse12', f: 1500, f1: 200, g: 0.2, a: 0.002, d: 0.15, s: 0.3, r: 0.05, fc: 5000 });
       return 0.25;
     },
-    wind: function (S, o, t) { noiseBurst(S, o, t, 0.5, 'bandpass', 600, 1.2, 0.3, 0.25, 1600); return 0.55; },
+    wind: function (S, o, t) { noiseBurst(S, o, t, 0.5, 'bandpass', 600, 0.9, 1.0, 0.25, 1600); return 0.55; },
     light: function (S, o, t) { bell(S, o, t, 0.5, 1320, { g: 0.28, rv: 0.5 }); bell(S, o, t + 0.1, 0.6, 1980, { g: 0.2, rv: 0.5 }); return 0.6; },
     dark: function (S, o, t) {
       tone(S, o, t, 0.4, { type: 'triangle', f: 220, f1: 110, g: 0.3, a: 0.02, d: 0.3, s: 0.5, r: 0.1, fc: 900 });
@@ -545,7 +667,7 @@
       bell(S, o, t + 0.09, 0.4, 1568, { g: 0.18, rv: 0.3 });
       return 0.4;
     },
-    footstep: function (S, o, t) { noiseBurst(S, o, t, 0.03, 'lowpass', 700, 0.7, 0.1); return 0.05; },
+    footstep: function (S, o, t) { noiseBurst(S, o, t, 0.05, 'lowpass', 700, 0.7, 1.0); return 0.08; },
     revive: function (S, o, t) { arp(S, o, t, [523, 784, 1047, 1319], 0.09, { v: 'soft', g: 0.22, d: 0.2, rv: 0.4 }); return 0.5; },
     steal: function (S, o, t) {
       tone(S, o, t, 0.1, { wave: 'pulse25', f: 900, g: 0.18, a: 0.003, d: 0.08, s: 0.2, r: 0.02, fc: 6000 });
