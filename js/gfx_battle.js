@@ -1633,8 +1633,8 @@
         c.globalCompositeOperation = 'lighter';
         const a1 = -2.5 + 1.9 * ease(t);
         for (let k = 0; k < 3; k++) {
-          const r = (24 + k * 7) * S, alpha = (1 - t * 0.6) * (1 - k * 0.25);
-          c.strokeStyle = C || (k === 0 ? '#ffffff' : '#9fd8ff'); c.lineWidth = (k === 0 ? 4 : 2) * S;
+          const r = (30 + k * 8) * S, alpha = (1 - t * 0.5) * (1 - k * 0.25);
+          c.strokeStyle = C || (k === 0 ? '#ffffff' : '#9fd8ff'); c.lineWidth = (k === 0 ? 6 : 3) * S;
           c.globalAlpha = alpha;
           c.beginPath(); c.arc(x, y, r, a1 - 0.9 + k * 0.12, a1 + k * 0.12); c.stroke();
         }
@@ -1654,7 +1654,7 @@
       case 'blunt': {
         c.globalCompositeOperation = 'lighter';
         const r = (10 + 40 * ease(t)) * S;
-        c.strokeStyle = C || '#ffe7b0'; c.lineWidth = 4 * S * (1 - t); c.globalAlpha = 1 - t;
+        c.strokeStyle = C || '#fff0c8'; c.lineWidth = 4 * S * (1 - t * 0.5); c.globalAlpha = Math.min(1, 1.4 - t);
         c.beginPath(); c.ellipse(x, y + 8 * S, r, r * 0.42, 0, 0, Math.PI * 2); c.stroke();
         c.globalCompositeOperation = 'source-over';
         for (const p of parts('blunt', 14)) {
@@ -1667,9 +1667,9 @@
       }
       case 'arrow': {
         const p = Math.min(1, t / 0.8), e = p * p;
-        const ax = x - 110 * S + 110 * S * e, ay = y - 50 * S + 50 * S * e;
-        const ang = Math.atan2(y - (y - 50 * S), x - (x - 110 * S));
-        c.save(); c.translate(ax, ay); c.rotate(Math.atan2(50 * S, 110 * S));
+        const ax = x - 70 * S + 70 * S * e, ay = y - 36 * S + 36 * S * e;
+        const ang = 0;
+        c.save(); c.translate(ax, ay); c.rotate(Math.atan2(36 * S, 70 * S));
         c.fillStyle = C || '#d9b67a'; c.fillRect(-26 * S, -0.5, 26 * S, 1.5);
         c.fillStyle = '#dfe6f0'; c.beginPath(); c.moveTo(0, -2 * S); c.lineTo(5 * S, 0); c.lineTo(0, 2 * S); c.fill();
         c.fillStyle = '#e8e0d0'; c.fillRect(-28 * S, -3 * S, 4 * S, 2 * S); c.fillRect(-28 * S, 1 * S, 4 * S, 2 * S);
@@ -1854,10 +1854,10 @@
             const u = i / 26 * Math.PI * 2;
             const hp = heartPt(u);
             const rise = ((t * 1.2 + i / 26 + h * 0.5) % 1);
-            const px = x + off * S + hp[0] * 0.9 * S + Math.sin(rise * 6 + i) * 3 * S * sign;
-            const py = y + 8 * S + hp[1] * 0.9 * S - rise * 14 * S;
+            const px = x + off * S + hp[0] * 1.5 * S + Math.sin(rise * 6 + i) * 3 * S * sign;
+            const py = y + 6 * S + hp[1] * 1.5 * S - rise * 14 * S;
             const col = i % 3 ? '#ff7aa0' : '#ffd27a';
-            glowDot(c, px, py, (3 + 2 * (1 - rise)) * S, col, 0.75 * (1 - rise * 0.6) * Math.min(1, t * 4));
+            glowDot(c, px, py, (4 + 3 * (1 - rise)) * S, col, 0.9 * (1 - rise * 0.5) * Math.min(1, t * 4));
           }
         }
         break;

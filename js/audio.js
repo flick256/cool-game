@@ -217,7 +217,59 @@
   }
 
   // ---------------------------------------------------------------- compiled track data
-  const TRACKS = {};   // @@TRACKS@@
+  const TRACKS = {};   // ---- track data. Melody strings: digits = scale degrees ('a'-'f' = 10-15), '.' rest, '_' hold, 'L' = lantern leitmotif.
+  // Each array element is a bar-ish string; total steps must equal bars*16 (compile warns otherwise).
+  Object.assign(TRACKS, {
+    title: { bpm: 84, key: 62, scale: 'major', prog: [0, 4, 5, 3], chordLen: 2, bars: 8, layers: [
+      { t: 'mel', v: 'bell', mel: ['L2___1___', '0___2___4___....', 'L6___5___', '4___3___2___....', 'L5___4___', '3___2___1___....', 'L0___4___', '5___5___6___7___'], g: 0.42, rv: 0.45 },
+      { t: 'pad', g: 0.12, rv: 0.5 },
+      { t: 'bass', v: 'tri', st: 'walk', g: 0.5, rv: 0.1 },
+      { t: 'drums', kick: 'x.......x.......', g: 0.45 } ] },
+    wickholm: { bpm: 96, key: 67, scale: 'dorian', prog: [0, 3, 0, 4], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'pluck', mel: ['0_2_4___3___....', '2_1_0___....3_5_', '4___5___3_2_1___', 'L....2___'], g: 0.4, rv: 0.3 },
+      { t: 'arp', v: 'pluck', pat: '0121', r: 2, g: 0.16, rv: 0.2 },
+      { t: 'bass', v: 'tri', st: 'root8', g: 0.4 },
+      { t: 'drums', hat: 'x.x.x.x.x.x.x.x.', g: 0.25 } ] },
+    forest: { bpm: 70, key: 64, scale: 'pent', prog: [0, 2, 3, 0], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'soft', mel: ['0___2___4___....', '3_4_2___0___....', 'L6___5___', '4___3_2_1___....'], o: 1, g: 0.32, rv: 0.45 },
+      { t: 'arp', v: 'pluck', pat: '0212', r: 2, g: 0.14, rv: 0.4 },
+      { t: 'pad', g: 0.1, rv: 0.5 },
+      { t: 'bass', v: 'tri', st: 'drone', g: 0.35 } ] },
+    brasshaven: { bpm: 112, key: 62, scale: 'major', prog: [0, 4, 0, 3], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'brass', mel: ['0_0_0___2___....', '4___4___5_4_3___', '2___2___1___0___', 'L....2___'], g: 0.3, rv: 0.2 },
+      { t: 'bass', v: 'tri', st: 'root8', g: 0.5 },
+      { t: 'drums', kick: 'x.......x.......', snare: '....x.......x...', hat: 'g.g.g.g.g.g.g.g.', g: 0.5 } ] },
+    workshop: { bpm: 100, key: 62, scale: 'major', prog: [0, 5, 3, 4], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'pluck', mel: ['5_3_0___2___....', '4_2_4___0___....', 'L....2___', '1___3___5___....'], g: 0.35, rv: 0.3 },
+      { t: 'bass', v: 'tri', st: 'walk', g: 0.4 },
+      { t: 'pad', g: 0.09, rv: 0.4 },
+      { t: 'drums', kick: 'x.......x.......', hat: '..x...x...x...x.', g: 0.3 } ] },
+    undercroft: { bpm: 124, key: 60, scale: 'minor', prog: [0, 5, 4, 6], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'pulse25', mel: ['0_1_2___3_2_1___', '0___5___4___6___', 'L....3___', '2_3_4___2___....'], g: 0.2, rv: 0.2 },
+      { t: 'arp', v: 'pulse12', pat: '0101', r: 1, g: 0.07, rv: 0.1 },
+      { t: 'bass', v: 'tri', st: 'pulse', g: 0.4 },
+      { t: 'drums', kick: 'x...x...x..x....', snare: '....x.......x...', hat: 'x.x.x.x.x.x.x.x.', g: 0.45 } ] },
+    gladius: { bpm: 118, key: 62, scale: 'major', prog: [0, 4, 5, 3], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'brass', mel: ['0___0___4___5___', '6___5___4___3___', 'L....5___', '4___2_0_....0___'], g: 0.32, rv: 0.25 },
+      { t: 'arp', v: 'saw', pat: '0121', r: 2, o: 0, g: 0.1, rv: 0.15 },
+      { t: 'bass', v: 'tri', st: 'walk', g: 0.45 },
+      { t: 'drums', kick: 'x...x...x...x...', snare: '....x.......x...', hat: '..x...x...x...x.', g: 0.5 } ] },
+    arena: { bpm: 128, key: 57, scale: 'minor', prog: [0, 6, 5, 4], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'pulse25', mel: ['0_0_3___4___....', '5_4_3_2_1___....', 'L5___4___', '3___2___0___0___'], g: 0.22, rv: 0.2 },
+      { t: 'arp', v: 'saw', pat: '0121', r: 2, g: 0.1, rv: 0.1 },
+      { t: 'bass', v: 'tri', st: 'pulse', g: 0.45 },
+      { t: 'drums', kick: 'x...x...x...x...', snare: '....x.......x...', hat: 'x.x.x.x.x.x.x.x.', g: 0.5 } ] },
+    tavern: { bpm: 132, key: 62, scale: 'major', prog: [0, 3, 4, 0], chordLen: 1, bars: 4, layers: [
+      { t: 'mel', v: 'pulse50', mel: ['5_..3_..4_..2_..', '0_..0_..2_..4_..', 'L....3_..', '5_..4_..3_..1_..'], g: 0.2, rv: 0.15 },
+      { t: 'arp', v: 'pluck', pat: '0202', r: 2, g: 0.14, rv: 0.1 },
+      { t: 'bass', v: 'tri', st: 'walk', g: 0.4 },
+      { t: 'drums', kick: 'x...x.x.x...x.x.', snare: '..x...x...x...x.', hat: 'x.x.x.x.x.x.x.x.', g: 0.4 } ] },
+    abbey: { bpm: 72, key: 62, scale: 'major', prog: [0, 5, 3, 4], chordLen: 2, bars: 8, layers: [
+      { t: 'mel', v: 'soft', mel: ['4___5___4___....', '2___0___2___....', '3___4___5___....', '4___3___2___0___', '0___2___4___5___', 'L2___0___', '1___2___3___....', '2___1___0___....'], g: 0.3, rv: 0.6 },
+      { t: 'pad', g: 0.22, rv: 0.6 },
+      { t: 'bass', v: 'tri', st: 'drone', g: 0.3, rv: 0.2 } ] },
+  });
+  // @@TRACKS@@
   const SFX = {};      // @@SFX@@
   const compiled = new Map();
 

@@ -838,5 +838,275 @@
   G.gfx.tileNames = function () { return Object.keys(NAME_FN).filter((k) => k !== '__missing'); };
   // pre-warm every ground/object/above tile (call once at boot if desired; cheap)
   G.gfx.warmTiles = function () { if (!G.tiles || !G.tiles.list) return 0; let n = 0; for (const t of G.tiles.list) { for (let f = 0; f < (ANIM[t.name] ? 4 : 1); f++) { tileFor(t.name, f); n++; } } return n; };
-  /*__PART5__*/
+  // ------------------------------------------------------------------ characters (parametric chibi, 32x32 cells)
+  // Views: 'front' (down), 'back' (up), 'side' (faces right; left = mirrored side).
+  // step: 0 = stand, 1 = left leg raised (walk frame 0), 2 = right leg raised (walk frame 2).
+  function hairCap(c, S, view) {
+    const hr = S.hair, hl = shade(hr, 0.25);
+    if (view === 'front') {
+      rect(c, 9, 2, 14, 5, hr); rect(c, 8, 5, 2, 6, hr); rect(c, 22, 5, 2, 6, hr);
+      rect(c, 11, 7, 4, 2, hr); rect(c, 17, 7, 4, 2, hr); rect(c, 12, 3, 6, 1, hl);
+    } else if (view === 'back') {
+      rect(c, 9, 2, 14, 14, hr); rect(c, 12, 3, 6, 1, hl);
+    } else {
+      rect(c, 9, 2, 14, 5, hr); rect(c, 9, 5, 5, 9, hr); rect(c, 16, 6, 4, 2, hr); rect(c, 12, 3, 6, 1, hl);
+    }
+  }
+  function hairStyle(c, S, view) {
+    const hr = S.hair, st = S.hairStyle || 'short';
+    const back = view === 'back', side = view === 'side';
+    switch (st) {
+      case 'long':
+        if (back) rect(c, 9, 15, 14, 8, hr);
+        else if (side) rect(c, 9, 5, 5, 18, hr);
+        else { rect(c, 8, 8, 2, 14, hr); rect(c, 22, 8, 2, 14, hr); }
+        break;
+      case 'bun':
+        rect(c, 13, 0, 6, 4, hr); px(c, 14, 0, shade(hr, 0.2)); break;
+      case 'ponytail':
+        if (back) rect(c, 15, 6, 3, 14, hr);
+        else if (side) rect(c, 5, 6, 3, 12, hr);
+        else rect(c, 23, 8, 2, 9, hr);
+        break;
+      case 'spiky':
+        for (let x = 9; x < 23; x += 3) rect(c, x, 0, 1, 2, hr);
+        break;
+      case 'shaggy':
+        for (let x = 8; x < 24; x += 2) px(c, x, 1 + (x % 3 === 0 ? 1 : 0), hr);
+        rect(c, 7, 9, 2, 4, hr); rect(c, 23, 9, 2, 4, hr);
+        break;
+      case 'curly':
+        for (let x = 9; x < 23; x += 3) { rect(c, x, 2, 3, 2, hr); px(c, x + 1, 1, hr); }
+        break;
+      case 'hat':
+        rect(c, 11, 0, 10, 5, S.hat || '#6b3a22'); rect(c, 11, 4, 10, 1, S.hatBand || '#e0b657');
+        rect(c, 5, 4, 22, 2, S.hat || '#6b3a22'); rect(c, 5, 5, 22, 1, shade(S.hat || '#6b3a22', -0.25));
+        break;
+      case 'tall':
+        rect(c, 11, 0, 10, 6, S.hat || '#222'); rect(c, 8, 6, 16, 1, S.hat || '#222');
+        rect(c, 11, 4, 10, 1, S.hatBand || '#e0b657');
+        break;
+      case 'witch':
+        for (let y = 0; y < 4; y++) { const half = Math.round(1 + y * 1.4); rect(c, 16 - half, y, half * 2, 1, S.hat || '#2c4fa0'); }
+        rect(c, 5, 4, 22, 2, S.hat || '#2c4fa0'); rect(c, 5, 5, 22, 1, shade(S.hat || '#2c4fa0', -0.25));
+        rect(c, 9, 4, 14, 1, S.hatBand || '#e8c15a');
+        px(c, 23, 1, '#ffd0ea'); px(c, 24, 0, '#ffd0ea');
+        break;
+      case 'hood':
+        rect(c, 7, 2, 18, 15, S.hood || S.top);
+        rect(c, 7, 2, 1, 15, shade(S.hood || S.top, -0.25));
+        if (!back) { if (side) rect(c, 12, 6, 11, 10, S.skin); else rect(c, 10, 6, 12, 10, S.skin); }
+        break;
+      case 'bald':
+        if (back) rect(c, 9, 8, 14, 3, hr);
+        else { rect(c, 8, 8, 2, 4, hr); rect(c, 22, 8, 2, 4, hr); }
+        break;
+      case 'veil':
+        if (back) rect(c, 7, 2, 18, 20, S.veil || '#f4f4f8');
+        else { rect(c, 7, 2, 18, 4, S.veil || '#f4f4f8'); rect(c, 7, 6, 2, 16, S.veil || '#f4f4f8'); rect(c, 23, 6, 2, 16, S.veil || '#f4f4f8'); }
+        break;
+      case 'helm':
+        rect(c, 9, 2, 14, 6, S.helm || '#b8bcc8');
+        if (back) rect(c, 9, 2, 14, 12, S.helm || '#b8bcc8');
+        else rect(c, 10, 7, 12, 1, shade(S.helm || '#b8bcc8', -0.45));
+        rect(c, 15, 0, 2, 3, S.plume || '#c0392b');
+        break;
+      case 'cap':
+        rect(c, 9, 2, 14, 5, S.cap || '#3a5a8a');
+        if (!back) rect(c, 7, 6, 18, 2, shade(S.cap || '#3a5a8a', -0.25));
+        else rect(c, 9, 7, 14, 1, shade(S.cap || '#3a5a8a', -0.25));
+        break;
+      default: break; // short: handled by hairCap
+    }
+  }
+  function drawLegs(c, S, view, step) {
+    const pt = S.pants, bt = S.boots, pd = shade(pt, -0.2), bd = shade(bt, -0.15);
+    if (view === 'side') {
+      const backLift = step === 1 ? 1 : 0, frontLift = step === 2 ? 1 : 0;
+      rect(c, 12, 24, 3, 4 - backLift, pd); rect(c, 11, 28 - backLift, 4, 3, bd);
+      rect(c, 15, 24, 3, 4 - frontLift, pt); rect(c, 15, 28 - frontLift, 5, 3, bt);
+      rect(c, 15, 28 - frontLift, 5, 1, shade(bt, 0.15));
+    } else {
+      const lL = step === 1 ? 1 : 0, lR = step === 2 ? 1 : 0;
+      rect(c, 11, 24, 4, 4 - lL, pt); rect(c, 10, 28 - lL, 5, 3, bt); rect(c, 10, 28 - lL, 5, 1, shade(bt, 0.15));
+      rect(c, 17, 24, 4, 4 - lR, pt); rect(c, 17, 28 - lR, 5, 3, bt); rect(c, 17, 28 - lR, 5, 1, shade(bt, 0.15));
+      rect(c, 13, 24, 1, 4 - lL, pd); rect(c, 17, 24, 1, 4 - lR, shade(pt, 0.1));
+    }
+  }
+  function drawTorso(c, S, view) {
+    const tp = S.top, td = shade(tp, -0.2), bl = S.belt || '#3a2412';
+    if (view === 'side') {
+      rect(c, 11, 17, 9, 7, tp); rect(c, 11, 17, 1, 7, td); rect(c, 19, 17, 1, 7, shade(tp, 0.1));
+      rect(c, 11, 22, 9, 1, bl);
+      if (S.coat) { rect(c, 10, 17, 10, 9, S.coat); rect(c, 10, 17, 1, 9, shade(S.coat, -0.25)); rect(c, 10, 25, 10, 1, shade(S.coat, -0.3)); }
+      if (S.scarf) rect(c, 15, 16, 4, 2, S.scarf);
+    } else if (view === 'back') {
+      rect(c, 10, 17, 12, 7, td); rect(c, 10, 17, 1, 7, shade(tp, -0.35)); rect(c, 21, 17, 1, 7, shade(tp, -0.35));
+      rect(c, 10, 22, 12, 1, bl);
+      if (S.coat) { rect(c, 9, 17, 14, 9, S.coat); rect(c, 9, 17, 14, 1, shade(S.coat, -0.35)); rect(c, 16, 18, 1, 8, shade(S.coat, -0.3)); rect(c, 9, 25, 14, 1, shade(S.coat, -0.25)); }
+      if (S.scarf) rect(c, 10, 16, 12, 2, S.scarf);
+    } else {
+      rect(c, 10, 17, 12, 7, tp); rect(c, 10, 17, 1, 7, td); rect(c, 21, 17, 1, 7, td);
+      rect(c, 10, 22, 12, 1, bl); rect(c, 15, 22, 2, 1, S.buckle || P_.brassLt);
+      if (S.trim) rect(c, 14, 17, 4, 1, S.trim);
+      if (S.coat) {
+        rect(c, 9, 17, 14, 9, S.coat); rect(c, 9, 17, 1, 9, shade(S.coat, -0.25)); rect(c, 22, 17, 1, 9, shade(S.coat, -0.25));
+        rect(c, 16, 18, 1, 8, shade(S.coat, -0.35)); rect(c, 9, 25, 14, 1, shade(S.coat, -0.3));
+        if (S.trim) rect(c, 9, 17, 14, 1, S.trim);
+      }
+      if (S.scarf) rect(c, 10, 16, 12, 2, S.scarf);
+      if (S.armor) { rect(c, 11, 18, 10, 4, S.armor); rect(c, 15, 18, 2, 4, shade(S.armor, -0.2)); rect(c, 11, 18, 10, 1, shade(S.armor, 0.3)); }
+      if (S.apron) rect(c, 12, 19, 8, 5, S.apron);
+      if (S.sigil) { for (let i = 0; i < 4; i++) { px(c, 13 + i, 19 + i, shade(S.armor || tp, -0.4)); px(c, 18 - i, 19 + i, shade(S.armor || tp, -0.4)); } }
+    }
+  }
+  function drawArms(c, S, view, step) {
+    const sl = S.sleeve || S.top, sd = shade(sl, -0.2);
+    if (view === 'side') {
+      const nd = step === 2 ? 1 : (step === 1 ? -1 : 0);
+      rect(c, 12, 18, 2, 5, sd); rect(c, 12, 22, 2, 2, shade(S.skin, -0.12));
+      rect(c, 17, 18 + (nd > 0 ? 1 : 0), 2, 4, sl); rect(c, 17, 22 + (nd > 0 ? 1 : 0), 2, 2, S.skin);
+    } else {
+      const dL = step === 1 ? 1 : 0, dR = step === 2 ? 1 : 0;
+      rect(c, 8, 18 + dL, 2, 4, sl); rect(c, 8, 22 + dL, 2, 2, S.skin); rect(c, 8, 18 + dL, 1, 4, sd);
+      rect(c, 22, 18 + dR, 2, 4, sl); rect(c, 22, 22 + dR, 2, 2, S.skin); rect(c, 23, 18 + dR, 1, 4, sd);
+    }
+  }
+  function drawHeadBase(c, S, view) {
+    const sk = S.skin;
+    if (view === 'side') {
+      rect(c, 10, 3, 13, 13, sk); c.clearRect(10, 3, 1, 1); c.clearRect(22, 3, 1, 1); c.clearRect(10, 15, 1, 1); c.clearRect(22, 15, 1, 1);
+      px(c, 14, 9, shade(sk, -0.1)); px(c, 14, 10, shade(sk, -0.1));
+      px(c, 22, 11, shade(sk, -0.15));
+    } else if (view === 'back') {
+      rect(c, 9, 3, 14, 13, sk); c.clearRect(9, 3, 1, 1); c.clearRect(22, 3, 1, 1);
+      px(c, 8, 9, sk); px(c, 8, 10, sk); px(c, 23, 9, sk); px(c, 23, 10, sk);
+    } else {
+      rect(c, 9, 3, 14, 13, sk); c.clearRect(9, 3, 1, 1); c.clearRect(22, 3, 1, 1); c.clearRect(9, 15, 1, 1); c.clearRect(22, 15, 1, 1);
+      px(c, 8, 9, sk); px(c, 8, 10, sk); px(c, 23, 9, sk); px(c, 23, 10, sk);
+    }
+  }
+  function drawFace(c, S, view) {
+    if (view === 'back') return;
+    const eye = S.eye || '#2a2440', hd = shade(S.hair, -0.35);
+    if (S.eyeGlow) {
+      // hollow / ghost eyes: glowing violet
+      const ec = S.eyeGlow;
+      if (view === 'front') { rect(c, 11, 9, 2, 3, ec); rect(c, 19, 9, 2, 3, ec); px(c, 11, 9, '#ffffff'); px(c, 19, 9, '#ffffff'); addGlow(c, 12, 10, 4, 'rgba(180,120,255,0.6)', 1); addGlow(c, 20, 10, 4, 'rgba(180,120,255,0.6)', 1); }
+      else { rect(c, 19, 9, 2, 3, ec); px(c, 19, 9, '#ffffff'); addGlow(c, 20, 10, 4, 'rgba(180,120,255,0.6)', 1); }
+      return;
+    }
+    if (view === 'front') {
+      for (const x of [11, 19]) {
+        rect(c, x, 9, 2, 3, eye); px(c, x, 9, '#ffffff'); px(c, x + 1, 11, shade(eye, 0.35));
+        rect(c, x, 8, 2, 1, hd);
+      }
+      px(c, 15, 13, '#b5544a'); px(c, 16, 13, '#b5544a');
+      px(c, 11, 12, '#f0a0a0'); px(c, 20, 12, '#f0a0a0');
+    } else {
+      rect(c, 19, 9, 2, 3, eye); px(c, 19, 9, '#ffffff'); px(c, 20, 11, shade(eye, 0.35));
+      rect(c, 19, 8, 2, 1, hd);
+      px(c, 21, 13, '#b5544a'); px(c, 18, 12, '#f0a0a0');
+    }
+  }
+  function drawAccessories(c, S, view, step) {
+    const acc = S.acc || [];
+    const side = view === 'side';
+    for (const a of acc) {
+      if (a === 'goggles') {
+        const br = '#c79a3b', bd = '#8e6a25';
+        if (view === 'back') rect(c, 9, 6, 14, 1, bd);
+        else if (side) { rect(c, 15, 5, 5, 2, br); rect(c, 16, 5, 3, 2, '#7fd8ff'); px(c, 15, 5, '#ffe39a'); }
+        else { rect(c, 10, 5, 5, 2, br); rect(c, 17, 5, 5, 2, br); rect(c, 11, 5, 3, 2, '#7fd8ff'); rect(c, 18, 5, 3, 2, '#7fd8ff'); px(c, 11, 5, '#ffffff'); px(c, 18, 5, '#ffffff'); rect(c, 9, 6, 1, 1, bd); rect(c, 22, 6, 1, 1, bd); }
+      } else if (a === 'lantern') {
+        const lx = side ? 19 : 24, ly = side ? 21 : 21;
+        rect(c, lx - 1, ly + 1, 1, 3, '#5a3a1e');
+        rect(c, lx, ly, 3, 4, '#c79a3b'); rect(c, lx + 1, ly + 1, 1, 2, '#ffe89a'); px(c, lx + 1, ly - 1, '#5a3a1e');
+        addGlow(c, lx + 1, ly + 2, 8, 'rgba(255,200,100,0.45)', 1);
+      } else if (a === 'staff') {
+        const sx = side ? 21 : 25;
+        rect(c, sx, 6, 1, 24, '#7a4f2c'); rect(c, sx, 6, 1, 1, '#a6743f');
+        rect(c, sx - 1, 3, 3, 3, S.staffGem || '#9ad8ff'); px(c, sx, 3, '#ffffff');
+      } else if (a === 'sword') {
+        if (side) { rect(c, 9, 14, 1, 12, '#6b4a2a'); rect(c, 8, 13, 3, 1, P_.gold); }
+        else { rect(c, 6, 14, 1, 12, '#6b4a2a'); rect(c, 5, 13, 3, 1, P_.gold); rect(c, 6, 26, 1, 2, '#c8d0dc'); }
+      } else if (a === 'spear') {
+        const sx = side ? 24 : 26;
+        rect(c, sx, 2, 1, 27, '#8a5c34'); rect(c, sx - 1, 0, 3, 3, '#c8d0dc'); px(c, sx, 0, '#ffffff');
+      } else if (a === 'bow') {
+        const bx = side ? 5 : 3;
+        for (let y = 8; y <= 22; y++) px(c, bx + (y < 15 ? 0 : (y > 18 ? 0 : 1)) * 0, y, '#6b4a2a');
+        px(c, bx - 1, 8, '#6b4a2a'); px(c, bx - 1, 22, '#6b4a2a');
+      } else if (a === 'wings') {
+        const wc = S.wing || '#f5f5ff', wd = shade(wc, -0.2);
+        if (side) { rect(c, 5, 5, 4, 12, wc); rect(c, 5, 16, 3, 3, wd); px(c, 5, 5, '#bfd8ff'); }
+        else { rect(c, 2, 5, 5, 13, wc); rect(c, 2, 16, 4, 3, wd); px(c, 2, 5, '#bfd8ff'); rect(c, 25, 5, 5, 13, wc); rect(c, 26, 16, 4, 3, wd); px(c, 28, 5, '#bfd8ff'); }
+      } else if (a === 'cape') {
+        // drawn in charCell before the body; placeholder
+      } else if (a === 'patch') {
+        // handled with cape
+      } else if (a === 'backpack') {
+        if (side) rect(c, 7, 16, 4, 7, '#8a5a2e'); else if (view === 'back') rect(c, 11, 17, 10, 6, '#8a5a2e');
+      } else if (a === 'coin') {
+        px(c, 22, 25, P_.gold); px(c, 23, 25, '#fff3a0');
+      } else if (a === 'bag') {
+        if (side) rect(c, 18, 22, 4, 4, '#8a5a2e'); else rect(c, 22, 23, 4, 4, '#8a5a2e');
+        rect(c, side ? 18 : 22, 22, 4, 1, '#6b4424');
+      } else if (a === 'cane') {
+        const cx = side ? 22 : 24; rect(c, cx, 14, 1, 14, '#5a3a1e'); px(c, cx - 1, 14, '#5a3a1e');
+      } else if (a === 'knit') {
+        rect(c, 22, 14, 1, 3, '#d6604a'); px(c, 21, 12, '#d6604a');
+      } else if (a === 'shoulder_pads') {
+        rect(c, 8, 17, 3, 2, S.armor || P_.gold); rect(c, 21, 17, 3, 2, S.armor || P_.gold);
+      } else if (a === 'tabard') {
+        if (!side && view !== 'back') { rect(c, 13, 18, 6, 9, S.tabard || '#b02d39'); rect(c, 13, 18, 6, 1, P_.gold); }
+      } else if (a === 'belt_pouch') {
+        if (!side && view !== 'back') rect(c, 20, 22, 3, 3, '#6b4424');
+      } else if (a === 'gladius_helm') {
+        // helm handled by hair style
+      }
+    }
+  }
+  function drawCape(c, S, view) {
+    if (!S.cape && !(S.acc || []).includes('cape')) return;
+    const cc = S.cape || '#6b3a8a', cd = shade(cc, -0.25);
+    const patchy = (S.acc || []).includes('patch');
+    if (view === 'back') {
+      rect(c, 8, 17, 16, 14, cc); rect(c, 8, 17, 1, 14, cd); rect(c, 23, 17, 1, 14, cd);
+      if (patchy) { rect(c, 10, 20, 4, 3, '#3f7f35'); rect(c, 17, 24, 4, 3, '#c07a2a'); rect(c, 12, 27, 3, 2, '#2f5f9a'); rect(c, 19, 18, 3, 3, '#e8dcc0'); }
+    } else if (view === 'side') {
+      rect(c, 6, 17, 4, 14, cc); rect(c, 6, 17, 1, 14, cd);
+      if (patchy) { rect(c, 7, 20, 2, 3, '#3f7f35'); rect(c, 7, 26, 2, 2, '#c07a2a'); }
+    } else {
+      rect(c, 7, 17, 2, 13, cc); rect(c, 23, 17, 2, 13, cc); rect(c, 7, 17, 1, 13, cd); rect(c, 24, 17, 1, 13, cd);
+      if (patchy) { rect(c, 7, 20, 2, 3, '#3f7f35'); rect(c, 23, 25, 2, 3, '#c07a2a'); }
+    }
+  }
+
+  // one 32x32 cell for a character, facing 'down'|'up'|'left'|'right', walk step 0/1/2
+  function charCell(S, dir, frame) {
+    const view = dir === 'up' ? 'back' : (dir === 'left' || dir === 'right' ? 'side' : 'front');
+    const step = frame === 0 ? 1 : (frame === 2 ? 2 : 0);
+    const cv = mk(T, T), c = cv.getContext('2d');
+    drawCape(c, S, view);
+    if (S.acc && S.acc.includes('wings')) drawAccessories(c, S, view, step);
+    drawLegs(c, S, view, step);
+    if (S.acc && S.acc.includes('bow') && view !== 'side') drawAccessories(c, Object.assign({}, S, { acc: ['bow'] }), view, step);
+    drawTorso(c, S, view);
+    drawArms(c, S, view, step);
+    if (S.acc && S.acc.includes('backpack')) drawAccessories(c, S, view, step);
+    drawHeadBase(c, S, view);
+    if (S.hairStyle !== 'bald' || view === 'back') hairCap(c, S, view);
+    hairStyle(c, S, view);
+    if (S.hairStyle !== 'hood' && S.hairStyle !== 'veil' && S.hairStyle !== 'helm' && S.hairStyle !== 'hat' && S.hairStyle !== 'tall' && S.hairStyle !== 'witch' && S.hairStyle !== 'cap') { /* base hair already drawn */ }
+    drawFace(c, S, view);
+    drawAccessories(c, S, view, step);
+    const outlineCol = S.outline || '#2b2a33';
+    const out = outlined(cv, outlineCol);
+    if (dir !== 'left') return out;
+    const fl = mk(T, T), f = fl.getContext('2d'); f.translate(T, 0); f.scale(-1, 1); f.drawImage(out, 0, 0);
+    return fl;
+  }
+  G.gfx._charCell = charCell;
+  /*__PART6__*/
 })();

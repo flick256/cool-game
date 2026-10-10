@@ -623,5 +623,6 @@
   }
   G.battleSim = function (troopId, partyIds, opts) { return battleSim(troopId, partyIds || ['rowan'], opts); };
 
+  // @@NEXT@@
   G.provide && G.provide('battle_logic');
 })();

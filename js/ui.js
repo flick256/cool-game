@@ -702,7 +702,6 @@
       draw(c) {
         D.titleBg(c, S.t);
         D.logo(c);
-        D.text(c, 'Hearts of the Hollow Dusk', 320, 118, { align: 'center', size: 16, color: '#ffe6b0' });
         const list = items();
         D.win(c, BX, ROW0 - 16, BW, list.length * ROWH + 14, { style: 'blue', alpha: 0.92 });
         list.forEach((it1, i) => {
@@ -830,6 +829,16 @@
   const EQUIP_SLOTS = [['weapon', 'Weapon'], ['weapon2', 'Off-hand'], ['armor', 'Armor'], ['accessory', 'Accessory']];
   const SLOT_OF = (slot) => (slot === 'weapon2' ? 'weapon' : slot);
 
+  const ANIM_ICON = { slash: 'sword', pierce: 'spear', blunt: 'axe', arrow: 'bow', heal: 'heart', buff: 'up', debuff: 'down', bond: 'heart', steal: 'gift', revive: 'heart', poison: 'potion', shield: 'shield' };
+  function skillIcon(d) {
+    if (d.element) return d.element;
+    if (ANIM_ICON[d.anim]) return ANIM_ICON[d.anim];
+    if (d.kind === 'heal') return 'heart';
+    if (d.kind === 'buff') return 'up';
+    if (d.kind === 'debuff') return 'down';
+    if (d.kind === 'bond') return 'heart';
+    return 'sword';
+  }
   function usesOk(d) { return !d.use || d.use === 'menu' || d.use === 'both'; }
   function fallbackUse(itemId, actorId) {
     const d = it(itemId), r = rt(actorId), e = d.effect || {};
@@ -1146,7 +1155,7 @@
         const d = sk(sid), ry = L.y + 10 + (i - V.top) * 28;
         const can = !usable || usable.indexOf(sid) >= 0;
         if (i === V.cur) { c.save(); c.fillStyle = 'rgba(255,255,255,0.12)'; c.fillRect(L.x + 8, ry - 2, L.w - 16, 26); c.restore(); }
-        D.icon(c, d.element || d.anim || 'star', L.x + 14, ry + 3, 16);
+        D.icon(c, skillIcon(d), L.x + 14, ry + 3, 16);
         D.text(c, d.name, L.x + 40, ry + 3, { color: can ? (i === V.cur ? '#fff' : '#d4dcf6') : '#6d7291' });
         if (d.cost) D.text(c, d.cost + ' SP', L.x + L.w - 16, ry + 3, { align: 'right', color: can ? '#9dc4ff' : '#6d7291' });
         else if (d.kind === 'bond') D.text(c, 'BOND', L.x + L.w - 16, ry + 3, { align: 'right', color: '#ff9ab0' });
