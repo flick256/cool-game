@@ -13,6 +13,7 @@
     c.fillStyle = g; c.fillRect(0, 0, 640, 480);
     c.fillStyle = '#6b8a5c'; c.fillRect(0, 300, 640, 40);
   } }));
+  if (!G.scenes.has('map')) G.scenes.register('map', (p) => ({ opaque: true, draw(c) { c.fillStyle = '#334'; c.fillRect(0, 0, 640, 480); c.fillStyle = '#fff'; c.fillText('MAP ' + (p.map || ''), 20, 20); } }));
   if (demo === 'say') {
     G.scenes.replace('blank', {});
     G.script.run(async (c) => {

@@ -1209,9 +1209,20 @@
   };
 
   // one layer of silhouettes. o: {shape,n,hmin,hmax,wmin,wmax,col,lit,base,blur,flip,ridge,amp}
+  // far layers are rasterised at 1/4 size and upscaled smoothly: a cheap painterly blur
   function bgLayer(c, R, o) {
+    if (o.blur) {
+      const L = G.util.canvas(160, 120), lc = L.getContext('2d');
+      lc.imageSmoothingEnabled = true;
+      lc.scale(0.25, 0.25);
+      bgLayerDraw(lc, R, o);
+      c.save(); c.imageSmoothingEnabled = true; c.drawImage(L, 0, 0, W640, H480); c.restore();
+    } else {
+      bgLayerDraw(c, R, o);
+    }
+  }
+  function bgLayerDraw(c, R, o) {
     c.save();
-    if (o.blur) { try { c.filter = 'blur(' + o.blur + 'px)'; } catch (e) { /* no filter support */ } }
     sihouetteFns._col = o.col;
     c.fillStyle = o.col;
     if (o.ridge) {
@@ -1300,11 +1311,17 @@
   }
 
   // painterly soft shapes: clouds, steam, glows
+  // soft blobs (clouds, steam): radial falloff, no filters
   function bgSoft(c, R, col, n, rx, ry, yMin, yMax, a) {
-    c.save(); c.filter = 'blur(6px)';
+    c.save();
     for (let i = 0; i < n; i++) {
-      c.globalAlpha = a * (0.5 + R() * 0.5); c.fillStyle = col;
-      c.beginPath(); c.ellipse(R() * W640, bgRnd(R, yMin, yMax), rx * (0.6 + R()), ry * (0.6 + R() * 0.6), 0, 0, Math.PI * 2); c.fill();
+      const x = R() * W640, y = bgRnd(R, yMin, yMax), sx = rx * (0.6 + R()), sy = ry * (0.6 + R() * 0.6);
+      c.save(); c.translate(x, y); c.scale(sx, sy);
+      const g = c.createRadialGradient(0, 0, 0, 0, 0, 1);
+      g.addColorStop(0, col); g.addColorStop(1, 'rgba(255,255,255,0)');
+      c.globalAlpha = a * (0.5 + R() * 0.5); c.fillStyle = g;
+      c.fillRect(-1, -1, 2, 2);
+      c.restore();
     }
     c.restore();
   }

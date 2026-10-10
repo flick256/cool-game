@@ -97,7 +97,7 @@
       c.bgm('wickholm');
       c.titleCard('Prologue', 'Cold Ember', 130);
       await c.wait(60);
-      await who(c, 'Maren', 'maren', 'Up, Rowan. The sun's a lantern this morning, so you'll be wanting a coat. Or a better temper.', 'smirk');
+      await who(c, 'Maren', 'maren', 'Up, Rowan. The sun\'s a lantern this morning, so you\'ll be wanting a coat. Or a better temper.', 'smirk');
       await me(c, 'Five more minutes, Maren. The dream was almost finished.', 'worried');
       await who(c, 'Maren', 'maren', 'Dreams are for people who have chores done. Lamp, goats, and then you can dream about whatever you like.', 'normal');
       // Tone choice: defines Rowan's voice for the prologue (flag 'rowan_tone').
@@ -110,12 +110,11 @@
         ['Then I\'ll beat the sun to the square. Hold my porridge.', 'happy'],
       ][i];
       await me(c, lines[0], lines[1]);
-      await who(c, 'Maren', 'maren', 'Good. Now go. And Rowan? I'm proud of you. Don\'t tell the goats.', 'happy');
+      await who(c, 'Maren', 'maren', 'Good. Now go. And Rowan? I\'m proud of you. Don\'t tell the goats.', 'happy');
       await c.emote('maren', 'heart');
       G.setFlag('ch0_wake', true);
     }, { once: true }));
     return m.finish({ onEnter: null });
   }
 
-  G.maps.onBuild = G.maps.onBuild || {};
   buildWickholmHouse();
