@@ -56,6 +56,13 @@
       for (const p of picks) { if (r < p[1]) { m.set('objects', x, y, p[0]); break; } r -= p[1]; }
     }
   };
+  // worn and cracked flagstones: a seeded scatter of `ch` over plain stone ground inside a rect
+  const flags = (m, x0, y0, w, h, ch, p, seed) => {
+    const rnd = G.util.rng(seed);
+    for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) {
+      if (m.get('ground', x, y) === 't' && rnd() < p) m.set('ground', x, y, ch);
+    }
+  };
   // leafy canopy overhangs (above layer) over some round trees, for depth as you walk the wood
   const canopies = (m, seed, p) => {
     const rnd = G.util.rng(seed);
@@ -417,13 +424,11 @@
   c1.tiles('objects', [[10, 21], [11, 21], [18, 23]], 'r');
   c1.tiles('objects', [[16, 1], [22, 1]], 's');
   // graveyard: disturbed earth and rubble; pillars, cracked flags and rubble along the south passage
-  c1.blob('ground', 11, 6, 1, 1, 'k');
-  c1.blob('ground', 5, 9, 1, 1, 'k');
+  flags(c1, 1, 1, 12, 11, 'k', 0.1, 61);
   c1.tiles('objects', [[1, 8], [11, 10]], 'r');
   c1.set('objects', 12, 2, 'L');
   c1.tiles('objects', [[6, 14], [19, 14]], 'Q');
-  c1.blob('ground', 11, 20, 2, 1, 'k');
-  c1.blob('ground', 25, 19, 1, 1, 'k');
+  flags(c1, 1, 13, 26, 11, 'k', 0.04, 63);
   c1.set('objects', 1, 21, 'L');
   c1.tiles('objects', [[7, 24], [13, 24], [22, 24]], 'r');
   c1.scatter('objects', 'R', 4, { seed: 6, on: 't', avoid: [{ x: 0, y: 13, w: 30, h: 13 }, { x: 13, y: 0, w: 17, h: 12 }] });
@@ -528,8 +533,7 @@
   c2.tiles('objects', [[2, 20], [3, 21], [24, 3], [24, 23]], 'i');
   c2.tiles('objects', [[5, 22], [6, 22], [12, 20]], 'r');
   // cracked flags in the entry passage, pillars and lamps around the Hollow chamber
-  c2.blob('ground', 9, 18, 2, 1, 'k');
-  c2.blob('ground', 14, 21, 2, 1, 'k');
+  flags(c2, 1, 12, 17, 12, 'k', 0.05, 65);
   c2.tiles('objects', [[21, 3], [21, 9]], 'Q');
   c2.tiles('objects', [[1, 12], [26, 16]], 'L');
   c2.tiles('objects', [[23, 5], [14, 9]], '+');
@@ -868,6 +872,8 @@
   wc.set('objects', 12, 10, 'C');
   wc.tiles('above', [[6, 2], [8, 2]], '*');
   wc.set('objects', 2, 8, 'L');                          // standing lamp by the bookshelves
+  wc.rect('ground', 2, 4, 2, 2, 'c');                    // small rug by the reading chair
+  wc.set('objects', 13, 7, 'L');                         // standing lamp by the bed
   wc.set('objects', 7, 11, 'D');                         // front door
   wc.ev(H.transfer(7, 11, 'whisperwood_2', 29, 8, 'down', { id: 'wc_exit' }));
 

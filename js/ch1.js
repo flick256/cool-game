@@ -39,8 +39,12 @@
     m.tiles('objects', [[6, 4], [8, 4]], 'H');                     // chairs
     m.tiles('objects', [[10, 6]], 'H');                            // Maren's knitting chair
     m.tiles('objects', [[2, 7], [3, 7]], 'C');                     // crates of lamp oil
-    m.tiles('objects', [[9, 7], [10, 8]], 'U');                    // barrels
+    m.tiles('objects', [[9, 7], [10, 7]], 'U');                    // barrels
     m.set('objects', 3, 6, 'L');                                   // the chore lamp
+    m.set('objects', 6, 1, 'V');                                   // Maren's quilt banner over the back wall
+    m.set('objects', 1, 6, 'S');                                   // a wardrobe of spare wool
+    m.set('objects', 9, 5, 'F');                                   // a pot of flowers by the window
+    m.tiles('above', [[5, 2], [8, 2]], '*');                       // the lantern string over the room
     m.set('objects', 5, 8, 'D');                                   // front door
 
     m.ev([
@@ -119,7 +123,7 @@
     const m = G.maps.build('wickholm', 40, 30, {
       name: 'Wickholm', bgm: 'wickholm', ground: 'v', spawn: { x: 10, y: 11, dir: 'down' },
     });
-        // ---- ground: an overgrown moss village. Cobble square with a golden-glow fountain court, dirt lanes that join every door
+    // ---- ground: an overgrown moss village. Cobble square with a golden-glow fountain court, dirt lanes that join every door
     //      to the square, grass lawns, a marsh with a dock, and the stone floor of the ruins.
     m.blob('ground', 33, 26, 6, 3, '.');                          // meadow south-east
     m.blob('ground', 36, 4, 3, 2, '.');                           // grassy patch north-east
@@ -141,6 +145,7 @@
     // ---- water: the marsh (with a dock for the fisher), the east pond and a small south pond
     m.blob('ground', 8, 21, 4.5, 3.5, 'w');
     m.pond(8, 21, 3, 2);
+    m.set('ground', 5, 21, 'w').set('ground', 5, 22, 'w');        // shallows at the mossy cottage's step
     m.rect('ground', 10, 21, 3, 1, 'b');                          // fisher's dock
     m.blob('ground', 33, 21, 4.5, 3.5, 'w');
     m.pond(33, 21, 3, 2);
@@ -205,6 +210,10 @@
     m.tiles('objects', [[7, 16], [8, 17]], 'G');
     m.tiles('objects', [[15, 24], [18, 22]], 'R');
     m.tiles('objects', [[30, 21], [31, 22]], 'R');                // rocks by the east pond
+    m.set('objects', 24, 23, 'o');                                // a village well
+    m.tiles('objects', [[25, 22], [26, 22], [25, 23]], 'C');      // a cart's load of crates
+    m.set('objects', 23, 24, 'U');
+    m.tiles('objects', [[28, 19], [29, 20], [27, 24], [29, 26]], 'F');   // wild flowers in the meadow
 
     // ---- the edges: woods with gaps, so nothing just stops
     m.tiles('objects', [[0, 0], [2, 0], [5, 0], [6, 0], [11, 0], [16, 0], [17, 0], [22, 0], [31, 0], [36, 0]], 'T');
@@ -230,7 +239,6 @@
     m.tiles('objects', [[20, 18], [20, 19], [21, 18], [21, 19]], ' ');
     m.set('objects', 11, 11, ' ');
     m.tiles('above', [[17, 11], [18, 11], [19, 11], [20, 11], [21, 11], [22, 11], [23, 11]], '*');
-m.set('objects', 11, 11, ' ');
     // ---- portals & shop
     m.ev([
       H.transfer(6, 9, 'wickholm_house', 5, 7, 'up', { id: 'wh_home_door' }),
@@ -469,6 +477,12 @@ m.set('objects', 11, 11, ' ');
     m.tiles('objects', [[12, 2], [14, 2]], 'T');
     // ---- a few above-layer canopies for depth
     m.tiles('above', [[1, 8], [8, 10], [28, 17]], '^');
+
+    // ---- a hunters' camp off the south road (a fire, crates, a barrel) and a worn statue off the north path
+    m.set('objects', 30, 23, 'I');
+    m.tiles('objects', [[33, 22], [34, 22], [33, 23]], 'C');
+    m.set('objects', 34, 24, 'U');
+    m.set('objects', 27, 7, 's');
 
     // ---- encounters
     m.encounters({ steps: [18, 34], troops: [{ id: 'wood_1', weight: 3 }, { id: 'wood_2', weight: 3 }, { id: 'wood_3', weight: 2 }, { id: 'wood_4', weight: 1 }] });
@@ -895,7 +909,11 @@ m.set('objects', 11, 11, ' ');
     m.set('objects', 5, 4, 'H');
     m.set('objects', 9, 2, ' ');
     m.set('objects', 7, 5, 'H');
-    m.rect('ground', 4, 3, 5, 3, 'f');                         // a rug of planks around the ship
+    m.rect('ground', 4, 3, 5, 3, 'j');                         // the ship's deck planks: the Marigold sits on them
+    m.tiles('objects', [[7, 2], [8, 2]], 'S');                 // a tool board
+    m.set('objects', 13, 7, 'U');
+    m.set('objects', 10, 4, 'L');                              // a lamp by the Marigold
+    m.tiles('objects', [[9, 6], [10, 6]], 'E');                // a workbench
     m.ev([
       H.transfer(6, 11, 'brasshaven', 31, 12, 'down', { id: 'ws_exit' }),
       {
@@ -1026,6 +1044,12 @@ m.set('objects', 11, 11, ' ');
     m.tiles('objects', [[2, 7], [4, 7], [7, 7], [9, 7]], 'H');   // chairs
     m.tiles('objects', [[1, 8]], 'U');
     m.set('objects', 5, 5, 'P').set('objects', 6, 5, 'P');
+    m.rect('ground', 4, 5, 5, 2, 'c');                            // a rug in the common room
+    m.rect('ground', 9, 2, 2, 1, 't');                            // flagstones by the steam hearth
+    m.set('objects', 1, 2, 'F');                                  // a planter by the beds
+    m.set('objects', 4, 2, 'L');                                  // a lamp post by the beds
+    m.set('objects', 10, 8, 'U');                                 // barrels of ale
+    m.tiles('above', [[3, 2], [6, 2], [9, 2]], '*');              // lanterns strung along the beams
     m.ev([
       H.transfer(6, 9, 'brasshaven', 9, 10, 'down', { id: 'inn_exit' }),
       H.innkeeper('inn_keeper', 10, 6, 'innkeeper', 30, 'Mother Gusset'),
@@ -1088,6 +1112,15 @@ m.set('objects', 11, 11, ' ');
     // open the entry hall
     m.rect('objects', 1, 22, 3, 3, ' ');
     m.vline('objects', 1, 14, 8, ' ').vline('objects', 2, 14, 8, ' ').vline('objects', 3, 14, 8, ' ');
+    // rooms with their own floors: a wooden storeroom (west), a stone archive, a stone entry hall, a carpeted treasury
+    m.rect('ground', 1, 1, 4, 10, 'f');                        // storeroom: planks
+    m.rect('ground', 6, 1, 6, 10, 't');                        // old archive: flagstones
+    m.rect('ground', 22, 1, 9, 10, 'c');                       // treasury: red carpet
+    m.rect('ground', 1, 13, 3, 12, 't');                       // entry hall: flagstones
+    m.rect('ground', 8, 16, 3, 3, 't');                        // a patch of flags in the pipe maze
+    m.rect('ground', 20, 19, 5, 4, 't');                       // flags round the save lamp
+    m.set('objects', 8, 11, ' ');                              // the archive's back gap (lets the banter trigger at 8,11 fire)
+
     // steam dressing
     m.vline('objects', 7, 2, 1, 'P').vline('objects', 19, 2, 8, 'P');
     m.tiles('objects', [[14, 3], [14, 4], [14, 5]], 'J');
@@ -1104,7 +1137,49 @@ m.set('objects', 11, 11, ' ');
     m.tiles('objects', [[22, 22], [23, 22]], 'C');
     m.tiles('objects', [[17, 22], [17, 23]], 'e');
     m.tiles('objects', [[26, 16]], 'J');
-    m.set('objects', 28, 22, 'u');                      // stairs down to the second Undercroft
+    m.set('objects', 28, 22, 'u');                             // stairs down to the second Undercroft
+
+    // the storeroom (west): shelves on the back wall, crate stacks, barrels, a lamp
+    m.tiles('objects', [[1, 1], [2, 1], [3, 1], [4, 1]], 'S');
+    m.tiles('objects', [[1, 3], [2, 3], [1, 4], [2, 4]], 'C');
+    m.tiles('objects', [[4, 3], [4, 4]], 'U');
+    m.tiles('objects', [[3, 8], [4, 8], [1, 8]], 'U');
+    m.set('objects', 2, 6, 'L');
+    m.tiles('objects', [[1, 9], [2, 9]], 'C');
+    // the archive (6..11): bookshelves, the notes desk, a stool
+    m.tiles('objects', [[9, 1], [10, 1], [11, 1]], 'Y');
+    m.set('objects', 10, 4, 'E');
+    m.set('objects', 9, 5, 'H');
+    m.set('objects', 11, 6, 'P');
+    m.tiles('objects', [[10, 9]], 'C');
+    // the boiler room (13..20): a pipe to the lamp, boilers, gears, barrels by the gap
+    m.tiles('objects', [[15, 1], [16, 1]], 'J');
+    m.set('objects', 16, 8, 'L');
+    m.tiles('objects', [[20, 8], [20, 9]], 'U');
+    m.hline('objects', 16, 9, 3, 'P');
+    m.tiles('above', [[16, 2], [18, 2]], '*');
+    // the treasury (22..30): pillars, gold crates, a table, a lamp
+    m.set('objects', 23, 8, 'Q').set('objects', 29, 8, 'Q');
+    m.tiles('objects', [[29, 4], [29, 5]], 'C');
+    m.tiles('objects', [[25, 7], [26, 7]], 'E');
+    m.set('objects', 27, 8, 'L');
+
+    // the entry hall (1..3, 13..24): a lamp by the stair-down; keep the spawn column clear
+    m.set('objects', 1, 17, 'L');
+    // the pipe maze (5..14, 14..24): a pipe wall with gaps, crates and barrels
+    m.hline('objects', 8, 15, 4, 'P');
+    m.tiles('objects', [[13, 16], [14, 16]], 'C');
+    m.set('objects', 5, 20, 'U');
+    m.set('objects', 13, 19, 'U');
+    // the stairs room (16..30, 14..24): crate depot, shelves, a lamp, steam pipes along the south wall
+    m.tiles('objects', [[17, 14], [18, 14], [17, 15]], 'C');
+    m.tiles('objects', [[29, 14], [29, 15]], 'S');
+    m.set('objects', 30, 18, 'U');
+    m.set('objects', 21, 19, 'L');
+    m.tiles('objects', [[26, 14], [27, 14]], 'M');             // a press along the north wall (the gap at 24,13 stays clear)
+    m.tiles('objects', [[29, 19], [29, 20], [30, 20]], 'e');   // gears by the east wall
+    m.hline('objects', 17, 24, 9, 'P');
+    m.tiles('above', [[3, 12], [10, 12], [18, 12], [27, 12]], '*');
     m.tiles('above', [[13, 2], [25, 2]], '*');
     m.encounters({ steps: [16, 30], troops: [{ id: 'under_1', weight: 3 }, { id: 'under_2', weight: 3 }, { id: 'under_3', weight: 2 }] });
 
@@ -1188,19 +1263,40 @@ m.set('objects', 11, 11, ' ');
     // coil room K (x17..27, y20..24)
     m.box('objects', 16, 19, 13, 7, '7');
     m.set('objects', 21, 19, ' ');
-    // decoration
+    // rooms with stone floors (the arrival room, the Sentinel's hall, the coil room) and grating everywhere else
+    m.rect('ground', 20, 3, 9, 4, 't');                        // arrival room flags
+    m.rect('ground', 5, 3, 9, 7, 't');                         // the Sentinel's hall
+    m.rect('ground', 17, 20, 11, 4, 't');                      // the coil room floor
+    // arrival room (20..28, 3..6): steam pipes, lamps, the save lamp at 21,4 and the sign at 25,4
     m.tiles('objects', [[20, 4], [22, 4]], 'P');
-    m.tiles('objects', [[12, 3], [12, 4]], 'J');
-    m.tiles('objects', [[6, 8]], 'e');
-    m.tiles('objects', [[20, 24], [21, 24], [26, 22]], 'M');
-    m.tiles('objects', [[27, 3]], 'e');
-    m.tiles('objects', [[9, 4], [10, 4]], 'C');
-    m.tiles('objects', [[2, 2]], 'J');
-    m.tiles('objects', [[1, 26]], 'U');
-    m.tiles('objects', [[13, 16]], 'e');
-    m.tiles('objects', [[20, 16]], 'P');
     m.set('objects', 20, 3, ' ');
+    m.set('objects', 27, 3, 'e');
+    m.set('objects', 23, 6, 'L').set('objects', 27, 6, 'L');
+    // the Sentinel's hall (5..13, 3..9): pipe columns, a boiler, crates, lanterns over the arena
+    m.tiles('objects', [[12, 3], [12, 4]], 'J');
+    m.tiles('objects', [[9, 4], [10, 4]], 'C');
+    m.set('objects', 6, 4, 'P').set('objects', 12, 8, 'P');
+    m.set('objects', 6, 8, 'e');
+    m.tiles('above', [[8, 3], [12, 6]], '*');
+    // the valve room (18..28, 11..18): machines, gears, pipes; the approaches to the valves and the coil stair stay clear
+    m.tiles('objects', [[19, 17], [20, 17]], 'M');
+    m.tiles('objects', [[25, 13], [26, 13]], 'e');
+    m.set('objects', 18, 12, 'P').set('objects', 18, 13, 'P');
+    m.set('objects', 28, 12, 'P').set('objects', 28, 13, 'P');
+    m.set('objects', 20, 16, 'P');
+    m.set('objects', 23, 12, 'J');
+    // the coil room (17..27, 20..24): crystals ring the empty cradle (the hint at 22,21 stays clear)
+    m.tiles('objects', [[20, 20], [24, 20], [20, 23], [24, 21]], 'i');
+    m.tiles('objects', [[20, 24], [21, 24], [26, 22]], 'M');
     m.set('objects', 18, 23, 'e');
+    // the west service shaft (1..3, 2..26): boilers, gears, crates; column 1 stays open
+    m.set('objects', 2, 2, 'J');
+    m.tiles('objects', [[2, 20], [2, 21]], 'J');
+    m.tiles('objects', [[2, 16], [3, 16]], 'e');
+    m.tiles('objects', [[2, 23], [3, 23]], 'C');
+    m.tiles('objects', [[3, 13], [3, 14]], 'P');
+    m.tiles('above', [[6, 1], [14, 1], [22, 1], [28, 1]], '*');
+    m.set('objects', 1, 26, 'U');
     m.encounters({ steps: [16, 30], troops: [{ id: 'under_2', weight: 3 }, { id: 'under_3', weight: 3 }, { id: 'under_4', weight: 2 }] });
 
     m.ev([

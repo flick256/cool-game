@@ -187,6 +187,7 @@
 
     // -- the ship pad (spawn is just north of it) and a Lantern Waypoint on the west side of the square
     m.ev(H.shipPad(21, 33));
+    m.ev(H.transfer(30, 29, 'lumen_inn', 7, 10, 'up', { id: 'ch4_inn_enter' }));
     m.ev(H.save('ch4_vale_save', 12, 18));
 
     // -- arrival: the Marigold lands, Maren and Pip reunite with Rowan (once)
