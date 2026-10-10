@@ -1004,7 +1004,7 @@
       S.party.push(id);
       toast(a.name + (wasKnown ? ' rejoined the party!' : ' joined the party!'), 'good');
     } else {
-      toast(a.name + ' joined, and waits in reserve.', 'info');
+      toast(a.name + ' joined! (In reserve - swap via Menu > Formation)', 'info');
     }
     return true;
   };
