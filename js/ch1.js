@@ -850,3 +850,230 @@
     return m.finish({ onEnter: null });
   }
   buildInn();
+
+  // ============================================================ MAP 7 — Clockwork Undercroft I (steam dungeon)
+  function buildUndercroft1() {
+    const m = G.maps.build('undercroft_1', 32, 26, {
+      name: 'Clockwork Undercroft', bgm: 'undercroft', ground: 'm', spawn: { x: 3, y: 21, dir: 'up' },
+    });
+    m.border('objects', '7', 1);
+    // spine corridor (row 12) with side rooms north (storerooms) and south (pipe maze, stairs)
+    m.hline('objects', 1, 11, 30, '7');
+    m.hline('objects', 4, 13, 27, '7');
+    m.vline('objects', 4, 14, 11, '7');                 // entry hall wall
+    m.vline('objects', 5, 1, 10, '7');
+    m.vline('objects', 12, 1, 10, '7');
+    m.vline('objects', 21, 1, 10, '7');
+    m.vline('objects', 15, 14, 11, '7');                // divider between the pipe maze and the stairs room
+    m.set('objects', 6, 11, ' ').set('objects', 15, 11, ' ').set('objects', 24, 11, ' ');
+    m.set('objects', 6, 13, ' ').set('objects', 24, 13, ' ');
+    m.set('objects', 15, 18, ' ');                      // doorway between the south rooms
+    m.set('objects', 12, 20, ' ');                      // a hidden little pass in the pipe maze
+    m.set('objects', 5, 11, ' ');                       // storeroom opens to the spine
+    m.set('objects', 1, 13, ' ').set('objects', 2, 13, ' ').set('objects', 3, 13, ' ');
+    // open the entry hall
+    m.rect('objects', 1, 22, 3, 3, ' ');
+    m.vline('objects', 1, 14, 8, ' ').vline('objects', 2, 14, 8, ' ').vline('objects', 3, 14, 8, ' ');
+    // steam dressing
+    m.vline('objects', 7, 2, 1, 'P').vline('objects', 19, 2, 8, 'P');
+    m.tiles('objects', [[14, 3], [14, 4], [14, 5]], 'J');
+    m.tiles('objects', [[17, 3], [18, 3]], 'e');
+    m.tiles('objects', [[17, 7], [18, 7]], 'e');
+    m.tiles('objects', [[23, 3], [24, 3]], 'M');
+    m.tiles('objects', [[27, 3]], 'J');
+    m.tiles('objects', [[7, 6], [8, 6]], 'C');
+    m.tiles('objects', [[9, 9]], 'U');
+    m.tiles('objects', [[7, 18], [8, 18], [9, 18]], 'P');
+    m.tiles('objects', [[10, 21], [10, 22]], 'J');
+    m.tiles('objects', [[6, 22], [7, 23]], 'M');
+    m.tiles('objects', [[18, 16], [19, 16]], 'M');
+    m.tiles('objects', [[22, 22], [23, 22]], 'C');
+    m.tiles('objects', [[17, 22], [17, 23]], 'e');
+    m.tiles('objects', [[26, 16]], 'J');
+    m.set('objects', 28, 22, 'u');                      // stairs down to the second Undercroft
+    m.tiles('above', [[13, 2], [25, 2]], '*');
+    m.encounters({ steps: [16, 30], troops: [{ id: 'under_1', weight: 3 }, { id: 'under_2', weight: 3 }, { id: 'under_3', weight: 2 }] });
+
+    m.ev([
+      H.transfer(2, 24, 'brasshaven_workshop', 12, 8, 'down', { id: 'uc1_exit' }),
+      H.transfer(28, 22, 'undercroft_2', undefined, undefined, 'down', { id: 'uc1_stairs' }),
+      H.save('uc1_save_1', 2, 20),
+      H.save('uc1_save_2', 22, 21),
+      H.sign('uc1_sign', 3, 23, 'CLOCKWORK UNDERCROFT\nKeep to the grating. The Order\'s bots do not share their cogs.'),
+    ]);
+
+    // Claret joins at the start of the dungeon
+    m.ev(H.auto('uc1_join', async (c) => {
+      c.titleCard('Clockwork Undercroft', 'Gears, grates & grudges', 120);
+      await c.wait(40);
+      await c.join('claret');
+      G.setFlag('ch1_claret_joined', true);
+      c.sfx('heal');
+      await who(c, 'Claret', 'claret', 'Right. Don\'t wander off. Stay in the light, don\'t touch the valves unless I say, and for pity\'s sake don\'t lick the pipes.', 'normal');
+      await me(c, 'Why would I lick the pipes?', 'worried');
+      await who(c, 'Claret', 'claret', 'You\'d be surprised what people try in a dungeon. I once watched a mercenary eat a gear. He was fine. The gear was not.', 'smirk');
+    }, { once: true, if: () => !!G.flag('ch1_met_claret') && !G.flag('ch1_claret_joined') }));
+
+    // banter triggers that only fire once each
+    m.ev([
+      H.trigger('uc1_banter_bots', 15, 12, async (c) => {
+        await who(c, 'Claret', 'claret', 'Those are Order bots. Cog rats with a union card. Mind the one with the clipboard.', 'normal');
+        await me(c, 'Clipboard?', 'worried');
+        await who(c, 'Claret', 'claret', 'Everything in this city has a clipboard, Rowan. That\'s how you know the Order is alive.', 'smirk');
+      }, { once: true, if: () => !!G.flag('ch1_claret_joined') }),
+      H.trigger('uc1_banter_store', 8, 11, async (c) => {
+        await me(c, 'Your father\'s handwriting is on this crate. "Do not load after dark. Do not load before breakfast. Do not, under any circumstances, load Tuesdays."', 'smirk');
+        await who(c, 'Claret', 'claret', '...He was always dramatic about crates. Keep walking. Please keep walking.', 'sad');
+      }, { once: true, if: () => !!G.flag('ch1_claret_joined') }),
+    ]);
+
+    // ---- treasure
+    m.ev(H.chest('uc1_notes', 9, 3, 'lampwright_notes', 1));  // Elowen's notes: the three Anchors
+    m.ev(H.chest('uc1_store', 7, 9, 'hi_potion', 2));
+    m.ev(H.chest('uc1_gold', 28, 3, { gold: 70 }));
+    m.ev(H.chest('uc1_ether', 12, 23, 'ether', 1));
+
+    // ---- wandering Order bot (flavour NPC) and a lost engineer
+    m.ev([
+      H.npc('uc1_bot', 19, 20, 'engineer', [
+        "BEEP. Please do not stand on the grate. The grate is an investment. BEEP.",
+        "The Coil is in the lowest sector. Nobody goes to the lowest sector. Nobody. BEEP.",
+      ], { name: 'Order Maintenance Bot' }),
+      H.npc('uc1_lost', 26, 19, 'villager_m1', [
+        "I came down for a tour. The guide ran off. I've been here three days. The steam keeps the rats warm, and me cold.",
+      ], { name: 'Lost Surveyor' }),
+    ]);
+
+    return m.finish({ onEnter: null });
+  }
+  buildUndercroft1();
+
+  // ============================================================ MAP 8 — Clockwork Undercroft II (boss: Brass Sentinel)
+  function buildUndercroft2() {
+    const m = G.maps.build('undercroft_2', 32, 28, {
+      name: 'Undercroft: The Lowest Sector', bgm: 'undercroft', ground: 'm', spawn: { x: 26, y: 5, dir: 'down' },
+    });
+    m.border('objects', '7', 1);
+    // arrival room A (x20..28, y3..6)
+    m.box('objects', 19, 2, 11, 6, '7');
+    m.set('objects', 24, 7, ' ').set('objects', 19, 5, ' ');
+    // shortcut corridor (row 5) to the boss hall, sealed by a steam gate
+    m.hline('objects', 15, 4, 4, '7').hline('objects', 15, 6, 4, '7');
+    m.set('objects', 14, 5, ' ');
+    // boss hall B (x5..13, y3..9)
+    m.box('objects', 4, 2, 11, 9, '7');
+    m.set('objects', 14, 5, ' ').set('objects', 7, 10, ' ');
+    // long route: corridor x=24 down to the valve room V
+    m.vline('objects', 23, 8, 3, '7').vline('objects', 25, 8, 3, '7');
+    // valve room V (x18..28, y12..17)
+    m.box('objects', 17, 11, 13, 8, '7');
+    m.set('objects', 24, 11, ' ').set('objects', 17, 14, ' ').set('objects', 21, 18, ' ');
+    // west corridor row 14 (x8..16) to the boss hall's south door
+    m.hline('objects', 8, 13, 9, '7').hline('objects', 8, 15, 9, '7');
+    m.vline('objects', 6, 11, 4, '7').vline('objects', 8, 11, 2, '7');
+    // coil room K (x17..27, y20..24)
+    m.box('objects', 16, 19, 13, 7, '7');
+    m.set('objects', 21, 19, ' ');
+    // decoration
+    m.tiles('objects', [[20, 4], [22, 4]], 'P');
+    m.tiles('objects', [[12, 3], [12, 4]], 'J');
+    m.tiles('objects', [[6, 8]], 'e');
+    m.tiles('objects', [[20, 24], [21, 24], [26, 22]], 'M');
+    m.tiles('objects', [[27, 3]], 'e');
+    m.tiles('objects', [[9, 4], [10, 4]], 'C');
+    m.tiles('objects', [[2, 2]], 'J');
+    m.tiles('objects', [[1, 26]], 'U');
+    m.tiles('objects', [[13, 16]], 'e');
+    m.tiles('objects', [[20, 16]], 'P');
+    m.set('objects', 20, 3, ' ');
+    m.set('objects', 18, 23, 'e');
+    m.encounters({ steps: [16, 30], troops: [{ id: 'under_2', weight: 3 }, { id: 'under_3', weight: 3 }, { id: 'under_4', weight: 2 }] });
+
+    m.ev([
+      H.save('uc2_save_1', 21, 4),
+      H.save('uc2_save_2', 6, 7),
+      H.transfer(29, 4, 'undercroft_1', undefined, undefined, 'up', { id: 'uc2_back', if: () => false }),
+      H.sign('uc2_sign', 25, 4, 'THE LOWEST SECTOR\nValve Room: turn all three valves to open the steam gate. Please. The gate is very heavy.'),
+    ]);
+
+    // ---- valve puzzle: three valves open the steam gate (a shortcut to the boss hall)
+    const valve = (id, x, y, flag, label) => ({
+      id, x, y, sprite: 'obj_beacon', trigger: 'action', solid: true, name: 'Valve',
+      if: () => !G.flag(flag),
+      run: async (c) => {
+        c.sfx('door'); G.setFlag(flag, true);
+        await who(c, 'Claret', 'claret', label, 'smirk');
+        const all = G.flag('ch1_valve_a') && G.flag('ch1_valve_b') && G.flag('ch1_valve_c');
+        if (all && !G.flag('ch1_gate_open')) {
+          G.setFlag('ch1_gate_open', true);
+          c.flash('#ffd27a', 24); c.shake(3, 30); c.sfx('shatter');
+          await nar(c, 'Somewhere in the wall, a steam gate groans, hisses, and lifts its heavy brass shoulder. A shortcut to the Sentinel\'s hall is open.');
+          if (G.map && G.map.refreshEvents) G.map.refreshEvents();
+        } else if (!all) {
+          await nar(c, 'The valve turns with a satisfied squeak. Steam sighs out of a pipe somewhere. Two more to go.');
+        }
+      },
+    });
+    m.ev([
+      valve('uc2_valve_a', 19, 15, 'ch1_valve_a', 'Valve one. Red stripe means "keep your fingers." Turned.'),
+      valve('uc2_valve_b', 22, 15, 'ch1_valve_b', 'Valve two. Turned, and the pressure gauge goes from sulky to cheerful.'),
+      valve('uc2_valve_c', 26, 15, 'ch1_valve_c', 'Valve three. Turned. I owe my father a pint for teaching me this.'),
+      // the steam gate (solid until the valves are done)
+      { id: 'uc2_gate', x: 17, y: 5, sprite: 'obj_crate', trigger: 'action', solid: true, name: 'Steam gate',
+        if: () => !G.flag('ch1_gate_open'),
+        run: async (c) => { await nar(c, 'A brass gate, hissing and locked. It wants three valves turned in the room below.'); } },
+    ]);
+
+    // ---- the coil room (the Aether Coil)
+    m.ev(H.chest('uc2_coil', 25, 23, 'aether_coil', 1));
+    m.ev(H.chest('uc2_ether', 18, 22, 'hi_ether', 1));
+    m.ev([{
+      id: 'uc2_coil_hint', x: 22, y: 21, sprite: null, trigger: 'action', solid: false,
+      run: async (c) => { await nar(c, 'A cradle of cold brass and quiet blue light. Something in here was once a heart. Something else took it. The cradle hums, sad and empty.'); },
+    }]);
+
+    // ---- the boss: the Brass Sentinel
+    m.ev([{
+      id: 'sentinel', x: 9, y: 6, sprite: 'obj_marigold_wheel', trigger: 'action', solid: true, name: 'Brass Sentinel',
+      if: () => !G.flag('ch1_boss_sentinel'),
+      run: async (c) => {
+        await who(c, 'Brass Sentinel', 'unknown', 'INTRUDER. CALM IS THE ORDER OF THE HEARTH. WARMTH IS NOT TO BE SPENT. RETURN THE COIL.', 'angry');
+        await who(c, 'Claret', 'claret', 'Oh, you\'re going to be like that, are you? Okay. Rowan, it has a bolt loose on its left side. Be my spanner.', 'angry');
+        await me(c, 'Bolts, left side. I\'m on it!', 'happy');
+        const r = await c.battle('boss_sentinel', {
+          canEscape: false, loseOk: true, bg: 'steam', bgm: 'boss',
+          intro: async (c) => {
+            await c.hint('The Sentinel is ARMOURED: it has a lot of shields. Hit its weak points with the right weapon type, break the shields, and then hit hard while it is BROKEN.');
+          },
+          onHalf: async (c) => {
+            c.flash('#ff9d4a', 24); c.shake(4, 24);
+            await who(c, 'Claret', 'claret', 'Sparks everywhere! Its core is a mess! Keep hitting the left side, it\'s got a loose plate!', 'happy');
+            await who(c, 'Brass Sentinel', 'unknown', 'THE HEARTH WILL... CALM... YOU.', 'worried');
+          },
+          outro: async (c) => {
+            await nar(c, 'The Sentinel shudders. Its joints unlock one by one. Its last whisper is almost gentle: "Warmth... is not to be spent..."');
+          },
+        });
+        if (r === 'win') {
+          G.setFlag('ch1_boss_sentinel', true);
+          c.sfx('victory');
+          await who(c, 'Claret', 'claret', 'Did it just say something nice? Don\'t be sentimental. Hold the lamp, we\'re going home. Home is the workshop. Be quick, I want to get the coil in before my hands stop shaking.', 'sad');
+          await c.transfer('brasshaven_workshop', 6, 9, 'up');
+        } else {
+          await nar(c, 'The Sentinel\'s steam knocks you back into the hall. You pick yourself up, and the Lantern Waypoint hums a little louder for you.');
+        }
+      },
+    }]);
+
+    m.ev(H.auto('uc2_intro', async (c) => {
+      c.titleCard('The Lowest Sector', 'Where the Coil was taken', 110);
+      await c.wait(40);
+      await nar(c, 'The air is thick and hot. A distant clock ticks in the wrong rhythm, as if it has been waiting for someone to come and set it right.');
+    }, { once: true }));
+
+    return m.finish({ onEnter: null });
+  }
+  buildUndercroft2();
+
+  G.provide('ch1');
+})();

@@ -498,7 +498,7 @@
       });
       if (r === 'win') {
         setF('ch3_choir_done');
-        c.sfx('victory');
+        c.sfx('jingle_item');
         narr(c, 'The hymn is over. Somewhere above, the Pale Choir\'s next verse falters, and does not resume.');
       } else {
         narr(c, 'The choir\'s hymn knocks you back toward the entry. Catch your breath, then try again.');
@@ -628,6 +628,177 @@
   w1.ev(H.chest('ww1_secret', 36, 4, 'wild_honey'));
   w1.finish();
 
-  /*@@MORE@@*/
+  // Wren walks out of the cottage after the matron falls: the party joins, and the charm changes hands.
+  async function wrenJoinScene(c) {
+    narr(c, 'Footsteps through the leaves, in a hurry that looks exactly like a stroll. Wren arrives with a basket of moonpetal and a face that could curdle milk.');
+    wren(c, 'The matron is quiet. Good. She has been screaming in her roots for a week, and nobody listened except me.', 'normal');
+    wren(c, 'You fought her properly. Most people stomp in and cut everything. You looked for the rot first. Noted.', 'happy');
+    wren(c, 'I\'ll come. For the garden. Don\'t touch the garden.', 'smirk');
+    const i = await c.choice([
+      '"I will never touch your garden. Ever."',
+      '"Can I touch the flowers? Just the flowers?"',
+      '"Your garden is the prettiest thing I\'ve seen in ages."',
+    ], { prompt: 'Wren is watching you very closely.' });
+    if (i === 0) { await c.affection('wren', 3, 'garden promise'); wren(c, 'Good. Liars get eaten by the roses. Not literally. Mostly.', 'smirk'); }
+    else if (i === 1) { await c.affection('wren', 1, 'flowers'); wren(c, 'The flowers are the garden. You can\'t have one without the other. Like people. Ask me again later.', 'blush'); }
+    else { await c.affection('wren', 3, 'pretty'); wren(c, 'Oh no. Don\'t say things like that in front of the moonpetals. They get ideas.', 'blush'); }
+    setF('ch3_wren_joined');
+    await c.join('wren');
+    c.sfx('jingle_item');
+    await c.addItem('witchwood_charm', 1);
+    wren(c, 'Take the charm. It parts thorns and nothing else. Use it on the black briar at the crypt stair under the abbey.', 'normal');
+    wren(c, 'Don\'t use it on me. I will be very offended and I will sulk in a tree.', 'smirk');
+  }
+
+  // ============================================================ whisperwood_2 (36 x 30)
+  const w2 = M.build('whisperwood_2', 36, 30, { name: 'Whisperwood, the Feral Grove', bgm: 'whisperwood', spawn: { x: 1, y: 15, dir: 'right' } });
+  w2.rect('ground', 0, 15, 36, 2, ':');                  // the path runs through the wood
+  w2.blob('ground', 10, 8, 5, 4, 'v');
+  w2.blob('ground', 8, 24, 4, 3, ',');
+  w2.blob('ground', 6, 5, 2, 1, 'w');                    // a shallow spring
+  w2.pond(13, 24, 2, 1);
+  // the matron's grove: Hollow rot has seeped into the ground
+  w2.rect('ground', 23, 9, 11, 13, 'h');
+  w2.tiles('objects', [[25, 11], [31, 18], [27, 20]], 'z');
+  w2.tiles('objects', [[24, 10], [33, 10], [24, 21], [33, 20]], 'B');
+  w2.tiles('objects', [[29, 13], [30, 19]], 'd');
+  // Wren's cottage, north-east, with its door facing the grove
+  w2.house(26, 3, 6, 5, { roof: '1', wall: 'X', doorAt: 3, windows: true });   // door (29,7)
+  w2.tiles('objects', [[25, 6], [25, 7], [32, 6], [32, 8]], 'F');
+  w2.tiles('objects', [[12, 12], [13, 12], [12, 18], [17, 18]], 'F');
+  const w2Avoid = [
+    { x: 0, y: 13, w: 36, h: 6 }, { x: 22, y: 8, w: 14, h: 15 }, { x: 24, y: 2, w: 10, h: 7 },
+    { x: 0, y: 0, w: 2, h: 30 }, { x: 34, y: 0, w: 2, h: 30 },
+    { x: 18, y: 12, w: 2, h: 2 }, { x: 7, y: 20, w: 2, h: 2 }, { x: 4, y: 2, w: 3, h: 3 },
+  ];
+  w2.scatter('objects', 'N', 22, { seed: 41, on: '.v,', avoid: w2Avoid });
+  w2.scatter('objects', 'T', 10, { seed: 43, on: '.v,', avoid: w2Avoid });
+  w2.scatter('objects', 'B', 8, { seed: 45, on: '.v,', avoid: w2Avoid });
+  w2.scatter('objects', 'F', 16, { seed: 47, on: '.v,', avoid: w2Avoid });
+  w2.scatter('objects', 'G', 12, { seed: 49, on: '.v,', avoid: w2Avoid });
+  w2.scatter('objects', 'R', 5, { seed: 51, on: '.v,', avoid: w2Avoid });
+  w2.encounters({ steps: [14, 26], troops: [{ id: 'ww_1', weight: 2 }, { id: 'ww_2', weight: 3 }, { id: 'ww_3', weight: 2 }, { id: 'ww_4', weight: 2 }] });
+
+  w2.ev(H.transfer(0, 15, 'whisperwood_1', 38, 15, 'left', { id: 'ww2_to_ww1' }));
+  w2.ev(H.transfer(0, 16, 'whisperwood_1', 38, 15, 'left', { id: 'ww2_to_ww1b' }));
+  w2.ev(H.transfer(29, 7, 'wren_cottage', undefined, undefined, 'up', { id: 'ww2_cottage_door' }));
+  w2.ev(H.save('ww2_save_entry', 3, 13));
+  w2.ev(H.save('ww2_save_grove', 19, 13));
+  w2.ev(H.sign('ww2_sign_garden', 28, 8, 'Wren\'s garden. Cuttings, weeds, herbs, and one very rude moonpetal. Please do not touch the garden.'));
+
+  // the Matron's grove gate: refuses until you have met Wren, then the fight
+  w2.ev({
+    id: 'ww2_matron_gate', x: 22, y: 15, w: 1, h: 2, sprite: null, trigger: 'step', solid: false,
+    if: () => !flag('ch3_matron_done'),
+    run: async (c) => {
+      if (!flag('ch3_met_wren')) {
+        narr(c, 'Something huge and thorny turns over in the grove, and every flower in it swings to look at you.');
+        rowan(c, 'I should find the hedge-witch first. She knows this wood.', 'worried');
+        await pushBack(c);
+        return;
+      }
+      narr(c, 'The grove smells of lavender gone rotten. The matron is awake. Her roots pull up out of the Hollow ground, one after another.');
+      const r = await c.battle('boss_matron', {
+        canEscape: false, bgm: 'boss', loseOk: true,
+        intro: async (c2x) => {
+          narr(c2x, 'The briar-matron rises. Her face is a crown of flowers, and the flowers are weeping black sap.');
+          claret(c2x, 'Okay. That\'s a plant. That\'s a very large, very angry plant with a Hollow-sized problem.', 'angry');
+        },
+        onHalf: async (c2x) => {
+          rowan(c2x, 'She\'s not evil, she\'s poisoned. Hit the rot, Claret. There, in the roots!', 'worried');
+        },
+        outro: async (c2x) => {
+          narr(c2x, 'The matron lowers her head. The black rot slides off her roots like wet paint, and she breathes out one green sigh that smells of lavender.');
+        },
+      });
+      if (r === 'win') {
+        setF('ch3_matron_done');
+        c.sfx('heal');
+        await wrenJoinScene(c);
+        return;
+      }
+      narr(c, 'The grove throws you back toward the path. Catch your breath and try again.');
+      await pushBack(c);
+    },
+  });
+
+  // chests: the north spring, the south glen, the grove edge, and a secret in the south-west
+  w2.ev(H.chest('ww2_chest_north', 13, 4, 'wild_honey'));
+  w2.ev(H.chest('ww2_chest_south', 7, 22, 'potion', 2));
+  w2.ev(H.chest('ww2_chest_grove', 31, 12, 'rare_tea'));
+  w2.ev(H.chest('ww2_secret', 1, 25, 'moonpetal'));
+  w2.tiles('objects', [[0, 25], [2, 25], [1, 24]], 'B');  // the secret hollow (open to the south)
+  w2.finish();
+
+  // ============================================================ wren_cottage (16 x 12)
+  const wc = M.build('wren_cottage', 16, 12, { name: 'Wren\'s Cottage', bgm: 'tender', interior: true, spawn: { x: 7, y: 10, dir: 'up' } });
+  wc.room(0, 0, 16, 12, { floor: 'f', wall: 'X', topWall: 2 });
+  wc.rect('ground', 5, 8, 5, 2, 'c');                    // a rug in front of the hearth
+  wc.tiles('objects', [[3, 0], [12, 0]], 'O');           // little glowing windows
+  wc.set('objects', 4, 2, 'I');                          // hearth
+  wc.set('objects', 5, 2, 'J');                          // the cauldron (a copper boiler, to be fair)
+  wc.vline('objects', 1, 3, 3, 'Y');                     // bookshelves
+  wc.vline('objects', 14, 3, 4, 'S');                    // herb jars
+  wc.tiles('objects', [[1, 7], [2, 7]], 'S');
+  wc.tiles('objects', [[9, 5], [10, 5]], 'E');           // table
+  wc.tiles('objects', [[9, 6], [10, 6]], 'H');           // chairs (one is the cat's)
+  wc.set('objects', 13, 9, 'Z');                         // bed under the eaves
+  wc.tiles('objects', [[2, 10], [3, 10]], 'U');          // barrels of dried rose-hips
+  wc.set('objects', 12, 10, 'C');
+  wc.tiles('above', [[6, 2], [8, 2]], '*');
+  wc.set('objects', 7, 11, 'D');                         // front door
+  wc.ev(H.transfer(7, 11, 'whisperwood_2', 29, 8, 'down', { id: 'wc_exit' }));
+
+  // Wren: the fox test (heart choice), then the matron and the seed
+  wc.ev(npc('wc_wren', 7, 5, 'wren', async (c) => {
+    if (!flag('ch3_met_wren')) {
+      wren(c, 'Door. Shut it. The fox is thinking about leaving, and I don\'t want to be there when it decides.', 'normal');
+      rowan(c, 'Are you Wren Alder? The one who parts thorns?', 'normal');
+      wren(c, 'Yes, and no, and I\'m making tea, so ask me again when it\'s steeped. Sit. The cat has the good chair. Negotiate with the cat.', 'smirk');
+      wren(c, 'Before I talk properly, the fox has to decide whether you\'re an idiot. Vesper is a very good judge of character and a terrible judge of hands.', 'normal');
+      const i = await c.choice([
+        'Ask Vesper if it would like to be stroked.',
+        'Reach out and pet the fox at once.',
+        'Ask Wren what the fox is called.',
+      ], { prompt: 'The fox is watching you.' });
+      if (i === 0) {
+        await c.affection('wren', 3, 'asked the fox');
+        wren(c, 'It blinked at you. That is a yes. Huh. You\'re allowed in my kitchen now. Don\'t touch the kettle.', 'happy');
+      } else if (i === 1) {
+        await c.affection('wren', 1, 'pet the fox');
+        wren(c, 'Vesper bites people who do that. It didn\'t bite you. Interesting. Try not to make a habit of it.', 'smirk');
+      } else {
+        await c.affection('wren', 2, 'asked the name');
+        wren(c, 'Vesper. It likes being asked things. Most people only ask about the garden.', 'blush');
+        wren(c, 'You didn\'t ask about the garden. I noticed. Don\'t make me say nice things twice.', 'blush');
+      }
+      wren(c, 'So. The Hollow doesn\'t come into my wood. There\'s an old Lampwright seed in the oak by the spring, planted before the Order had a name.', 'normal');
+      wren(c, 'It keeps the dark out. It also keeps the matron alive, and she has been drinking Hollow rot off the cliffs since the abbey lamps went up.', 'sad');
+      rowan(c, 'So she\'s becoming feral.', 'worried');
+      wren(c, 'Yes. Go to the grove at the end of the path. Find the rot. Don\'t be a hero about it. Heroes get lost in roots.', 'smirk');
+      wren(c, 'Come back after, if you\'re still standing. I\'ll see what I can do about a charm for the briar on the crypt stair.', 'normal');
+      wren(c, 'That briar isn\'t mine. Someone has been feeding it fear. It is very rude, and I can part it. Later.', 'sad');
+      setF('ch3_met_wren');
+      return;
+    }
+    const lines = [
+      'Did you touch the garden? Don\'t lie. The roses would know, and then they would tell me, loudly.',
+      'Don\'t rush me. The tea takes exactly as long as it takes, and so do I.',
+      'The fox has decided you\'re fine. Don\'t let it go to your head. It goes to its own head very easily.',
+    ];
+    const n = (G.state.flags.ch3_wren_n = ((G.state.flags.ch3_wren_n || 0) % lines.length));
+    G.state.flags.ch3_wren_n = n + 1;
+    wren(c, lines[n], 'normal');
+  }));
+  wc.ev(npc('wc_fox', 3, 4, 'dog', async (c) => {
+    narr(c, 'Vesper the fox leans on your hand with the top of its head. It is an acceptance. It is not a whole one.');
+  }, { name: 'Vesper' }));
+  wc.ev(npc('wc_cat', 11, 9, 'cat', async (c) => {
+    talk(c, 'Cat (named Pins)', null, 'Pins has been sitting on the same bundle of lavender for six hours. Pins will not be moved, and will not be discussed.', 'normal');
+  }, { name: 'Pins' }));
+  wc.ev(H.chest('wc_chest_tea', 14, 10, 'rare_tea'));
+  wc.ev(H.chest('wc_chest_bed', 13, 3, { gold: 100 }));
+  wc.finish();
+
   G.provide('ch3');
 })();

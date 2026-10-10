@@ -242,7 +242,7 @@
 
     // ---- a sailor from the docks, hopeful about the Marigold ----
     m.ev(H.npc('cit_sailor', 12, 21, 'sailor', [
-      { who: 'Sailor', text: 'Is that the Marigold? No, she\'s got a patched gas bag. Good ship. Good crew. Bad luck.', face: 'normal' },
+      { who: 'Sailor', text: 'Is that the Marigold? No, she\'s got a patched gas bag. Good ship. Good crew. Bad luck.', face: 'unknown' },
       { who: 'Sailor', text: 'Hey, Captain Vane! Your mate Rook was in here last week. Took a bet off me with a loaded deck. I love the man.' },
     ], { name: 'Sailor' }));
 
@@ -320,8 +320,8 @@
     m.set('objects', 6, 9, 'V');
     // the exit door in the south wall
     m.set('objects', 10, 13, 'D');
-    m.set('objects', 13, 2, 'V');
-    m.set('objects', 6, 2, 'V');
+    m.set('objects', 13, 2, ' ');
+    m.set('objects', 6, 2, ' ');
     m.set('objects', 1, 2, 'L');  m.set('objects', 18, 2, 'L');
     m.encounters(null);
     tavernEvents(m);
@@ -664,6 +664,9 @@
     });
     m.ev(H.transfer(4, 14, 'aqueduct_1', undefined, undefined, 'left', { id: 'arena_to_aq', if: () => !!flag('ch2_tournament_won') }));
 
+    // ---- a Lantern Waypoint on the walkway, before the finale ----
+    m.ev(H.save('arena_save', 30, 22));
+
     // ---- prize chest by the walkway (the old champion's cup) ----
     m.ev(H.chest('g_arena_prize', 30, 6, 'hi_potion', 2));
     // @@ARENA_EV@@
@@ -689,11 +692,12 @@
     m.rect('objects', 21, 10, 1, 2, ' ');                      // opening to the corridor
     m.rect('objects', 15, 16, 12, 6, ' ');                     // south room
     m.rect('objects', 20, 15, 1, 1, ' ');                      // opening to the corridor
-    [[4, 3], [14, 3], [26, 22]].forEach(([x, y]) => m.set('objects', x, y, 'U'));
-    m.set('objects', 3, 4, 'C'); m.set('objects', 7, 8, 'R');  // scattered crates & rubble
+    [[4, 3], [16, 8], [25, 20]].forEach(([x, y]) => m.set('objects', x, y, 'U'));
+    m.set('objects', 4, 6, 'C'); m.set('objects', 7, 8, 'R');  // scattered crates & rubble
     m.set('objects', 24, 19, 'U');
     m.set('objects', 25, 5, 'r'); m.set('objects', 29, 6, 'r');
     m.set('objects', 33, 12, 'L'); m.set('objects', 1, 14, 'L');
+    m.set('objects', 3, 9, 'i'); m.set('objects', 9, 3, 'i'); m.set('objects', 17, 4, 'i'); m.set('objects', 28, 8, 'i');   // glowing cave crystals
     m.scatter('objects', 'R', 6, { seed: 31, on: 'k', avoid: [{ x: 0, y: 11, w: 36, h: 4 }] });
     m.ev(H.transfer(1, 13, 'gladius_arena', 5, 14, 'right', { id: 'aq1_to_arena' }));
     m.ev(H.transfer(34, 13, 'aqueduct_2', undefined, undefined, 'right', { id: 'aq1_to_aq2' }));
@@ -741,7 +745,7 @@
     m.rect('ground', 8, 13, 2, 1, 'b');                        // bridge
     m.rect('objects', 14, 3, 9, 6, ' ');                       // north cache room
     m.rect('ground', 14, 3, 9, 6, 't');
-    m.rect('objects', 15, 9, 1, 2, ' ');
+    m.rect('objects', 15, 9, 1, 3, ' ');                       // opening down to the corridor
     m.rect('objects', 14, 16, 9, 5, ' ');                      // south cache room
     m.rect('ground', 14, 16, 9, 5, 't');
     m.rect('objects', 15, 15, 1, 1, ' ');
@@ -754,6 +758,7 @@
     m.set('objects', 26, 14, 'E');                             // the ledger desk
     m.set('objects', 18, 11, ' ');
     m.set('objects', 9, 10, 'C'); m.set('objects', 1, 11, 'C');
+    m.set('objects', 16, 4, 'i'); m.set('objects', 21, 19, 'i');   // dripping cave crystals
     m.scatter('objects', 'R', 4, { seed: 41, on: 'k', avoid: [{ x: 0, y: 11, w: 24, h: 4 }] });
     m.ev(H.transfer(1, 13, 'aqueduct_1', 33, 13, 'left', { id: 'aq2_to_aq1' }));
     m.ev(H.save('aq2_save_a', 4, 14));
@@ -850,6 +855,9 @@
         await c.flash('#fff3c4', 40);
         await say(c, 'Order Warden', 'The Order will hear of this. The Order hears everything, eventually.', 'unknown', 'worried');
         await say(c, 'Caspian', 'Then let them listen. The Lion is done with the Order.', 'caspian', 'normal');
+        await c.showNpc('vault_warden1', false);
+        await c.showNpc('vault_warden2', false);
+        await c.narrate('The two Wardens back away up the stairs, lanterns held low, and their footsteps fade into the drip of the aqueduct.');
         G.setFlag('ch2_vault_done', true);
         G.setFlag('ch2_done', true);
         await c.toast('The warmth returns to Gladius', 'good');
