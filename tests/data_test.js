@@ -108,11 +108,14 @@ const PARTY_ORDER = ['rowan', 'claret', 'caspian', 'rook'];
       const crit = 1 + (m.crit / 100) * 0.5;
       return base * weak * crit * (1 - e.eva / 100);
     };
+    // Basic-attack fight sim. Party acts first each round, then surviving enemies attack.
+    // Returns kill round (999 if never), party HP left at the end (0..1) and whether the party was wiped first.
     const sim = (enemies, party, exploit, boost) => {
       const E = enemies.map((e) => ({ ...e, cur: e.hp }));
       const M = party.map((m) => ({ ...m, cur: m.hp }));
-      let ei = -1, mi = -1, kill = null, wipe = null;
-      for (let round = 1; round <= 120; round++) {
+      const maxHP = M.reduce((a, m) => a + m.hp, 0);
+      let ei = -1, mi = -1, kill = null, lost = false;
+      for (let round = 1; round <= 150; round++) {
         for (const m of M) {
           if (m.cur <= 0) continue;
           for (let k = 0; k < (boost ? 2 : 1); k++) {
@@ -123,13 +126,15 @@ const PARTY_ORDER = ['rowan', 'claret', 'caspian', 'rook'];
         }
         if (E.every((e) => e.cur <= 0)) { kill = round; break; }
         for (const e of E) {
-          if (e.cur <= 0 || M.every((m) => m.cur <= 0)) continue;
+          if (e.cur <= 0) continue;
+          if (M.every((m) => m.cur <= 0)) break;
           do { mi = (mi + 1) % M.length; } while (M[mi].cur <= 0);
           M[mi].cur -= Math.max(1, 2 * e.patk - 0.9 * M[mi].pdef);
         }
-        if (M.every((m) => m.cur <= 0)) { wipe = round; break; }
+        if (M.every((m) => m.cur <= 0)) { lost = true; break; }
       }
-      return { kill: kill || 999, wipe: wipe || 999 };
+      const left = lost ? 0 : M.reduce((a, m) => a + Math.max(0, m.cur), 0) / maxHP;
+      return { kill: kill || 999, lost, hpLeft: left };
     };
 
     for (const tid of Object.keys(G.data.troops)) {
@@ -143,14 +148,15 @@ const PARTY_ORDER = ['rowan', 'claret', 'caspian', 'rook'];
         return { id: aid, patk: s.patk, pdef: s.pdef, crit: s.crit, wt: wtOf(aid), hp: s.mhp };
       });
       const eSim = enemies.map((e) => ({ hp: e.hp, pdef: e.stats.pdef, patk: e.stats.patk, eva: e.stats.eva, weak: e.weak }));
-      const exp = sim(eSim, party, true, false);
-      const nowk = sim(eSim, party, false, false);
-      const boost = sim(eSim, party, true, true);
-      const wipe = sim(eSim, party, true, false).wipe;
+      const ex = sim(eSim, party, true, false);
+      const nw = sim(eSim, party, false, false);
+      const bo = sim(eSim, party, true, true);
       const isBoss = !!enemies.some((e) => e.boss);
       const hpSum = enemies.reduce((a, e) => a + e.hp, 0);
-      const flag = isBoss ? (exp.kill < 5 || exp.kill > 10) : (exp.kill < 3 || exp.kill > 5);
-      rows.push({ tid, lvl: pl, party: n + 'x' + tier, hp: hpSum, kill: exp.kill, nowk: nowk.kill, boost: boost.kill, wipe, boss: isBoss, flag });
+      const minLeft = isBoss ? 0.45 : 0.55;
+      const flag = ex.lost || ex.kill < (isBoss ? 5 : 3) || ex.kill > (isBoss ? 10 : 5) || ex.hpLeft < minLeft;
+      rows.push({ tid, lvl: pl, party: n + 'x' + tier, hp: hpSum, kill: ex.kill, nowk: nw.kill, boost: bo.kill,
+        left: Math.round(ex.hpLeft * 100), lost: ex.lost, boss: isBoss, flag });
     }
     return { fails, rows, exp, problemsCount: problems.length };
   }, { PLAN, PARTY_ORDER });
@@ -160,12 +166,13 @@ const PARTY_ORDER = ['rowan', 'claret', 'caspian', 'rook'];
   const pad = (v, n) => String(v).padStart(n);
   const lpad = (v, n) => String(v).padEnd(n);
   console.log('\nBALANCE (rounds to kill a troop; basic attacks. exploit = weakness hit x1.2; boost = sustained +1 hit/round)');
-  console.log(lpad('troop', 14) + lpad('lv', 5) + lpad('party', 8) + pad('enemyHP', 9) + pad('exploit', 9) + pad('noweak', 8) + pad('boost', 7) + pad('wipe', 7) + '  note');
+  console.log(lpad('troop', 14) + lpad('lv', 4) + lpad('party', 8) + pad('enemyHP', 9) + pad('exploit', 9) + pad('noweak', 8) + pad('boost', 7) + pad('partyHP%', 10) + '  note');
   for (const r of out.rows) {
-    console.log(lpad(r.tid, 14) + pad(r.lvl, 5) + '  ' + lpad(r.party, 6) + pad(r.hp, 9) + pad(r.kill, 9) + pad(r.nowk, 8) + pad(r.boost, 7) + pad(r.wipe, 7) + '  ' + (r.flag ? '<-- tune (target ' + (r.boss ? '5-10' : '3-5') + ')' : ''));
+    const note = r.lost ? '<-- PARTY WIPED' : (r.flag ? '<-- tune (kill ' + (r.boss ? '5-10' : '3-5') + ', party >= ' + (r.boss ? 45 : 55) + '%)' : '');
+    console.log(lpad(r.tid, 14) + pad(r.lvl, 4) + '  ' + lpad(r.party, 6) + pad(r.hp, 9) + pad(r.kill, 9) + pad(r.nowk, 8) + pad(r.boost, 7) + pad(r.left, 10) + '  ' + note);
   }
   const flagged = out.rows.filter((r) => r.flag).length;
-  console.log('\nflagged rows (exploit-round target): ' + flagged + ' / ' + out.rows.length);
+  console.log('\nflagged rows: ' + flagged + ' / ' + out.rows.length);
   if (fails.length) { console.log('\nFAILURES (' + fails.length + '):'); fails.forEach((f) => console.log('  - ' + f)); }
   else console.log('\nAll data checks passed (validate() empty, KNOWN ids present, no NaN, party API smoke test ok).');
   await h.browser.close(); h.cleanup();

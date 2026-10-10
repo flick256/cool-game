@@ -189,6 +189,21 @@ const { chromium } = require('playwright');
     await tap('right', 1); await settle();
     check('input works after all of the above', P().x === 11);
 
+    // 24. a map smaller than the screen is centred by the camera; transfer with explicit x/y
+    await runCmd(async (c) => { await c.transfer('test_tiny', 4, 2, 'left'); });
+    const tinyOk = await waitFor(() => G.map.id === 'test_tiny' && !G.script.busy, 300);
+    check('transfer to a small map with explicit x,y', tinyOk && P().x === 4 && P().y === 2 && P().dir === 'left', G.map.id + ' ' + P().x + ',' + P().y);
+    check('small map is centred (cam negative = letterbox)', G.map.cam.x === -160 && G.map.cam.y === -112, G.map.cam.x + ',' + G.map.cam.y);
+    check('spawn-less transfer lands on spawn', (await (async () => { await runCmd(async (c) => { await c.transfer('test_village'); }); return P().x === 10 && P().y === 15; })()));
+
+    // 25. setTile edits the live map (passability follows the tile)
+    await tp(10, 15, 'down');
+    G.map.setTile('objects', 11, 15, 'T');
+    check('setTile makes a tile impassable', G.map.isPassable(11, 15) === false);
+    await tap('right', 1); await settle();
+    check('player is blocked by a tile edited at runtime', P().x === 10, P().x);
+    G.map.setTile('objects', 11, 15, ' ');
+
     return out;
   });
 

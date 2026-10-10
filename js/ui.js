@@ -717,7 +717,7 @@
   });
 
   // ============================================================== SCENE: NAME ENTRY
-  const NE_ROWS = ['ABCDEFGHIJKLM', 'NOPQRSTUVWXYZ', 'abcdefghijklm', 'nopqrstuvwxyz', "0123456789'-. "];
+  const NE_ROWS = ['ABCDEFGHIJKLM', 'NOPQRSTUVWXYZ', 'abcdefghijklm', 'nopqrstuvwxyz', "0123456789'-."];
   const NE_BTNS = ['Space', 'Back', 'OK'];
   let NE_ACTIVE = false;
   const NE_KEYS = [];

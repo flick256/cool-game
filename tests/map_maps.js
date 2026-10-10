@@ -73,6 +73,10 @@
   t.ev(H.transfer(6, 9, 'test_village', 7, 9, 'down'));
   t.finish();
 
+  // ---------------------------------------------------------------- tiny map (smaller than the screen: camera centres it)
+  const tiny = B('test_tiny', 10, 8, { name: 'Tiny', spawn: { x: 3, y: 3, dir: 'down' } });
+  tiny.finish();
+
   // ---------------------------------------------------------------- start: party of three, then enter the village
   G.state.party = ['rowan', 'claret', 'caspian'];
   window.__start = () => G.scenes.replace('map', { map: 'test_village', x: 10, y: 15, dir: 'down' });

@@ -461,117 +461,117 @@
   const ST = (patk, pdef, eatk, edef, spd, crit, eva) => ({ patk, pdef, eatk, edef, spd, crit, eva });
 
   // -- Wood (lv 2-5, boss stag 6)
-  en({ id: 'moss_slime', name: 'Moss Slime', level: 2, hp: 60, shields: 2, weak: ['fire', 'sword'], resist: ['ice'],
+  en({ id: 'moss_slime', name: 'Moss Slime', level: 2, hp: 105, shields: 2, weak: ['fire', 'sword'], resist: ['ice'],
     stats: ST(10, 4, 6, 4, 6, 2, 2), skills: [{ skill: 'e_sticky_goo', weight: 2 }], exp: 4, gold: 4,
     drops: [{ item: 'potion', chance: 0.12 }, { item: 'wild_honey', chance: 0.03 }], steal: [{ item: 'potion', chance: 0.25 }] });
-  en({ id: 'forest_bat', name: 'Forest Bat', level: 3, hp: 46, shields: 2, weak: ['wind', 'bow'],
+  en({ id: 'forest_bat', name: 'Forest Bat', level: 3, hp: 40, shields: 2, weak: ['wind', 'bow'],
     stats: ST(11, 3, 4, 3, 14, 4, 16), skills: [{ skill: 'e_screech', weight: 3 }], exp: 5, gold: 4,
     drops: [{ item: 'potion', chance: 0.1 }], steal: [{ item: 'ether', chance: 0.15 }] });
-  en({ id: 'thorn_boar', name: 'Thorn Boar', level: 4, hp: 84, shields: 2, weak: ['fire', 'axe'], resist: ['wind'],
-    stats: ST(14, 8, 3, 5, 8, 4, 3), skills: [{ skill: 'e_gore', weight: 3 }], exp: 6, gold: 6,
+  en({ id: 'thorn_boar', name: 'Thorn Boar', level: 4, hp: 90, shields: 2, weak: ['fire', 'axe'], resist: ['wind'],
+    stats: ST(12, 8, 3, 5, 8, 4, 3), skills: [{ skill: 'e_gore', weight: 3 }], exp: 6, gold: 6,
     drops: [{ item: 'pressed_flower', chance: 0.05 }, { item: 'potion', chance: 0.15 }], steal: [{ item: 'potion', chance: 0.3 }] });
-  en({ id: 'hollow_wisp', name: 'Hollow Wisp', level: 5, hp: 70, shields: 2, weak: ['light', 'fire'], resist: ['dark'],
-    stats: ST(6, 6, 16, 10, 12, 3, 12), skills: [{ skill: 'e_dim_flicker', weight: 3 }], exp: 8, gold: 6,
+  en({ id: 'hollow_wisp', name: 'Hollow Wisp', level: 5, hp: 40, shields: 2, weak: ['light', 'fire'], resist: ['dark'],
+    stats: ST(17, 6, 16, 10, 12, 3, 12), skills: [{ skill: 'e_dim_flicker', weight: 3 }], exp: 8, gold: 6,
     drops: [{ item: 'ether', chance: 0.12 }], steal: [{ item: 'ether', chance: 0.3 }] });
-  en({ id: 'hollow_stag', name: 'Hollow Stag', level: 6, hp: 520, shields: 4, weak: ['light', 'fire', 'spear'], resist: ['dark'], boss: true,
-    stats: ST(24, 14, 14, 12, 13, 6, 6), skills: [{ skill: 'e_antler_charge', weight: 3 }, { skill: 'e_hollow_bellow', weight: 2 }], exp: 30, gold: 60,
+  en({ id: 'hollow_stag', name: 'Hollow Stag', level: 6, hp: 220, shields: 4, weak: ['light', 'fire', 'spear'], resist: ['dark'], boss: true,
+    stats: ST(10, 14, 14, 12, 13, 6, 6), skills: [{ skill: 'e_antler_charge', weight: 3 }, { skill: 'e_hollow_bellow', weight: 2 }], exp: 30, gold: 60,
     drops: [{ item: 'hi_potion', chance: 1 }, { item: 'ribbon', chance: 0.5 }], steal: [{ item: 'hi_potion', chance: 0.3 }] });
 
   // -- City & Undercroft (lv 6-10, boss sentinel 11)
-  en({ id: 'cog_rat', name: 'Cog Rat', level: 6, hp: 210, shields: 2, weak: ['lightning', 'dagger'],
-    stats: ST(20, 12, 8, 10, 14, 6, 10), skills: [{ skill: 'e_gnaw', weight: 3 }], exp: 10, gold: 14,
+  en({ id: 'cog_rat', name: 'Cog Rat', level: 6, hp: 145, shields: 2, weak: ['lightning', 'dagger'],
+    stats: ST(21, 12, 8, 10, 14, 6, 10), skills: [{ skill: 'e_gnaw', weight: 3 }], exp: 10, gold: 14,
     drops: [{ item: 'brass_cog', chance: 0.25 }, { item: 'potion', chance: 0.1 }], steal: [{ item: 'brass_cog', chance: 0.3 }] });
-  en({ id: 'steam_sprite', name: 'Steam Sprite', level: 7, hp: 180, shields: 2, weak: ['ice', 'staff'], resist: ['fire'],
-    stats: ST(8, 10, 24, 16, 13, 3, 14), skills: [{ skill: 'e_scald', weight: 3 }], exp: 11, gold: 15,
+  en({ id: 'steam_sprite', name: 'Steam Sprite', level: 7, hp: 260, shields: 2, weak: ['ice', 'staff'], resist: ['fire'],
+    stats: ST(34, 10, 24, 16, 13, 3, 14), skills: [{ skill: 'e_scald', weight: 3 }], exp: 11, gold: 15,
     drops: [{ item: 'ether', chance: 0.15 }], steal: [{ item: 'ether', chance: 0.2 }] });
-  en({ id: 'rust_bot', name: 'Rust Bot', level: 8, hp: 260, shields: 3, weak: ['lightning', 'axe'], resist: ['ice'],
-    stats: ST(24, 20, 6, 12, 9, 4, 4), skills: [{ skill: 'e_rust_crunch', weight: 3 }], exp: 13, gold: 20,
+  en({ id: 'rust_bot', name: 'Rust Bot', level: 8, hp: 270, shields: 3, weak: ['lightning', 'axe'], resist: ['ice'],
+    stats: ST(36, 20, 6, 12, 9, 4, 4), skills: [{ skill: 'e_rust_crunch', weight: 3 }], exp: 13, gold: 20,
     drops: [{ item: 'brass_cog', chance: 0.3 }, { item: 'whetstone', chance: 0.1 }], steal: [{ item: 'brass_cog', chance: 0.25 }] });
-  en({ id: 'order_guard', name: 'Order Guard', level: 7, hp: 260, shields: 3, weak: ['fire', 'spear'], resist: ['dark'],
-    stats: ST(26, 22, 6, 12, 10, 5, 5), skills: [{ skill: 'e_halberd_crack', weight: 3 }], exp: 12, gold: 22,
+  en({ id: 'order_guard', name: 'Order Guard', level: 7, hp: 230, shields: 3, weak: ['fire', 'spear'], resist: ['dark'],
+    stats: ST(27, 22, 6, 12, 10, 5, 5), skills: [{ skill: 'e_halberd_crack', weight: 3 }], exp: 12, gold: 22,
     drops: [{ item: 'potion', chance: 0.3 }, { item: 'mail_1', chance: 0.05 }], steal: [{ item: 'hi_potion', chance: 0.15 }] });
-  en({ id: 'brass_sentinel', name: 'Brass Sentinel', level: 11, hp: 1500, shields: 6, weak: ['lightning', 'axe'], resist: ['fire'], boss: true,
-    stats: ST(44, 34, 20, 22, 12, 4, 2), skills: [{ skill: 'e_steam_piston', weight: 3 }, { skill: 'e_boiler_vent', weight: 2 }], exp: 81, gold: 150,
+  en({ id: 'brass_sentinel', name: 'Brass Sentinel', level: 11, hp: 1130, shields: 6, weak: ['lightning', 'axe'], resist: ['fire'], boss: true,
+    stats: ST(46, 34, 20, 22, 12, 4, 2), skills: [{ skill: 'e_steam_piston', weight: 3 }, { skill: 'e_boiler_vent', weight: 2 }], exp: 81, gold: 150,
     drops: [{ item: 'hi_potion', chance: 1 }, { item: 'axe_2', chance: 0.5 }, { item: 'brass_cog', chance: 1 }], steal: [{ item: 'hi_potion', chance: 0.3 }] });
 
   // -- Arena & Aqueduct (lv 11-16, boss champion 17)
-  en({ id: 'arena_hound', name: 'Arena Hound', level: 12, hp: 420, shields: 3, weak: ['fire', 'bow'],
-    stats: ST(33, 24, 10, 16, 17, 8, 8), skills: [{ skill: 'e_maul', weight: 3 }, { skill: 'e_howl', weight: 1 }], exp: 32, gold: 40,
+  en({ id: 'arena_hound', name: 'Arena Hound', level: 12, hp: 270, shields: 3, weak: ['fire', 'bow'],
+    stats: ST(35, 24, 10, 16, 17, 8, 8), skills: [{ skill: 'e_maul', weight: 3 }, { skill: 'e_howl', weight: 1 }], exp: 32, gold: 40,
     drops: [{ item: 'potion', chance: 0.2 }, { item: 'sweet_bun', chance: 0.05 }], steal: [{ item: 'hi_potion', chance: 0.2 }] });
-  en({ id: 'sand_bandit', name: 'Sand Bandit', level: 12, hp: 380, shields: 2, weak: ['wind', 'dagger'], resist: ['fire'],
-    stats: ST(32, 20, 8, 14, 17, 12, 14), skills: [{ skill: 'e_stab_and_run', weight: 3 }, { skill: 'e_sand_throw', weight: 2 }], exp: 32, gold: 45,
+  en({ id: 'sand_bandit', name: 'Sand Bandit', level: 12, hp: 300, shields: 2, weak: ['wind', 'dagger'], resist: ['fire'],
+    stats: ST(38, 20, 8, 14, 17, 12, 14), skills: [{ skill: 'e_stab_and_run', weight: 3 }, { skill: 'e_sand_throw', weight: 2 }], exp: 32, gold: 45,
     drops: [{ item: 'lucky_coin', chance: 0.05 }, { item: 'hi_potion', chance: 0.1 }], steal: [{ item: 'ether', chance: 0.3 }, { item: 'lucky_coin', chance: 0.1 }] });
-  en({ id: 'gladiator_recruit', name: 'Gladiator Recruit', level: 13, hp: 460, shields: 3, weak: ['axe', 'spear'],
-    stats: ST(34, 26, 6, 14, 12, 6, 5), skills: [{ skill: 'e_shield_rush', weight: 3 }], exp: 35, gold: 50,
+  en({ id: 'gladiator_recruit', name: 'Gladiator Recruit', level: 13, hp: 390, shields: 3, weak: ['axe', 'spear'],
+    stats: ST(46, 26, 6, 14, 12, 6, 5), skills: [{ skill: 'e_shield_rush', weight: 3 }], exp: 35, gold: 50,
     drops: [{ item: 'hi_potion', chance: 0.15 }, { item: 'spear_2', chance: 0.04 }], steal: [{ item: 'hi_potion', chance: 0.2 }] });
-  en({ id: 'drake_whelp', name: 'Drake Whelp', level: 13, hp: 400, shields: 3, weak: ['ice', 'spear'], resist: ['fire'],
-    stats: ST(30, 20, 28, 18, 15, 5, 8), skills: [{ skill: 'e_ember_breath', weight: 3 }], exp: 35, gold: 55,
+  en({ id: 'drake_whelp', name: 'Drake Whelp', level: 13, hp: 410, shields: 3, weak: ['ice', 'spear'], resist: ['fire'],
+    stats: ST(46, 20, 28, 18, 15, 5, 8), skills: [{ skill: 'e_ember_breath', weight: 3 }], exp: 35, gold: 55,
     drops: [{ item: 'hi_potion', chance: 0.2 }, { item: 'charm_ember', chance: 0.03 }], steal: [{ item: 'ember_wine', chance: 0.05 }] });
-  en({ id: 'catacomb_skeleton', name: 'Catacomb Skeleton', level: 14, hp: 380, shields: 3, weak: ['light', 'axe'], resist: ['dark'],
-    stats: ST(31, 22, 4, 12, 11, 4, 6), skills: [{ skill: 'e_bone_bash', weight: 3 }, { skill: 'e_bone_rattle', weight: 1 }], exp: 33, gold: 45,
+  en({ id: 'catacomb_skeleton', name: 'Catacomb Skeleton', level: 14, hp: 300, shields: 3, weak: ['light', 'axe'], resist: ['dark'],
+    stats: ST(35, 22, 4, 12, 11, 4, 6), skills: [{ skill: 'e_bone_bash', weight: 3 }, { skill: 'e_bone_rattle', weight: 1 }], exp: 33, gold: 45,
     drops: [{ item: 'antidote', chance: 0.2 }, { item: 'old_book', chance: 0.05 }], steal: [{ item: 'antidote', chance: 0.25 }] });
-  en({ id: 'gladius_champion', name: 'Gladius Champion', level: 17, hp: 3800, shields: 6, weak: ['wind', 'spear'], resist: ['fire'], boss: true,
-    stats: ST(50, 38, 10, 26, 16, 10, 6), skills: [{ skill: 'e_champion_cleave', weight: 3 }, { skill: 'e_crowd_roar', weight: 2 }], exp: 150, gold: 300,
+  en({ id: 'gladius_champion', name: 'Gladius Champion', level: 17, hp: 2570, shields: 6, weak: ['wind', 'spear'], resist: ['fire'], boss: true,
+    stats: ST(66, 38, 10, 26, 16, 10, 6), skills: [{ skill: 'e_champion_cleave', weight: 3 }, { skill: 'e_crowd_roar', weight: 2 }], exp: 150, gold: 300,
     drops: [{ item: 'phoenix_down', chance: 0.5 }, { item: 'spear_3', chance: 0.2 }, { item: 'ember_wine', chance: 0.5 }], steal: [{ item: 'hi_potion', chance: 0.4 }] });
 
   // -- Crypt & Whisperwood (lv 15-20, bosses choir 20 / matron 22)
-  en({ id: 'crypt_ghoul', name: 'Crypt Ghoul', level: 16, hp: 780, shields: 3, weak: ['light', 'fire'], resist: ['dark'],
-    stats: ST(43, 30, 20, 24, 14, 6, 6), skills: [{ skill: 'e_grave_claw', weight: 3 }], exp: 54, gold: 90,
+  en({ id: 'crypt_ghoul', name: 'Crypt Ghoul', level: 16, hp: 730, shields: 3, weak: ['light', 'fire'], resist: ['dark'],
+    stats: ST(62, 30, 20, 24, 14, 6, 6), skills: [{ skill: 'e_grave_claw', weight: 3 }], exp: 54, gold: 90,
     drops: [{ item: 'hi_potion', chance: 0.25 }, { item: 'antidote', chance: 0.2 }, { item: 'moonpetal', chance: 0.05 }], steal: [{ item: 'antidote', chance: 0.3 }] });
-  en({ id: 'pale_moth', name: 'Pale Moth', level: 16, hp: 640, shields: 2, weak: ['fire', 'wind'], resist: ['ice'],
-    stats: ST(28, 24, 40, 28, 19, 5, 20), skills: [{ skill: 'e_pale_dust', weight: 3 }], exp: 54, gold: 85,
+  en({ id: 'pale_moth', name: 'Pale Moth', level: 16, hp: 530, shields: 2, weak: ['fire', 'wind'], resist: ['ice'],
+    stats: ST(55, 24, 40, 28, 19, 5, 20), skills: [{ skill: 'e_pale_dust', weight: 3 }], exp: 54, gold: 85,
     drops: [{ item: 'feather_quill', chance: 0.08 }, { item: 'ether', chance: 0.3 }], steal: [{ item: 'hi_ether', chance: 0.15 }] });
-  en({ id: 'briar_treant', name: 'Briar Treant', level: 17, hp: 1000, shields: 3, weak: ['fire', 'axe'], resist: ['wind'],
-    stats: ST(46, 40, 16, 30, 9, 4, 2), skills: [{ skill: 'e_root_slam', weight: 3 }, { skill: 'e_thorn_wall', weight: 1 }], exp: 58, gold: 95,
+  en({ id: 'briar_treant', name: 'Briar Treant', level: 17, hp: 890, shields: 3, weak: ['fire', 'axe'], resist: ['wind'],
+    stats: ST(69, 40, 16, 30, 9, 4, 2), skills: [{ skill: 'e_root_slam', weight: 3 }, { skill: 'e_thorn_wall', weight: 1 }], exp: 58, gold: 95,
     drops: [{ item: 'pressed_flower', chance: 0.3 }, { item: 'hi_potion', chance: 0.25 }], steal: [{ item: 'wild_honey', chance: 0.2 }] });
-  en({ id: 'hollow_husk', name: 'Hollow Husk', level: 17, hp: 760, shields: 3, weak: ['light', 'staff'], resist: ['dark'],
-    stats: ST(40, 28, 34, 26, 14, 5, 6), skills: [{ skill: 'e_hollow_embrace', weight: 3 }], exp: 58, gold: 90,
+  en({ id: 'hollow_husk', name: 'Hollow Husk', level: 17, hp: 530, shields: 3, weak: ['light', 'staff'], resist: ['dark'],
+    stats: ST(50, 28, 34, 26, 14, 5, 6), skills: [{ skill: 'e_hollow_embrace', weight: 3 }], exp: 58, gold: 90,
     drops: [{ item: 'hi_ether', chance: 0.15 }, { item: 'lavender_sachet', chance: 0.08 }], steal: [{ item: 'hi_potion', chance: 0.2 }] });
-  en({ id: 'hollow_choir', name: 'Hollow Choir', level: 20, hp: 3600, shields: 6, weak: ['light', 'staff'], resist: ['dark'], boss: true,
-    stats: ST(40, 32, 52, 38, 18, 8, 10), skills: [{ skill: 'e_dissonant_hymn', weight: 3 }, { skill: 'e_hollow_harmony', weight: 2 }], exp: 150, gold: 400,
+  en({ id: 'hollow_choir', name: 'Hollow Choir', level: 20, hp: 2190, shields: 6, weak: ['light', 'staff'], resist: ['dark'], boss: true,
+    stats: ST(62, 32, 52, 38, 18, 8, 10), skills: [{ skill: 'e_dissonant_hymn', weight: 3 }, { skill: 'e_hollow_harmony', weight: 2 }], exp: 150, gold: 400,
     drops: [{ item: 'hi_ether', chance: 1 }, { item: 'silver_locket', chance: 0.5 }, { item: 'star_chart', chance: 0.2 }], steal: [{ item: 'hi_ether', chance: 0.3 }] });
-  en({ id: 'briar_matron', name: 'Briar Matron', level: 22, hp: 4200, shields: 6, weak: ['fire', 'axe'], resist: ['wind'], boss: true,
-    stats: ST(52, 40, 50, 38, 16, 8, 8), skills: [{ skill: 'e_bramble_lash', weight: 3 }, { skill: 'e_matron_bloom', weight: 2 }], exp: 180, gold: 450,
+  en({ id: 'briar_matron', name: 'Briar Matron', level: 22, hp: 3440, shields: 6, weak: ['fire', 'axe'], resist: ['wind'], boss: true,
+    stats: ST(93, 40, 50, 38, 16, 8, 8), skills: [{ skill: 'e_bramble_lash', weight: 3 }, { skill: 'e_matron_bloom', weight: 2 }], exp: 180, gold: 450,
     drops: [{ item: 'elixir', chance: 0.5 }, { item: 'ribbon', chance: 1 }], steal: [{ item: 'moonpetal', chance: 0.2 }] });
 
   // -- Ashen Road (lv 20-25, boss Hale 26)
-  en({ id: 'ash_wraith', name: 'Ash Wraith', level: 21, hp: 1000, shields: 3, weak: ['light', 'fire'], resist: ['dark'],
-    stats: ST(54, 36, 50, 36, 18, 8, 14), skills: [{ skill: 'e_ash_grasp', weight: 3 }], exp: 91, gold: 130,
+  en({ id: 'ash_wraith', name: 'Ash Wraith', level: 21, hp: 840, shields: 3, weak: ['light', 'fire'], resist: ['dark'],
+    stats: ST(75, 36, 50, 36, 18, 8, 14), skills: [{ skill: 'e_ash_grasp', weight: 3 }], exp: 91, gold: 130,
     drops: [{ item: 'hi_ether', chance: 0.2 }, { item: 'lavender_sachet', chance: 0.05 }], steal: [{ item: 'hi_ether', chance: 0.2 }] });
-  en({ id: 'hollow_hound', name: 'Hollow Hound', level: 21, hp: 980, shields: 3, weak: ['ice', 'bow'], resist: ['dark'],
-    stats: ST(56, 34, 20, 26, 20, 10, 10), skills: [{ skill: 'e_hound_bite', weight: 3 }, { skill: 'e_hollow_howl', weight: 2 }], exp: 91, gold: 120,
+  en({ id: 'hollow_hound', name: 'Hollow Hound', level: 21, hp: 640, shields: 3, weak: ['ice', 'bow'], resist: ['dark'],
+    stats: ST(61, 34, 20, 26, 20, 10, 10), skills: [{ skill: 'e_hound_bite', weight: 3 }, { skill: 'e_hollow_howl', weight: 2 }], exp: 91, gold: 120,
     drops: [{ item: 'hi_potion', chance: 0.25 }, { item: 'sweet_bun', chance: 0.1 }], steal: [{ item: 'hi_potion', chance: 0.2 }] });
-  en({ id: 'cinder_golem', name: 'Cinder Golem', level: 22, hp: 1400, shields: 3, weak: ['ice', 'spear'], resist: ['fire'],
-    stats: ST(60, 44, 30, 34, 12, 6, 2), skills: [{ skill: 'e_magma_fist', weight: 3 }, { skill: 'e_cinder_quake', weight: 2 }], exp: 100, gold: 150,
+  en({ id: 'cinder_golem', name: 'Cinder Golem', level: 22, hp: 1170, shields: 3, weak: ['ice', 'spear'], resist: ['fire'],
+    stats: ST(93, 44, 30, 34, 12, 6, 2), skills: [{ skill: 'e_magma_fist', weight: 3 }, { skill: 'e_cinder_quake', weight: 2 }], exp: 100, gold: 150,
     drops: [{ item: 'hi_ether', chance: 0.2 }, { item: 'spear_3', chance: 0.04 }], steal: [{ item: 'hi_potion', chance: 0.25 }] });
-  en({ id: 'order_inquisitor', name: 'Order Inquisitor', level: 23, hp: 1150, shields: 3, weak: ['light', 'sword'], resist: ['dark'],
-    stats: ST(58, 38, 44, 38, 18, 8, 8), skills: [{ skill: 'e_judgement_rod', weight: 3 }, { skill: 'e_lamp_seal', weight: 2 }], exp: 109, gold: 160,
+  en({ id: 'order_inquisitor', name: 'Order Inquisitor', level: 23, hp: 620, shields: 3, weak: ['light', 'sword'], resist: ['dark'],
+    stats: ST(84, 38, 44, 38, 18, 8, 8), skills: [{ skill: 'e_judgement_rod', weight: 3 }, { skill: 'e_lamp_seal', weight: 2 }], exp: 109, gold: 160,
     drops: [{ item: 'sword_3', chance: 0.05 }, { item: 'hi_potion', chance: 0.2 }], steal: [{ item: 'hi_ether', chance: 0.15 }] });
-  en({ id: 'inquisitor_hale', name: 'Inquisitor Hale', level: 26, hp: 6500, shields: 7, weak: ['lightning', 'sword'], resist: ['light'], boss: true,
-    stats: ST(70, 50, 52, 46, 20, 12, 10), skills: [{ skill: 'e_hale_sword', weight: 3 }, { skill: 'e_order_decree', weight: 2 }, { skill: 'e_exposing_light', weight: 2 }], exp: 415, gold: 600,
+  en({ id: 'inquisitor_hale', name: 'Inquisitor Hale', level: 26, hp: 3020, shields: 7, weak: ['lightning', 'sword'], resist: ['light'], boss: true,
+    stats: ST(74, 50, 52, 46, 20, 12, 10), skills: [{ skill: 'e_hale_sword', weight: 3 }, { skill: 'e_order_decree', weight: 2 }, { skill: 'e_exposing_light', weight: 2 }], exp: 415, gold: 600,
     drops: [{ item: 'hi_ether', chance: 1 }, { item: 'sword_3', chance: 0.4 }, { item: 'robe_3', chance: 0.3 }], steal: [{ item: 'elixir', chance: 0.1 }] });
 
   // -- Hearth Spire (lv 25-30, bosses Elowen 31, Vael 33, Cold Engine 35)
-  en({ id: 'spire_sentinel', name: 'Spire Sentinel', level: 26, hp: 1700, shields: 3, weak: ['lightning', 'spear'], resist: ['wind'],
-    stats: ST(68, 50, 40, 44, 16, 5, 3), skills: [{ skill: 'e_gear_slam', weight: 3 }, { skill: 'e_spire_beam', weight: 2 }], exp: 138, gold: 220,
+  en({ id: 'spire_sentinel', name: 'Spire Sentinel', level: 26, hp: 1150, shields: 3, weak: ['lightning', 'spear'], resist: ['wind'],
+    stats: ST(98, 50, 40, 44, 16, 5, 3), skills: [{ skill: 'e_gear_slam', weight: 3 }, { skill: 'e_spire_beam', weight: 2 }], exp: 138, gold: 220,
     drops: [{ item: 'hi_ether', chance: 0.25 }, { item: 'mail_3', chance: 0.1 }], steal: [{ item: 'hi_potion', chance: 0.2 }] });
-  en({ id: 'hollow_knight', name: 'Hollow Knight', level: 27, hp: 1600, shields: 3, weak: ['fire', 'light'], resist: ['dark'],
-    stats: ST(70, 48, 36, 44, 18, 7, 6), skills: [{ skill: 'e_hollow_lance', weight: 3 }, { skill: 'e_grey_oath', weight: 1 }], exp: 149, gold: 230,
+  en({ id: 'hollow_knight', name: 'Hollow Knight', level: 27, hp: 810, shields: 3, weak: ['fire', 'light'], resist: ['dark'],
+    stats: ST(72, 48, 36, 44, 18, 7, 6), skills: [{ skill: 'e_hollow_lance', weight: 3 }, { skill: 'e_grey_oath', weight: 1 }], exp: 149, gold: 230,
     drops: [{ item: 'elixir', chance: 0.05 }, { item: 'vest_3', chance: 0.1 }], steal: [{ item: 'hi_potion', chance: 0.2 }] });
-  en({ id: 'void_moth', name: 'Void Moth', level: 27, hp: 1250, shields: 3, weak: ['light', 'wind'], resist: ['dark'],
-    stats: ST(52, 36, 70, 50, 24, 8, 24), skills: [{ skill: 'e_void_dust', weight: 3 }, { skill: 'e_numb', weight: 2 }], exp: 149, gold: 210,
+  en({ id: 'void_moth', name: 'Void Moth', level: 27, hp: 690, shields: 3, weak: ['light', 'wind'], resist: ['dark'],
+    stats: ST(78, 36, 70, 50, 24, 8, 24), skills: [{ skill: 'e_void_dust', weight: 3 }, { skill: 'e_numb', weight: 2 }], exp: 149, gold: 210,
     drops: [{ item: 'feather_quill', chance: 0.1 }, { item: 'hi_ether', chance: 0.25 }], steal: [{ item: 'hi_ether', chance: 0.2 }] });
-  en({ id: 'cold_drone', name: 'Cold Drone', level: 27, hp: 1400, shields: 3, weak: ['fire', 'lightning'], resist: ['ice'],
-    stats: ST(60, 52, 58, 46, 22, 6, 6), skills: [{ skill: 'e_frost_ray', weight: 3 }, { skill: 'e_cold_ping', weight: 2 }], exp: 149, gold: 220,
+  en({ id: 'cold_drone', name: 'Cold Drone', level: 27, hp: 850, shields: 3, weak: ['fire', 'lightning'], resist: ['ice'],
+    stats: ST(77, 52, 58, 46, 22, 6, 6), skills: [{ skill: 'e_frost_ray', weight: 3 }, { skill: 'e_cold_ping', weight: 2 }], exp: 149, gold: 220,
     drops: [{ item: 'brass_cog', chance: 0.3 }, { item: 'hi_ether', chance: 0.2 }], steal: [{ item: 'hi_potion', chance: 0.25 }] });
-  en({ id: 'hollow_elowen', name: 'Hollow Elowen', level: 31, hp: 9000, shields: 8, weak: ['light', 'fire'], resist: ['dark'], boss: true,
-    stats: ST(80, 58, 78, 62, 22, 10, 12), skills: [{ skill: 'e_grief_wave', weight: 3 }, { skill: 'e_tender_embrace', weight: 3 }, { skill: 'e_lantern_tear', weight: 2 }], exp: 586, gold: 900,
+  en({ id: 'hollow_elowen', name: 'Hollow Elowen', level: 31, hp: 4930, shields: 8, weak: ['light', 'fire'], resist: ['dark'], boss: true,
+    stats: ST(124, 58, 78, 62, 22, 10, 12), skills: [{ skill: 'e_grief_wave', weight: 3 }, { skill: 'e_tender_embrace', weight: 3 }, { skill: 'e_lantern_tear', weight: 2 }], exp: 586, gold: 900,
     drops: [{ item: 'phoenix_down', chance: 1 }, { item: 'ribbon', chance: 0.5 }], steal: [{ item: 'elixir', chance: 0.1 }] });
-  en({ id: 'warden_vael', name: 'Warden Ignatius Vael', level: 33, hp: 9500, shields: 8, weak: ['lightning', 'spear'], resist: ['light'], boss: true,
-    stats: ST(84, 60, 82, 64, 24, 10, 12), skills: [{ skill: 'e_tithe_drain', weight: 3 }, { skill: 'e_extinguish', weight: 2 }, { skill: 'e_pale_judgement', weight: 2 }], exp: 662, gold: 1000,
+  en({ id: 'warden_vael', name: 'Warden Ignatius Vael', level: 33, hp: 4680, shields: 8, weak: ['lightning', 'spear'], resist: ['light'], boss: true,
+    stats: ST(124, 60, 82, 64, 24, 10, 12), skills: [{ skill: 'e_tithe_drain', weight: 3 }, { skill: 'e_extinguish', weight: 2 }, { skill: 'e_pale_judgement', weight: 2 }], exp: 662, gold: 1000,
     drops: [{ item: 'elixir', chance: 1 }, { item: 'star_chart', chance: 0.5 }], steal: [{ item: 'elixir', chance: 0.1 }] });
-  en({ id: 'vael_cold_engine', name: 'Cold Engine', level: 35, hp: 10500, shields: 8, weak: ['fire', 'axe'], resist: ['ice'], boss: true,
-    stats: ST(90, 72, 60, 50, 18, 4, 2), skills: [{ skill: 'e_cold_piston', weight: 3 }, { skill: 'e_quiet_pulse', weight: 2 }, { skill: 'e_coolant_blast', weight: 2 }, { skill: 'e_engine_repair', weight: 1 }], exp: 744, gold: 1200,
+  en({ id: 'vael_cold_engine', name: 'Cold Engine', level: 35, hp: 5130, shields: 8, weak: ['fire', 'axe'], resist: ['ice'], boss: true,
+    stats: ST(124, 72, 60, 50, 18, 4, 2), skills: [{ skill: 'e_cold_piston', weight: 3 }, { skill: 'e_quiet_pulse', weight: 2 }, { skill: 'e_coolant_blast', weight: 2 }, { skill: 'e_engine_repair', weight: 1 }], exp: 744, gold: 1200,
     drops: [{ item: 'phoenix_down', chance: 0.5 }, { item: 'charm_guard', chance: 0.5 }], steal: [{ item: 'elixir', chance: 0.1 }] });
 
   D.enemies = ENEMIES;

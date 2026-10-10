@@ -673,8 +673,8 @@
   // ------------------------------------------------------------ portraits: geometry + expressions
   const GEO = {
     cx: 72, top: 50, faceHW: 25, jawHW: 17, cheekY: 97, chinY: 128, chinBulge: 4,
-    eyeY: 86, eyeDX: 12, eyeW: 8, eyeH: 8.5, browY: 73, browW: 2.6,
-    noseY: 102, mouthY: 114, mouthW: 7.5, earY: 90, nw: 10, neckBot: 152, shY: 146, sw: 58, bottom: 192,
+    eyeY: 86, eyeDX: 12, eyeW: 9, eyeH: 9.2, browY: 72, browW: 2.6,
+    noseY: 102, mouthY: 114, mouthW: 7.5, earY: 90, nw: 11, neckBot: 152, shY: 146, sw: 58, bottom: 192,
   };
   // b = [inner, outer] brow offsets (negative = up); lid = [inner, outer] upper-lid line offsets in eye-heights
   const EXPR = {
@@ -726,7 +726,7 @@
     g.restore();
   }
   function hairHi(g, P, rng, fn, box, n, len) {
-    clipped(g, fn, () => streaks(g, rng, n, box[0], box[1], box[2], box[3], P.hairHi, 0.8, len || 14));
+    clipped(g, fn, () => streaks(g, rng, Math.round(n * 0.6), box[0], box[1], box[2], box[3], P.hairHi, 0.42, (len || 14) * 1.3));
   }
 
   // eyes (side -1 = viewer's left eye)
@@ -771,7 +771,7 @@
     g.restore();
     // upper lid / cover
     const lid = lidFor(E, side);
-    const lw = P.lidW || 2.3;
+    const lw = P.lidW || 2.6;
     if (lid) {
       const yI = ey + lid[0] * eh, yO = ey + lid[1] * eh;
       g.save();
@@ -873,6 +873,9 @@
     }
     paint(g, (g) => facePath(g, o), lg(g, o.cx, o.top, o.cx + 6, o.chinY, [[0, P.skin], [0.7, P.skin], [1, P.skinSh]]), P.line, 2.2);
     clipped(g, (g) => facePath(g, o), () => {
+      // soft cast shadow from the hairline / fringe
+      g.fillStyle = lg(g, 0, o.top - 2, 0, o.top + 13, [[0, 'rgba(70,30,50,0.30)'], [1, 'rgba(70,30,50,0)']]);
+      g.fillRect(o.cx - o.faceHW - 2, o.top - 2, o.faceHW * 2 + 4, 16);
       g.fillStyle = 'rgba(120,50,40,0.13)';
       g.beginPath(); g.ellipse(o.cx + o.faceHW + 4, o.cheekY - 4, 14, 44, 0, 0, PI2); g.fill();
       g.fillStyle = 'rgba(255,255,255,0.14)';
@@ -1035,10 +1038,10 @@
       // silver streaks
       clipped(g, fn, () => {
         g.strokeStyle = '#dfe6f4'; g.lineCap = 'round';
-        for (let i = 0; i < 9; i++) {
-          const x = cx - 26 + i * 6.4 + R.rng() * 2;
-          g.beginPath(); g.moveTo(x, 22 + R.rng() * 4); g.quadraticCurveTo(x + 6, 34, x + 3 + R.rng() * 4, 48 + R.rng() * 8);
-          g.lineWidth = 1 + R.rng() * 1.2; g.stroke();
+        for (let i = 0; i < 6; i++) {
+          const x = cx - 22 + i * 8 + R.rng() * 2;
+          g.beginPath(); g.moveTo(x, 26 + R.rng() * 4); g.quadraticCurveTo(x + 9, 36, x + 12 + R.rng() * 4, 46 + R.rng() * 6);
+          g.lineWidth = 0.9 + R.rng() * 0.8; g.globalAlpha = 0.75; g.stroke(); g.globalAlpha = 1;
         }
       });
       sym(g, cx, (g) => hairMass(g, P, (g) => {
@@ -1932,7 +1935,7 @@
     const sky = mk(W, H), s = sky.getContext('2d');
     s.fillStyle = lg(s, 0, 0, 0, H, [[0, '#03051a'], [0.42, '#101946'], [0.66, '#3a2a62'], [0.84, '#9a4f5c'], [1, '#e2904e']]);
     s.fillRect(0, 0, W, H);
-    s.fillStyle = rg(s, 320, 300, 10, 320, 300, 330, [[0, 'rgba(255,196,120,0.6)'], [0.35, 'rgba(255,130,80,0.22)'], [1, 'rgba(255,120,80,0)']]);
+    s.fillStyle = rg(s, 320, 262, 10, 320, 262, 330, [[0, 'rgba(255,196,120,0.6)'], [0.35, 'rgba(255,130,80,0.22)'], [1, 'rgba(255,120,80,0)']]);
     s.fillRect(0, 0, W, H);
     // far skyline with the Hearth Spire (parallax layer 1)
     const FW = 1000, FH = 240;
@@ -2043,10 +2046,10 @@
     ctx.globalAlpha = 1;
     // lantern-sun with slowly turning rays and a breathing glow
     const pulse = 1 + Math.sin(t * 0.02) * 0.025;
-    ctx.save(); ctx.translate(320, 300); ctx.rotate(t * 0.0025);
+    ctx.save(); ctx.translate(320, 262); ctx.rotate(t * 0.0025);
     ctx.drawImage(A.rays, -A.rays.width / 2, -A.rays.height / 2);
     ctx.restore();
-    ctx.save(); ctx.translate(320, 300); ctx.scale(pulse, pulse);
+    ctx.save(); ctx.translate(320, 262); ctx.scale(pulse, pulse);
     ctx.drawImage(A.sun, -A.sun.width / 2, -A.sun.height / 2);
     ctx.restore();
     // parallax skyline and forest

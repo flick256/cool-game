@@ -44,7 +44,6 @@
     bumpLock: null,       // direction whose touch-bump already fired (re-arms on release)
     enc: null, encLeft: 0,
     overrides: {},        // mapId -> evId -> {x,y,dir,sprite,move,solid,trigger,hidden} (session only)
-    prevId: null,
     debug: false, fps: 0, fpsN: 0, fpsT: 0,
     cache: null,
   };
@@ -392,16 +391,19 @@
     if (!def.name || def.banner === false) return;
     M.banner = { t: 0, text: String(def.name) };
   }
-  // entry sequence: (fade in) -> banner -> onEnter -> auto events. Runs as a script (busy while it runs).
+  // entry sequence (spec §3): onEnter (screen still dark) -> fade in -> name banner -> auto events.
+  // Runs as a script, so the player has no input until it finishes.
   function enterFlow(o) {
     const serial = M.serial;
     return G.script.run(async (c) => {
       if (o.fromBlack) G.fx.fade = 1;
-      await G.fx.doFade('in', o.frames || 30);
       if (serial !== M.serial || !M.def) return;
       const def = M.def;
-      if (o.banner) showBanner(def);
       if (typeof def.onEnter === 'function') await def.onEnter(c);
+      if (serial !== M.serial) return;
+      await G.fx.doFade('in', o.frames || 30);
+      if (serial !== M.serial || !M.def) return;
+      if (o.banner) showBanner(M.def);
       await runAutos(c, serial);
     });
   }
@@ -603,7 +605,10 @@
     }
     placeholderChar(ctx, key, d, px, py);
   }
+  // emotes: G.gfx.drawEmote(ctx, kind, x, y, t) with x = head centre, y = top of the head cell
   function drawEmotes(ctx, cx, cy) {
+    if (!M.emotes.length) return;
+    ctx.save();
     for (const em of M.emotes) {
       const ch = em.ch;
       const px = Math.round(ch.x * TILE + ch.ox - cx) + TILE / 2, py = Math.round(ch.y * TILE + ch.oy - cy);
@@ -614,6 +619,7 @@
       ctx.fillStyle = '#222'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(EMOTE_GLYPH[em.kind] || '?', px, by + 0.5);
     }
+    ctx.restore();
   }
   function drawBanner(ctx) {
     const b = M.banner;

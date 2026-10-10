@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>gfx_ui gallery</title>
+<style>html,body{margin:0;background:#000}canvas{display:block;image-rendering:pixelated}</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<script src="../js/core.js"></script>
+<script src="../js/tiles.js"></script>
+<script src="../js/gfx_ui.js"></script>
+<script>
+/* Gallery harness for gfx_ui.js. Choose a page with the query string:
+ *   ?page=portraits&n=0..3   ?page=expr&id=claret   ?page=faces   ?page=icons   ?page=icons32
+ *   ?page=ui   ?page=title   ?page=menu   ?page=zoom&id=claret&expr=happy
+ */
+(function () {
+  const G = window.G;
+  const q = new URLSearchParams(location.search);
+  const page = q.get('page') || 'portraits';
+  const EXPRS = ['normal', 'happy', 'sad', 'angry', 'surprised', 'blush', 'smirk', 'worried'];
+  const IDS = ['rowan', 'claret', 'caspian', 'rook', 'seraphine', 'wren', 'maren', 'bram', 'torvald', 'abbess', 'hale', 'elowen', 'vael', 'pip', 'unknown'];
+  const FONT = '"Trebuchet MS","Segoe UI",Arial,sans-serif';
+
+  function label(ctx, s, x, y, c) { G.gfx.text(ctx, s, x, y, { size: 12, align: 'center', color: c || '#fff' }); }
+
+  const pages = {
+    portraits(ctx) {
+      const n = +(q.get('n') || 0);
+      ctx.fillStyle = '#1b2440'; ctx.fillRect(0, 0, 640, 480);
+      const ids = IDS.slice(n * 4, n * 4 + 4);
+      ids.forEach((id, i) => {
+        G.gfx.drawPortrait(ctx, id, 'normal', 10 + i * 158, 18);
+        label(ctx, id, 10 + i * 158 + 72, 218);
+      });
+      // second row shows the same ids with 'worried' to compare expressions
+      ids.forEach((id, i) => {
+        G.gfx.drawPortrait(ctx, id, 'happy', 10 + i * 158, 240);
+        label(ctx, 'happy', 10 + i * 158 + 72, 440);
+      });
+    },
+    expr(ctx) {
+      const id = q.get('id') || 'claret';
+      ctx.fillStyle = '#1b2440'; ctx.fillRect(0, 0, 640, 480);
+      EXPRS.forEach((e, i) => {
+        const col = i % 4, row = Math.floor(i / 4);
+        const x = 14 + col * 156, y = 10 + row * 232;
+        G.gfx.drawPortrait(ctx, id, e, x, y);
+        label(ctx, e, x + 72, y + 196);
+      });
+    },
+    faces(ctx) {
+      ctx.fillStyle = '#1b2440'; ctx.fillRect(0, 0, 640, 480);
+      IDS.forEach((id, i) => {
+        const col = i % 8, row = Math.floor(i / 8);
+        G.gfx.drawFace(ctx, id, 14 + col * 78, 14 + row * 80);
+        label(ctx, id, 14 + col * 78 + 24, 14 + row * 80 + 52, '#ddd');
+      });
+      EXPRS.forEach((e, i) => {
+        G.gfx.drawFace(ctx, 'claret', 14 + i * 78, 210);
+        G.gfx.drawFace(ctx, 'claret', 14 + i * 78, 210, 48, e);
+        label(ctx, e, 14 + i * 78 + 24, 262, '#ddd');
+      });
+      EXPRS.forEach((e, i) => {
+        G.gfx.drawFace(ctx, 'elowen', 14 + i * 78, 290, 48, e);
+        G.gfx.drawFace(ctx, 'pip', 14 + i * 78, 340, 48, e);
+      });
+      // a turn-order style strip at 32 and 64
+      ['rowan', 'caspian', 'rook', 'seraphine', 'wren', 'hale'].forEach((id, i) => {
+        G.gfx.drawFace(ctx, id, 20 + i * 70, 400, 64);
+      });
+      ['rowan', 'caspian', 'rook', 'seraphine', 'wren', 'hale'].forEach((id, i) => {
+        G.gfx.drawFace(ctx, id, 20 + i * 70, 340 + 0, 32, 'happy');
+      });
+    },
+    icons(ctx, size) {
+      size = size || 24;
+      ctx.fillStyle = '#1b2440'; ctx.fillRect(0, 0, 640, 480);
+      const names = G.gfx.iconNames();
+      const cell = size >= 32 ? 60 : 44, cols = Math.floor(624 / cell);
+      names.forEach((nm, i) => {
+        const col = i % cols, row = Math.floor(i / cols);
+        const x = 10 + col * cell, y = 8 + row * (size + 22);
+        G.gfx.icon(ctx, nm, x + (cell - size) / 2, y, size);
+        G.gfx.text(ctx, nm, x + cell / 2, y + size + 2, { size: 9, align: 'center', outline: true });
+      });
+      if (size === 24) {
+        // status / weapon sample strip at 16
+        ['heart', 'heartHalf', 'heartEmpty', 'bp', 'poison', 'sleep', 'up', 'down', 'check', 'lock', 'taunt', 'regen'].forEach((nm, i) => G.gfx.icon(ctx, nm, 10 + i * 24, 452, 16));
+      }
+    },
+    ui(ctx) {
+      ctx.fillStyle = '#1b2440'; ctx.fillRect(0, 0, 640, 480);
+      G.gfx.drawMenuBg(ctx, 40);
+      G.gfx.window(ctx, 12, 12, 190, 130, { style: 'blue' });
+      G.gfx.text(ctx, 'Items\nSkills\nEquip\nStatus\nBonds', 30, 26, { size: 16, color: '#fff' });
+      G.gfx.window(ctx, 212, 12, 200, 130, { style: 'dark' });
+      G.gfx.text(ctx, 'Dark window\nwith more text', 226, 26, { size: 16 });
+      G.gfx.window(ctx, 424, 12, 204, 130, { style: 'gold' });
+      G.gfx.text(ctx, 'Gold trim', 440, 26, { size: 16, color: '#ffe89a' });
+      G.gfx.window(ctx, 12, 150, 240, 80, { style: 'parchment' });
+      G.gfx.text(ctx, 'Parchment window', 26, 164, { size: 16, color: '#3a2410', outline: false });
+      G.gfx.text(ctx, 'Dark brown text on parchment', 26, 190, { size: 12, color: '#3a2410', outline: false });
+      // wrapped dialogue
+      G.gfx.window(ctx, 12, 246, 616, 96, { style: 'blue' });
+      G.gfx.text(ctx, 'I also found a bent propeller, worn-out struts, loose lug nuts and a giant gouge in the hull! This poor girl has been through the ringer!', 30, 260, { size: 16, maxWidth: 580 });
+      // gauges
+      G.gfx.window(ctx, 262, 150, 366, 80, { style: 'blue' });
+      G.gfx.text(ctx, 'HP', 278, 164, { size: 14 });
+      G.gfx.gauge(ctx, 306, 166, 200, 12, 0.72, '#7de07a', '#2c9a3c', { ghost: 0.85 });
+      G.gfx.text(ctx, 'SP', 278, 186, { size: 14 });
+      G.gfx.gauge(ctx, 306, 188, 200, 12, 0.4, '#7ab8ff', '#2a5ec0');
+      G.gfx.pips(ctx, 530, 166, 3, 5, '#ffd35a');
+      G.gfx.pips(ctx, 530, 186, 2, 3, '#7ef0ff', { shape: 'diamond', size: 8 });
+      G.gfx.cursor(ctx, 300, 214, G.frame || 30);
+      G.gfx.text(ctx, 'Attack', 320, 207, { size: 14 });
+      // romance meter
+      G.gfx.window(ctx, 12, 352, 300, 110, { style: 'blue' });
+      G.gfx.drawHeartMeter(ctx, 28, 366, 37, 1, 260);
+      G.gfx.drawHeartMeter(ctx, 28, 410, 74, 3, 260);
+      G.gfx.drawPortrait(ctx, 'vael', 'smirk', 330, 350, { scale: 0.9 });
+      G.gfx.window(ctx, 470, 352, 160, 110, { style: 'dark' });
+      G.gfx.text(ctx, 'Bonds:\n3 new talks', 484, 366, { size: 14, outline: false });
+      G.gfx.text(ctx, 'LV 12', 484, 420, { size: 16, bold: true, color: '#ffe89a' });
+    },
+    title(ctx) {
+      const t = +(q.get('t') || G.frame || 0);
+      G.gfx.drawTitleScreen(ctx, t);
+      G.gfx.drawLogo(ctx, 320, 44, t);
+      G.gfx.text(ctx, 'New Game', 320, 340, { size: 18, align: 'center', bold: true, color: '#ffffff' });
+      G.gfx.text(ctx, 'Continue', 320, 370, { size: 18, align: 'center', color: '#c8d4ff' });
+      G.gfx.text(ctx, 'Options', 320, 400, { size: 18, align: 'center', color: '#c8d4ff' });
+      G.gfx.text(ctx, 'v0.1.0', 628, 462, { size: 10, align: 'right' });
+    },
+    menu(ctx) {
+      G.gfx.drawMenuBg(ctx, +(q.get('t') || 120));
+      G.gfx.window(ctx, 12, 12, 170, 230, { style: 'blue' });
+      G.gfx.text(ctx, 'Items\nSkills\nEquip\nStatus\nBonds\nFormation\nSave\nOptions\nTitle', 34, 30, { size: 16, outline: true, color: '#fff' });
+      G.gfx.cursor(ctx, 18, 30 + 16 * 1.3 * 0, G.frame);
+      G.gfx.window(ctx, 196, 12, 432, 110, { style: 'blue' });
+      G.gfx.drawFace(ctx, 'rowan', 210, 22, 48);
+      G.gfx.drawFace(ctx, 'claret', 268, 22, 48);
+      G.gfx.text(ctx, 'Rowan  Lv 12\nHP 120/120', 326, 24, { size: 14 });
+      G.gfx.gauge(ctx, 326, 66, 120, 10, 1, '#7de07a', '#2c9a3c');
+      G.gfx.drawPortrait(ctx, 'claret', 'normal', 470, -20, { scale: 1 });
+      G.gfx.window(ctx, 196, 260, 432, 208, { style: 'blue' });
+      G.gfx.drawPortrait(ctx, 'caspian', 'angry', 210, 262, { scale: 0.85 });
+      G.gfx.text(ctx, 'Caspian Thorne', 376, 280, { size: 16, bold: true });
+      G.gfx.text(ctx, 'The Grey Lion. Formerly a Knight-Lantern.', 376, 304, { size: 12 });
+      G.gfx.icon(ctx, 'atkup', 376, 330, 24); G.gfx.icon(ctx, 'defdown', 404, 330, 24);
+      G.gfx.icon(ctx, 'shieldBreak', 432, 330, 24); G.gfx.icon(ctx, 'guard', 460, 330, 24);
+      G.gfx.icon(ctx, 'spdup', 488, 330, 24); G.gfx.icon(ctx, 'regen', 516, 330, 24);
+      G.gfx.icon(ctx, 'sword', 376, 368, 24); G.gfx.icon(ctx, 'fire', 404, 368, 24); G.gfx.icon(ctx, 'lightning', 432, 368, 24);
+      G.gfx.icon(ctx, 'gold', 460, 368, 24); G.gfx.icon(ctx, 'key', 488, 368, 24); G.gfx.icon(ctx, 'potion', 516, 368, 24);
+    },
+    zoom(ctx) {
+      ctx.fillStyle = '#1b2440'; ctx.fillRect(0, 0, 640, 480);
+      G.gfx.drawPortrait(ctx, q.get('id') || 'claret', q.get('expr') || 'normal', 120, 0, { scale: 2.4 });
+    },
+  };
+  G.scenes.register('gallery', () => ({
+    opaque: true,
+    update() {},
+    draw(ctx) {
+      const f = pages[page] || pages.portraits;
+      f(ctx, +(q.get('size') || 24));
+    },
+  }));
+  G.scenes.push('gallery', {});
+  G.start();
+  window.__gallery = true;
+})();
+</script>
+</body>
+</html>
