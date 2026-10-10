@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lanternbound — Hearts of the Hollow Dusk</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html, body { margin: 0; height: 100%; background: #07060d; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center; }
+  #wrap { position: relative; width: min(100vw, calc(100vh * 4 / 3)); aspect-ratio: 4 / 3; }
+  canvas#game { width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; background: #000; outline: none; display: block; }
+  #help { position: fixed; bottom: 4px; left: 0; right: 0; text-align: center; color: #6c6a80; font: 11px sans-serif; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="game" tabindex="0"></canvas></div>
+<div id="help">Arrows/WASD move · Z/Enter/Space confirm · X/Esc cancel &amp; menu · Shift dash · R boost (battle) · Q/C switch pages</div>
+<script>
+  // Load order matters. A missing file only logs a warning (modules are optional during development).
+  window.__loadErrors = [];
+  window.__miss = function (e) { window.__loadErrors.push(e.target.src); console.warn('[load] missing script', e.target.src); };
+</script>
+<script src="js/core.js" onerror="__miss(event)"></script>
+<script src="js/tiles.js" onerror="__miss(event)"></script>
+<script src="js/mapbuilder.js" onerror="__miss(event)"></script>
+<script src="js/gfx_ui.js" onerror="__miss(event)"></script>
+<script src="js/gfx_world.js" onerror="__miss(event)"></script>
+<script src="js/gfx_battle.js" onerror="__miss(event)"></script>
+<script src="js/audio.js" onerror="__miss(event)"></script>
+<script src="js/data.js" onerror="__miss(event)"></script>
+<script src="js/ui.js" onerror="__miss(event)"></script>
+<script src="js/romance.js" onerror="__miss(event)"></script>
+<script src="js/map.js" onerror="__miss(event)"></script>
+<script src="js/battle.js" onerror="__miss(event)"></script>
+<script src="js/hub.js" onerror="__miss(event)"></script>
+<script src="js/ch1.js" onerror="__miss(event)"></script>
+<script src="js/ch2.js" onerror="__miss(event)"></script>
+<script src="js/ch3.js" onerror="__miss(event)"></script>
+<script src="js/ch4.js" onerror="__miss(event)"></script>
+<script src="js/ch5.js" onerror="__miss(event)"></script>
+<script src="js/bonds_a.js" onerror="__miss(event)"></script>
+<script src="js/bonds_b.js" onerror="__miss(event)"></script>
+<script src="js/main.js" onerror="__miss(event)"></script>
+</body>
+</html>

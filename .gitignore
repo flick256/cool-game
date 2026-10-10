@@ -1,0 +1,3 @@
+tests/_harness_*.html
+node_modules/
+*.png
