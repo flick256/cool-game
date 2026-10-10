@@ -408,7 +408,7 @@
     });
   }
   async function runAutos(c, serial) {
-    const list = M.events.filter((e) => e.trigger === 'auto');
+    const list = G.noAuto ? [] : M.events.filter((e) => e.trigger === 'auto');   // G.noAuto: debug (?nocut=1) skips cutscenes
     for (const e of list) {
       if (serial !== M.serial) return;
       if (!evalIf(e)) continue;

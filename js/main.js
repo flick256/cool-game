@@ -6,6 +6,7 @@
   'use strict';
   const G = window.G;
   const q = new URLSearchParams(location.search);
+  if (q.has('nocut')) G.noAuto = true;
   G.debug = {
     // jump straight into a map with a prepared party/state (used by humans and the test harness)
     start(o) {

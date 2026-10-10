@@ -1360,12 +1360,12 @@
         gPips(ctx, L.statX + 130, y + 5, u.bp, MAX_BP, '#ffd86b');
         gText(ctx, 'BP', L.statX + 124, y + 1, { size: 9, align: 'right', color: '#ffd86b' });
         const hpR = u.alive ? clamp((u.dispHp || 0) / u.mhp, 0, 1) : 0;
-        gText(ctx, 'HP', L.statX + 44, y + 14, { size: 10, color: '#e6f3ff' });
-        gText(ctx, u.alive ? String(Math.round(u.dispHp || 0)) + '/' + u.mhp : 'KO', L.statX + L.statW - 8, y + 14, { size: 11, align: 'right', color: u.alive ? '#ffffff' : '#ff9b9b' });
-        gGauge(ctx, L.statX + 44, y + 26, 156, 5, hpR, hpR > 0.5 ? '#6cf0a0' : hpR > 0.25 ? '#ffd27a' : '#ff7a86', '#1f6b4a', { bg: '#0d1733' });
-        gText(ctx, 'SP', L.statX + 44, y + 32, { size: 9, color: '#bfe6ff' });
+        gText(ctx, 'HP', L.statX + 44, y + 12, { size: 10, color: '#e6f3ff' });
+        gText(ctx, u.alive ? String(Math.round(u.dispHp || 0)) + '/' + u.mhp : 'KO', L.statX + L.statW - 8, y + 12, { size: 11, align: 'right', color: u.alive ? '#ffffff' : '#ff9b9b' });
+        gGauge(ctx, L.statX + 44, y + 23, 156, 5, hpR, hpR > 0.5 ? '#6cf0a0' : hpR > 0.25 ? '#ffd27a' : '#ff7a86', '#1f6b4a', { bg: '#0d1733' });
+        gText(ctx, 'SP', L.statX + 44, y + 25, { size: 8, color: '#bfe6ff' });
         const spR = u.msp ? clamp((u.dispSp || 0) / u.msp, 0, 1) : 0;
-        gGauge(ctx, L.statX + 62, y + 35, 138, 3, spR, '#7fc8ff', '#2a5fa0', { bg: '#0d1733' });
+        gGauge(ctx, L.statX + 62, y + 31, 138, 3, spR, '#7fc8ff', '#2a5fa0', { bg: '#0d1733' });
       });
     }
     drawRewards(ctx) {
