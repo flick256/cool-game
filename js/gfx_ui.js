@@ -723,6 +723,11 @@
   function hairMass(g, P, fn, y0, y1, alpha) {
     g.save(); if (alpha != null) g.globalAlpha = alpha;
     paint(g, fn, lg(g, 0, y0, 0, y1, [[0, P.hair], [0.6, P.hair], [1, P.hairSh]]), P.line, 2.2);
+    // glossy sheen across the crown, clipped to the hair shape
+    clipped(g, fn, () => {
+      g.fillStyle = rg(g, 58, y0 + 6, 2, 62, y0 + 8, 30, [[0, 'rgba(255,255,255,0.20)'], [1, 'rgba(255,255,255,0)']]);
+      g.fillRect(20, y0 - 4, 110, 40);
+    });
     g.restore();
   }
   function hairHi(g, P, rng, fn, box, n, len) {
@@ -1079,9 +1084,10 @@
         }
         g.moveTo(pts[0][0], pts[0][1]);
         for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]);
-        g.lineTo(cx + 34, 102); g.lineTo(cx - 34, 102); g.closePath();
+        g.quadraticCurveTo(cx + 40, 86, cx + 30, 104); g.lineTo(cx - 30, 104);
+        g.quadraticCurveTo(cx - 40, 86, cx - 38, 70); g.closePath();
       };
-      hairMass(g, P, fn, 14, 102);
+      hairMass(g, P, fn, 14, 104);
       hairHi(g, P, R.rng, fn, [cx - 40, 14, cx + 40, 90], 24, 10);
     },
     body(g, P, o) {
@@ -1596,12 +1602,14 @@
     },
     front(g, P, o, R) {
       const cx = o.cx;
+      // short silver hair swept off a high peak to the right, with a tapered lower edge
       const fn = (g) => {
-        g.moveTo(cx - 28, 58); g.quadraticCurveTo(cx - 30, 32, cx - 2, 26); g.quadraticCurveTo(cx + 30, 30, cx + 28, 56);
-        g.quadraticCurveTo(cx + 18, 42, cx + 6, 44); g.quadraticCurveTo(cx - 12, 48, cx - 28, 58); g.closePath();
+        g.moveTo(cx - 29, 60); g.quadraticCurveTo(cx - 26, 28, cx + 4, 21); g.quadraticCurveTo(cx + 28, 22, cx + 30, 42);
+        g.lineTo(cx + 28, 58); g.quadraticCurveTo(cx + 14, 44, cx + 4, 47); g.quadraticCurveTo(cx - 10, 42, cx - 18, 50);
+        g.quadraticCurveTo(cx - 24, 54, cx - 29, 60); g.closePath();
       };
-      hairMass(g, P, fn, 26, 58);
-      hairHi(g, P, R.rng, fn, [cx - 28, 28, cx + 28, 54], 12, 8);
+      hairMass(g, P, fn, 21, 60);
+      hairHi(g, P, R.rng, fn, [cx - 28, 22, cx + 28, 56], 22, 9);
     },
     mid(g, P, o) {
       // shadows under the eyes
@@ -1703,12 +1711,13 @@
     },
     front(g, P, o, R) {
       const cx = o.cx;
+      // silver hair combed back from a high crown, swept to the left
       const fn = (g) => {
-        g.moveTo(cx - 30, 56); g.quadraticCurveTo(cx - 34, 28, cx + 6, 21); g.quadraticCurveTo(cx + 34, 26, cx + 30, 56);
-        g.quadraticCurveTo(cx + 18, 44, cx - 4, 46); g.quadraticCurveTo(cx - 18, 46, cx - 30, 56); g.closePath();
+        g.moveTo(cx - 30, 56); g.quadraticCurveTo(cx - 36, 26, cx - 4, 19); g.quadraticCurveTo(cx + 30, 22, cx + 30, 50);
+        g.quadraticCurveTo(cx + 20, 40, cx + 6, 42); g.quadraticCurveTo(cx - 12, 40, cx - 20, 48); g.quadraticCurveTo(cx - 26, 52, cx - 30, 56); g.closePath();
       };
-      hairMass(g, P, fn, 21, 56);
-      hairHi(g, P, R.rng, fn, [cx - 30, 22, cx + 30, 52], 18, 10);
+      hairMass(g, P, fn, 19, 56);
+      hairHi(g, P, R.rng, fn, [cx - 30, 20, cx + 30, 52], 26, 12);
     },
     mid(g, P, o) {
       // silver goatee

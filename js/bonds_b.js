@@ -886,5 +886,259 @@
     },
   });
 
-  // @@PART3@@
+  // ====================================================================
+  // CREW BANTER  (whole-party scenes on the Marigold; actor null; only joined crew speak)
+  // ====================================================================
+
+  reg({
+    id: 'banter_1', actor: null, minTier: 0, minChapter: 2, kind: 'banter', once: true,
+    title: 'Dinner, Probably Safe',
+    journal: "The crew survived Claret's stew, mostly, and agreed the Marigold was starting to feel like home.",
+    bgm: 'comic',
+    run: async (c) => {
+      await c.bgm('comic');
+      await play(c, [
+        ['narr', 'The Marigold\'s galley, a week out of Brasshaven. Something is bubbling on the stove with an air of suspicion.'],
+        ['claret', 'Nobody touch the stew. It is stew. It is fine. It is load-bearing.', 'normal'],
+        ['rowan', 'Load-bearing?', 'worried'],
+        ['claret', "I'm not explaining until you've eaten it. Then you'll be on my side.", 'smirk'],
+        ['rook', 'Something in that pot is wearing a hat. I say that as a man who has eaten in Gladius.', 'smirk'],
+        ['caspian', 'I have eaten worse in the Order\'s barracks, under worse supervision. This stew is honest. There is a great honesty in it.', 'normal'],
+        ['claret', 'Thank you. Nobody has ever called my cooking honest before.', 'blush'],
+        ['rook', 'Nobody has called it anything, Captain. The bowl is still looking at us.', 'smirk'],
+        ['rowan', "I'll have seconds. Brave of me.", 'smirk'],
+        ['claret', "Don't. Seconds is how the bowl wins.", 'normal'],
+        ['narr', 'Spoons clink. Then more of them. For a while the galley is busy with the sound of people eating something they did not expect to enjoy.'],
+        ['rowan', "It's good. Really good. The first hot meal since Wickholm that didn't come out of a tin.", 'happy'],
+        ['claret', "Don't get used to it. I'm a mechanic with a stove, not a cook.", 'normal'],
+        ['caspian', 'A mechanic with a stove who can make a stew honest. There must be a lesson in that somewhere.', 'happy', 'caspian'],
+        ['rook', "The lesson is don't let the captain near the spice rack. I learned that the hard way.", 'smirk', 'caspian'],
+        ['claret', "I'm sitting right here, Rook.", 'normal'],
+        ['rook', "Yes, Captain, and that's why I'm saying it loudly.", 'smirk'],
+        ['rook', 'Right. A silver says there is a nut in it.', 'smirk'],
+        ['claret', "It contains one nut. It is a very small nut. It's the only one I own.", 'smirk'],
+        ['seraphine', 'Grace first, everybody. Sit. The stew would like a blessing.', 'smirk'],
+        ['wren', 'The stew does not want a blessing. It wants to be eaten quickly and not discussed.', 'normal'],
+        ['seraphine', 'Wren, that is rude.', 'normal'],
+        ['wren', 'It is also true. Sometimes those are the same thing. Pass the bread.', 'smirk'],
+        ['narr', 'The bread goes round. Somebody, nobody will say who, has put a little lavender in the honey. It is not in the recipe. It is the best thing on the table.', null, 'seraphine'],
+        ['rowan', 'To the ship.', 'happy'],
+        ['claret', "To the ship that doesn't explode.", 'smirk'],
+        ['caspian', "It has been a week. Nothing has exploded.", 'happy', 'caspian'],
+        ['claret', "It's been a very quiet week. I'm starting to find it suspicious.", 'normal'],
+        ['narr', 'Outside the portholes, the lantern-sun hangs low and warm over the sea, and for once nobody is in a hurry to be anywhere else.'],
+        ['rowan', 'Thanks for cooking, Claret. Really.', 'happy'],
+        ['claret', "Don't make it a moment. I'll get emotional about the gravy.", 'blush'],
+        ['narr', 'She does not look up from her bowl. But the tips of her ears go pink, and she pushes the last of the bread across the table toward you.'],
+      ]);
+    },
+  });
+
+  reg({
+    id: 'banter_2', actor: null, minTier: 0, minChapter: 3, kind: 'banter', once: true,
+    title: 'Lanternfall',
+    journal: 'Game night ended with a cheating thief, a fox who relocated the queen, and a lamp that went out at the worst moment.',
+    bgm: 'comic',
+    run: async (c) => {
+      await c.bgm('comic');
+      await play(c, [
+        ['narr', "Night in the Marigold's mess. The table is cleared, the cards are out, and Claret has chalked a score column on a slate with the grim fairness of a tax collector."],
+        ['rook', 'Lanternfall. Rules are simple. Highest hand takes the pot. The loser does the washing-up for a week.', 'smirk'],
+        ['claret', "The loser scrubs the galley with a toothbrush. I'm keeping score, Rook. I've seen you deal.", 'normal'],
+        ['rook', 'Captain, I am wounded. I am a gentleman. Gentlemen do not deal from the bottom.', 'smirk'],
+        ['narr', 'He does, twice. Claret sees both times, and writes both down.'],
+        ['caspian', 'I must be candid. I cannot lie, and so I shall not be able to bluff. Please do not take my hand personally.', 'normal', 'caspian'],
+        ['rook', 'Caspian, the man who cannot lie, against the man who cannot stop. This is going to be tragic. I love it.', 'happy', 'caspian'],
+        ['seraphine', "I've been practising my poker face. Watch. Mm. Nothing is happening in my face.", 'normal'],
+        ['claret', "That's not a poker face. That's a hymn face.", 'smirk'],
+        ['seraphine', 'A hymn face is a poker face with better lighting.', 'smirk'],
+        ['narr', 'Under the table, a fox has taken the Queen of Lanterns in his teeth and is carrying her off with the air of a pickpocket.', null, 'wren'],
+        ['wren', 'He wants it back. He is very serious about cards. He is very bad at them.', 'normal'],
+        ['rook', "That was my best card. Wren, your fox is a thief. We have something in common.", 'smirk'],
+        ['wren', 'He is not a thief. He is a fox. Foxes do not steal. They relocate property.', 'smirk'],
+        ['claret', 'Right. Hands. Quietly. Caspian, you have that look again.', 'normal'],
+        ['caspian', 'I have no look. I am simply holding three lanterns and a cold feeling.', 'worried', 'caspian'],
+        ['rowan', 'Three lanterns and a feeling. That sounds like a winning hand.', 'smirk'],
+        ['caspian', 'It is a losing hand. I shall lose honestly.', 'normal', 'caspian'],
+        ['rook', 'That is the saddest thing I have ever heard. Fold, my friend. Fold for love.', 'happy', 'caspian'],
+        ['narr', 'Caspian folds. He turns his cards face-up anyway, three lanterns and a cold feeling, because he cannot bear to be dishonest about it.', null, 'caspian'],
+        ['claret', 'Rook wins, of course.', 'normal'],
+        ['rook', 'Of course. Pay up. Oh, wait. Pay down. The washing-up.', 'happy'],
+        ['rowan', "I'm playing the next hand. I've got a secret weapon.", 'smirk'],
+        ['claret', 'You do not.', 'normal'],
+        ['rowan', "I have Sera's face.", 'smirk'],
+        ['seraphine', 'Mm. Be careful. You will have to give it back after.', 'smirk'],
+        ['narr', 'The hand that follows is decided by a fox, a sneeze, and a lamp that goes out at a very inconvenient moment. In the dark, somebody swears in a language nobody will admit to knowing.'],
+        ['rowan', 'Who won?', 'worried'],
+        ['claret', 'Nobody won. Lamp is out. We are all doing the washing-up.', 'normal'],
+        ['rook', "I'd call that a moral victory for the fox.", 'smirk'],
+        ['wren', 'He agrees with you.', 'smirk'],
+        ['narr', 'Someone lights the lamp again. In the sudden brightness everyone is laughing, even Caspian, who had sworn to be honest about his laughter and is not.'],
+        ['seraphine', "We should make it a tradition. Thursday games. I'll bring sweets. Not sweet buns. Wren has feelings about sweet buns.", 'happy'],
+        ['wren', 'I have a very reasonable objection to sweet buns.', 'normal'],
+        ['rowan', 'Same time next week?', 'happy'],
+        ['claret', "Same time, same washing-up. I'm bringing the slate with the proof.", 'smirk'],
+      ]);
+    },
+  });
+
+  reg({
+    id: 'banter_3', actor: null, minTier: 0, minChapter: 4, kind: 'banter', once: true,
+    title: 'The Storm Over the Road',
+    journal: 'The Marigold rode out a storm over the Ashen Road with a lullaby, a stove, and a great many hands held tight.',
+    bgm: 'tense',
+    run: async (c) => {
+      await c.bgm('tense');
+      await play(c, [
+        ['narr', 'Over the Ashen Road the sky turns the colour of an old bruise, and the Marigold runs straight into the middle of it.'],
+        ['claret', 'Everyone in the galley. Now. Hold on to something bolted down. Nothing on this ship is bolted down enough, but hold on anyway.', 'worried'],
+        ['narr', 'Thunder walks across the hull like a giant in bad boots. The lamps swing on their hooks. A teacup escapes its saucer and is recaptured by Caspian without his looking.'],
+        ['caspian', 'I have it. Forgive the liberty.', 'normal', 'caspian'],
+        ['rook', 'Caspian, that was the most heroic thing I have seen all week, and I have watched you wrestle a bear.', 'happy', 'caspian'],
+        ['claret', "Don't say it's just a bit of wind. It is not a bit of wind. It is a wind with a grudge.", 'normal'],
+        ['rowan', 'How bad is it?', 'worried'],
+        ['claret', 'Bad enough that I am going to swear at the engine. Don\'t look at me like that. It likes it.', 'smirk'],
+        ['narr', 'Below decks the engine coughs, considers the matter, and resumes with a sound like a kettle having an argument with itself.'],
+        ['claret', 'There. See? It listens to shouting. It is a Vane family trait.', 'smirk'],
+        ['narr', 'Wren stands in the doorway with their hat clamped down and addresses the sky in a low, unimpressed voice.', null, 'wren'],
+        ['wren', 'You are not invited. You are being rude. Go and be rude to a mountain.', 'normal'],
+        ['rook', 'Is that going to work?', 'smirk', 'rook'],
+        ['wren', 'No. But I feel better, and so will the fox, who is hiding under the bench and should be ashamed of himself.', 'smirk'],
+        ['narr', 'Somewhere under the bench, a fox gives a long, miserable whine.', null, 'wren'],
+        ['seraphine', 'Come here, everybody. Sit by the stove. I will sing.', 'happy'],
+        ['rook', 'Sing what? Something with a happy ending, please. I have had a day.', 'smirk', 'rook'],
+        ['seraphine', 'Something with no god in it.', 'normal'],
+        ['narr', 'She starts low, a simple tune with no crooked turns in it. By the second line the galley is humming along, including the ones who swear they cannot.'],
+        ['caspian', 'I cannot hold a tune. I shall hold the lantern instead.', 'normal', 'caspian'],
+        ['claret', 'Hold the lantern, Caspian. Thank you.', 'happy'],
+        ['narr', 'Thunder rolls off across the sea, growing smaller. The Marigold lurches once more and then steadies, like a horse that has decided not to bolt after all.'],
+        ['rowan', 'Is it over?', 'worried'],
+        ['claret', 'No. That was the front edge. The back edge is worse. It is always worse.', 'normal'],
+        ['rook', 'Then tell us a story, Captain, and make it a good one.', 'smirk', 'rook'],
+        ['claret', 'Once upon a time, a stupid mechanic tried to fix a boat in a storm.', 'smirk'],
+        ['rook', "That's not a story. That's a summary.", 'smirk', 'rook'],
+        ['claret', 'Fine. Once upon a time, the captain ran away from a storm and came home with a fox.', 'normal'],
+        ['wren', 'I did not come home with a fox. The fox came home with me. There is a difference.', 'normal', 'wren'],
+        ['seraphine', 'There is no difference. Let me have that one, Wren.', 'smirk', 'wren'],
+        ['narr', 'The second wave hits. Nobody screams, though Rook comes close. They hold on to the table, to the nearest rail, to the nearest hand.'],
+        ['rowan', "I'm not scared. I'm just holding on to Claret's sleeve very tightly.", 'worried'],
+        ['claret', 'I can feel that. You are going to pull it off.', 'normal'],
+        ['narr', 'She does not move her arm. Neither do you. When the storm finally breaks, the sleeve is still there, a little crumpled, and nobody mentions it.'],
+        ['narr', 'Outside, the stars come back over the Ashen Road one at a time, like lanterns being lit by someone who has finally got the matches to work.'],
+      ]);
+    },
+  });
+
+  reg({
+    id: 'banter_4', actor: null, minTier: 0, minChapter: 5, kind: 'banter', once: true,
+    title: 'Patch Job',
+    journal: "The crew patched the Marigold's hull at the foot of the Spire and painted a row of small lanterns along the new plate.",
+    bgm: 'comic',
+    run: async (c) => {
+      await c.bgm('comic');
+      await play(c, [
+        ['narr', "The Marigold's hull has a hole in it the size of a dining table, courtesy of Inquisitor Hale. Everyone has been put to work on the patch at the foot of the Spire's gate."],
+        ['claret', 'Right. Patch. Plate. Rivets. Nobody says "fine" until I say "fine". Caspian, the plate. Rook, the rivets.', 'normal'],
+        ['rook', "Captain, I'm a thief. Not a riveter.", 'smirk'],
+        ['claret', "You're a thief with two hands. Use them.", 'normal'],
+        ['caspian', 'Please. Hand me the plate. I shall carry it like a shield, which I believe is its real purpose.', 'happy', 'caspian'],
+        ['narr', 'Caspian lifts a sheet of riveted iron onto one shoulder as if it were a loaf of bread, and sets it over the hole with a gentleness that stops Claret complaining for two whole seconds.'],
+        ['claret', "Hold it. Hold it, Caspian. Don't be nice to it. It'll get ideas.", 'normal'],
+        ['narr', 'Rook pockets a bolt that is definitely not his and winks at no one in particular.', null, 'rook'],
+        ['claret', 'Put that back.', 'normal'],
+        ['rook', 'The universe said I could.', 'smirk', 'rook'],
+        ['claret', 'The universe is not on my payroll.', 'normal'],
+        ['seraphine', 'Oh, leave him. He has been good all morning. He has only stolen one thing.', 'smirk'],
+        ['rook', "Thank you, Sera. I'll tell the universe you said so.", 'happy', 'rook'],
+        ['wren', "The plant is going in the engine room. Don't argue. I've picked the spot.", 'normal'],
+        ['claret', "Wren. Don't you dare put a moonpetal in my engine room.", 'angry'],
+        ['wren', "It's a geranium. It is not a moonpetal. The moonpetal is for the bow. It needs a view.", 'normal'],
+        ['claret', 'The geranium is not allowed in my engine. The engine is not a garden.', 'normal'],
+        ['wren', 'Everything is a garden if you are patient enough. Your engine is already coughing like a hedge in June.', 'smirk'],
+        ['narr', 'Sera has climbed onto the hull with a pot of paint. She is writing a line of small lanterns along the new plate, one by one, each with the tilted flame the Lampwrights once painted on their doors.'],
+        ['rowan', "What are those?", 'normal'],
+        ['seraphine', "Lanterns. Not the Order's kind. The sort you let go of, that go somewhere nobody owns.", 'happy'],
+        ['claret', "They'll flake off in the first storm.", 'normal'],
+        ['seraphine', "Then I'll paint them again. That's the nice thing about lanterns.", 'smirk'],
+        ['caspian', 'I shall paint the one by the rivet. It is my favourite. It looks as if it is about to fall over, and does not care.', 'happy', 'caspian'],
+        ['narr', 'By the time the sun is low the hole is a patch, the patch is a plate, and the plate has a row of small bright lanterns running down the iron like the line of a hymn.'],
+        ['narr', 'Claret raps the plate with a spanner. It rings, low and sure, like a bell that has been told it is needed.'],
+        ['claret', 'Fine. It is fine. We are fixed.', 'smirk'],
+        ['rowan', "We're not fixed. We're fixed enough.", 'happy'],
+        ['claret', "...That's the nicest thing you've ever said about my work, and I am going to pretend you did not say it.", 'blush'],
+        ['narr', 'Wren\'s geranium is wedged, against all reason, into a gap by the forward vent. It has already begun to lean toward the last of the sun.', null, 'wren'],
+        ['rook', "Right. Who's buying a drink? Not me. I'm skint. I'm borrowing the universe for the evening, though.", 'smirk', 'rook'],
+        ['claret', "Nobody is buying anything. We go up the Spire in the morning. Eat something first.", 'normal'],
+        ['caspian', 'Eat, then sleep. And tomorrow, we climb.', 'normal', 'caspian'],
+        ['narr', 'The crew sits along the hull in the last of the light, legs dangling, paint on their hands, while the Spire climbs into the dusk above them like a question with no ending yet.'],
+      ]);
+    },
+  });
+
+  // ====================================================================
+  // FINAL TOAST  (the night before the Hearthstar; all six crew; funny to moving)
+  // ====================================================================
+
+  // A knowing glance, shown only when someone is the Beloved (tier-aware, never heavy).
+  const GLANCE = {
+    seraphine: 'Across the table, Sera catches your eye over the rim of her cup, and for once she does not look away.',
+    wren: 'Across the lanterns, Wren meets your eye, unblinking, the way they look at things they intend to keep.',
+    claret: 'Across the table, Claret looks at you, then very deliberately looks into her cup as if it had done something rude. She is grinning.',
+    caspian: "Caspian's eyes find yours over the rim of his cup. He gives the small, honest smile he does not give often, and lifts the cup an inch toward you.",
+    rook: 'Rook finds you across the lanterns and winks, but not his usual wink. This one is slower, and it means: I know.',
+  };
+
+  reg({
+    id: 'final_toast', actor: null, minTier: 0, minChapter: 5, kind: 'banter', once: true,
+    title: 'The Last Lantern',
+    journal: 'On the last night before the Hearthstar, the six of you raised a stolen bottle and promised to come back.',
+    bgm: 'comic',
+    run: async (c) => {
+      await c.bgm('comic');
+      await play(c, [
+        ['narr', 'The night before the Hearthstar. Every lantern the crew could find is strung through the Marigold\'s rigging, mismatched and warm. A table has been dragged up from the galley, with six cups on it.'],
+        ['narr', 'In the middle of the table stands a bottle of ember wine. Rook swears he did not steal it.'],
+        ['rook', 'Acquired. Not stolen. There is a difference, and I am standing in it.', 'smirk'],
+        ['claret', 'He took it off a bishop.', 'normal'],
+        ['caspian', 'From a bishop who was not drinking it, and who will be perfectly well. I have it on good authority.', 'normal'],
+        ['wren', 'Wine taken from a bishop is a bad omen. Ask the fox. He had the bottle first.', 'smirk'],
+        ['seraphine', 'Everyone, please. It is the last night. Let us be dignified for six whole minutes.', 'normal'],
+        ['narr', 'Nobody is dignified for six whole minutes. Claret stands with a cup in one hand and a spanner in the other, which is how she makes speeches.'],
+        ['claret', "Right. Speeches. I'm bad at these. So I'll say the honest thing, and nobody is allowed to cry about it.", 'normal'],
+        ['claret', "I'm fighting for my dad. And for a ship that does not have to carry everything alone. Including me. That's the list. It's short. I've checked it twice.", 'sad'],
+        ['caspian', 'I am fighting for the people I left in the lamp-towns. I put out their lights once, on an order. I would rather fall down the Spire than put out one more.', 'sad'],
+        ['rook', "I'm fighting to stay. That's the whole plan. I'll stay put and be a nuisance until you all die of boredom. It's a punishment, honestly.", 'smirk'],
+        ['seraphine', 'I am fighting for a hymn with no god in it. For people, singing out loud where nothing has to be drunk. The Abbess says she will attend. I have given her my "don\'t you dare" face.', 'happy'],
+        ['wren', 'I am fighting for the garden. For the people who come back up the path. And for the fox, who is in the wrong place and has been told.', 'normal'],
+        ['narr', 'Everyone turns to you. The lanterns sway, and the Hearthstar hangs above the Spire, pale and too bright for comfort. Nobody looks at it.'],
+        ['rowan', "I'm fighting for everyone I've ever kindled. And the ones I haven't met yet. And for the stupid, wonderful people on this deck, who keep following me up the stairs.", 'happy'],
+        ['rowan', 'Rook, I can see you blushing.', 'smirk'],
+        ['rook', 'I am not blushing. The lantern is reflecting off me. It is a known effect.', 'smirk'],
+      ]);
+      const glance = GLANCE[lover()];
+      if (glance) await play(c, [['narr', glance]]);
+      await play(c, [
+        ['rowan', 'Rook, you give the toast. You have been trying to all night.', 'smirk'],
+        ['rook', 'Finally. Right. Cups up. Everyone. Cups up. And nobody cries.', 'happy'],
+        ['rook', 'To lanterns that do not drink.', 'happy'],
+        ['claret', 'To lanterns that do not drink.', 'normal'],
+        ['caspian', 'To lanterns that do not drink, and to the people who carry them.', 'normal'],
+        ['seraphine', 'To people who do not have to be spent in order to be bright.', 'happy'],
+        ['wren', 'To the garden. And to everyone who gets to come up the path.', 'normal'],
+        ['rowan', 'To all of you. Every single one.', 'happy'],
+        ['narr', "Six cups go up. Lantern light runs over the rims, down the brass of Claret's hand, across Caspian's coat and Sera's pale hair and Wren's crooked hat, and over Rook's grin."],
+        ['claret', 'Oh, don\'t. Rook, you are doing the face.', 'smirk'],
+        ['rook', 'I am not doing a face. I am a very proud man with a stolen bottle of wine.', 'happy'],
+        ['wren', 'Drink it, then, before it goes off. Bishops are very particular.', 'smirk'],
+        ['narr', 'They drink. Somebody coughs. Somebody laughs too loudly, and then everybody is laughing, and the ship is full of it, warm and unhurried.'],
+        ['caspian', 'Thank you. I should like to say, once more, that I am proud of every one of you. I shall say it again in the morning, in case I forget.', 'happy', 'caspian'],
+        ['claret', 'You will forget. Say it on the stairs. We will all be too out of breath to argue.', 'smirk'],
+        ['narr', 'Above the Spire, the Hearthstar burns on, a lantern that has been fed for an age on other people\'s warmth.'],
+        ['narr', 'Down here, on one small ship, six lights sit together under a row of paper lanterns. Not one of them grows dimmer for being shared.'],
+        ['narr', 'Tomorrow they will climb. Tonight they are simply together, and the lanterns burn, and they keep on burning.'],
+      ]);
+    },
+  });
+
+  G.provide('bonds_b');
 })();

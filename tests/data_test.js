@@ -92,6 +92,20 @@ const PARTY_ORDER = ['rowan', 'claret', 'caspian', 'rook'];
     check(G.data.describeSkill('wickcutter').line.length > 0, 'describeSkill');
     check(G.data.skillIcons('bond_claret').indexOf('heart') >= 0, 'bond icon');
     check(G.data.itemsByType('gift').length === 16, 'gift count 16 (' + G.data.itemsByType('gift').length + ')');
+    // revive path and dead-target rules
+    S.roster.claret.hp = 0;
+    check(G.party.useItem('potion', 'claret') === false, 'potion refused on fallen ally');
+    G.party.addItem('phoenix_down', 1);
+    check(G.party.useItem('phoenix_down', 'claret') === true, 'phoenix down revives');
+    check(S.roster.claret.hp === Math.floor(G.party.stats('claret').mhp * 0.5), 'revive gives half max HP');
+    // catch-up: a below-average member gains +50% exp
+    G.party.join('caspian', 1);
+    G.party.setLevel('rook', 1);
+    const before = S.roster.rook.exp;
+    G.party.gainExp('rook', 100);
+    check(S.roster.rook.exp - before === 150, 'below-average member gets +50% exp (got ' + (S.roster.rook.exp - before) + ')');
+    check(G.party.gainExp('rowan', 0).length === 0, 'zero exp, no level-ups');
+    check(S.roster.caspian.level >= 10, 'caspian joins at joinLevel 10 or higher (got ' + S.roster.caspian.level + ')');
     check(G.party.leave('rowan') === false, 'rowan cannot leave');
     G.party.setParty(['claret', 'rowan', 'nobody']);
     check(G.party.members()[0] === 'rowan', 'setParty keeps rowan first');

@@ -105,9 +105,11 @@
       }
 
       await talk(c, 'claret', `Right. Pressure's holding. You can go to bed now. Good work, lamp-holder.`, 'happy');
+      await you(c, `Lamp-holder. I'll take that title, Captain.`, 'smirk');
       await you(c, `And you?`);
       await talk(c, 'claret', `I'm going to sit here and listen to her breathe a bit. Don't tell anyone. I'm not sentimental.`, 'normal');
       await nar(c, `She drops onto the hatch's edge and pats the metal beside her. The lamp sits between you, and the Marigold hums like a sleeping animal.`);
+      await nar(c, `Somewhere in the boiler, Pansy clicks and settles, like a cat finding its spot.`);
       await talk(c, 'claret', `...Thanks for holding the light, {name}. Don't let it go to your head.`, 'blush');
       c.sfx('heart');
     },
@@ -384,6 +386,8 @@
         await talk(c, 'claret', `Tomorrow I'm on the ship, keeping her in the air. You're on the stairs. Don't argue. I've already made the schedule.`, 'normal');
         await nar(c, `She sits on the hatch rim, goggles on her forehead, and holds out a small spanner like a toast. It's friendship in its most practical form.`);
         await talk(c, 'claret', `You've been the best crew I've ever had. Better than the Order's engineers, and they had gold-plated wrenches.`, 'happy');
+        await nar(c, `Somewhere below, the boiler breathes in and out, slow as a sleeping giant. The sound is almost comforting.`);
+        await you(c, `It's nice, having something that keeps going while we rest.`, 'happy');
         await talk(c, 'claret', `Whatever's up there, you're not walking into it alone. I'll be on the other end of the wire. I'm always on the other end of something.`, 'normal');
         await you(c, `Thank you, Claret.`, 'happy');
         await talk(c, 'claret', `Don't thank me. Thank the ship. She'll be insufferable if you don't.`, 'smirk');
@@ -620,6 +624,11 @@
       await nar(c, `Caspian comes back from scouting, dust to the knees.`);
       await talk(c, 'caspian', `The road ahead is empty. Too empty. The Order's hounds are waiting somewhere in the grey, and I would rather they weren't.`, 'worried');
       await nar(c, `He doesn't sit. He unbuckles the dented breastplate from his shoulders and holds it in both hands, as if it's still warm from his body.`);
+      await nar(c, `Somewhere beyond the hills a bell tolls twice, then falls silent. He counts it without meaning to.`);
+      await talk(c, 'caspian', `Two bells. Three nights ago it was one. The Order is moving faster than I would like.`, 'worried');
+      await you(c, `Are you frightened?`, 'worried');
+      await talk(c, 'caspian', `Yes. Terribly. It's the first honest thing I've said all week.`, 'sad');
+      await nar(c, `The fire pops. A spark rises and dies in the dark above you both.`);
       await talk(c, 'caspian', `I have carried this two years. The Order's sigil, scratched out. Three nights with a nail, and I never did get all of it.`, 'sad');
       await nar(c, `Then, to your astonishment, he crosses the firelight and kneels on the stone at your feet, the plate laid across his open palms.`);
       await talk(c, 'caspian', `I swore to the Hearth Order on my knees, once. I would like to swear again. Not to an order. To a person. Will you let me?`, 'worried');
@@ -782,6 +791,9 @@
         await talk(c, 'caspian', `Tomorrow is the stair. I will hold the bottom. You'll be the one who climbs. That is the arrangement, and I won't argue it.`, 'normal');
         await you(c, `I'd like you with me, Caspian.`, 'happy');
         await talk(c, 'caspian', `You shall have me. At the bottom, shouting useful things and rather unhelpful encouragement.`, 'blush');
+        await talk(c, 'caspian', `I have made a list of what I shall do at the bottom of the stair. It is short. It contains the word "shout" twice.`, 'smirk');
+        await you(c, `Just shout?`, 'smirk');
+        await talk(c, 'caspian', `Shout, and stand very straight. I am told posture intimidates the Hollow. Nobody has ever complained.`, 'blush');
         await talk(c, 'caspian', `You have been a better friend to me than I deserve. I am trying to be the friend you deserve, which is harder, and far less dramatic.`, 'sad');
         await talk(c, 'caspian', `Whatever's up there, go up. I'll be here when you come down. That is a promise. Most of mine are bad, so I'm trying hard with this one.`, 'happy');
         await nar(c, `He smiles, a little crooked, and lifts the rag in a small salute.`);
@@ -858,6 +870,8 @@
       await talk(c, 'rook', `There. Lucky. Like you.`, 'happy');
       await you(c, `That's the oldest trick on this whole ship.`, 'smirk');
       await talk(c, 'rook', `It's the oldest trick in Gladius. That's why it still works on people who should know better.`, 'smirk');
+      await you(c, `Show me that again. Slowly.`, 'smirk');
+      await talk(c, 'rook', `Slowly is how I lose my audience. Fast is where the money is.`, 'smirk');
       await nar(c, `He leans back, and his sleeve shifts. A glint of gold, folded into the cuff, that wasn't there a moment ago.`);
 
       const p1 = await pick(c, `You can see the second coin tucked in his sleeve. What do you say?`, [
@@ -894,6 +908,9 @@
       await nar(c, `A shadow crosses his face for a heartbeat. Then he's grinning again, bright as the sun on the rails.`);
       await nar(c, `He flips the coin high and catches it without looking.`);
       await talk(c, 'rook', `Don't ask about Pennyfold. It's the only story I tell badly.`, 'sad');
+      await nar(c, `Gulls argue over a fish bone at the rail. He watches them with a grin that's almost real.`);
+      await you(c, `You're in a good mood, for a man who just told a sad story.`, 'smirk');
+      await talk(c, 'rook', `I'm always in a good mood. It's the mood I'm best at. Don't tell the Order.`, 'smirk');
 
       const p2 = await pick(c, `He lands the coin on the back of his hand. "So. Dinner? Or do I have to flip for it?"`, [
         `Earnest: "Yes. With you. You don't have to flip for it."`,
@@ -918,6 +935,7 @@
 
       await nar(c, `He tosses the coin high into a shaft of sunlight. For once, it doesn't come back to his hand.`);
       await nar(c, `It lands in yours, and he doesn't reach for it.`);
+      await nar(c, `Behind you, the Marigold's bell rings for noon. He doesn't notice. He's watching you.`);
       await talk(c, 'rook', `Keep it till supper. Give it back over the stew, or I'll be forced to come looking for you. I'm dreadful at looking for things.`, 'smirk');
       await you(c, `And if I don't give it back?`, 'smirk');
       await talk(c, 'rook', `Then I'll be forced to stay put, which would be very inconvenient for my reputation. Let's see who ends up following whom.`, 'happy');
@@ -1022,6 +1040,8 @@
       await talk(c, 'rook', `Oh. You're up. Perfect timing. I was about to be heroic, and it's a dreadful look on me.`, 'surprised');
       await you(c, `Where are you going, Rook?`, 'worried');
       await talk(c, 'rook', `Out. Away. Somewhere the Order's hounds aren't. For your safety, obviously, which I'm very proud of.`, 'smirk');
+      await nar(c, `The hatch creaks, and cold night air slides in around your ankles. He doesn't close it.`);
+      await talk(c, 'rook', `Shut the hatch, would you? The cold gets ideas.`, 'smirk');
       await nar(c, `Your eyes catch on the note. "Don't come after me. I'm the thing they're hunting. Better I'm gone before I'm the reason you break."`);
 
       const p1 = await pick(c, `He has the pack on one shoulder and the hatch at his back. Your move?`, [
@@ -1198,6 +1218,8 @@
         await talk(c, 'rook', `Brave, not reckless. That's my advice. You're going to be brave, so be sensible about it too.`, 'normal');
         await you(c, `Sensible? From you?`, 'smirk');
         await talk(c, 'rook', `I contain multitudes. Mostly all of them tired.`, 'blush');
+        await nar(c, `A cold wind rattles the rigging. He tips his head back to watch the stars, a little longer than the stars deserve.`);
+        await talk(c, 'rook', `Don't tell anyone I'm enjoying this. My reputation is extremely fragile.`, 'blush');
         await talk(c, 'rook', `Go on, then. Sleep. That isn't a suggestion.`, 'happy');
         await talk(c, 'rook', `It's advice from a man who has never slept properly in his life, and would like you not to be like him.`, 'happy');
       }

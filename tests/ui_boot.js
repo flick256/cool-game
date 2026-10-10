@@ -5,6 +5,8 @@
   const q = new URLSearchParams(location.search);
   const scene = q.get('scene') || 'title';
   const demo = q.get('demo');
+  window.__log = [];
+  const L = (s) => window.__log.push(s + '@' + G.frame);
   // a plain painted backdrop so message overlays read clearly and stray presses do nothing
   G.scenes.register('blank', () => ({ opaque: true, draw(c) {
     const g = c.createLinearGradient(0, 0, 0, 480); g.addColorStop(0, '#2d4a3a'); g.addColorStop(1, '#4a3f2a');
@@ -30,7 +32,17 @@
     });
   } else if (demo === 'card') {
     G.scenes.replace('blank', {});
-    G.script.run(async (c) => { await c.titleCard('Brass & Steam', 'Brasshaven', 120); await c.toast('Claret ♥ +3', 'heart'); await c.toast('Potion x2 acquired', 'item'); await c.hint('Hold Shift to run. Press Z near objects to interact.'); window.__demoDone = 1; });
+    G.script.run(async (c) => {
+      L('card');
+      await c.titleCard('Brass & Steam', 'Brasshaven', 120);
+      L('afterCard');
+      await c.toast('Claret ♥ +3', 'heart');
+      await c.toast('Potion x2 acquired', 'item');
+      L('toasts');
+      await c.hint('Hold Shift to run. Press Z near objects to interact.');
+      L('hintDone');
+      window.__demoDone = 1;
+    });
   } else if (demo === 'name') {
     G.scenes.replace('blank', {});
     G.script.run(async (c) => { const n = await c.nameInput('Rowan'); window.__demoDone = n; });

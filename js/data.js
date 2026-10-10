@@ -120,7 +120,7 @@
     ],
     equip: { weapon: 'sword_2', weapon2: null, armor: 'mail_2', accessory: null },
     joinLevel: 10, color: '#e9e2c8', sprite: 'caspian', portrait: 'caspian',
-    bio: 'Once a Knight-Lantern of the Hearth Order, now the Grey Lion of Gladius. Courteous, honourable and guilt-ridden over the lamps he was ordered to put out.',
+    bio: 'Once a Knight-Lantern of the Hearth Order, now the Grey Lion of Gladius. Courteous, honorable and guilt-ridden over the lamps he was ordered to put out.',
   });
 
   actor({
@@ -230,7 +230,7 @@
   sk({ id: 'thunder_gasket', name: 'Thunder Gasket', kind: 'elem', element: 'lightning', hits: 3, power: 60, cost: 14, anim: 'lightning', shield: 1,
     desc: 'Three quick discharges through a tuned gasket. Each one is a tiny, rude argument.' });
   sk({ id: 'steam_hammer', name: 'Steam-Hammer Breaker', kind: 'phys', weapon: 'axe', power: 180, cost: 15, anim: 'blunt', shield: 2,
-    desc: 'The spanner-axe with a steam piston bolted to the back. Armour is a suggestion.' });
+    desc: 'The spanner-axe with a steam piston bolted to the back. Armor is a suggestion.' });
   sk({ id: 'marigold_overdrive', name: 'Marigold Overdrive', kind: 'elem', element: 'lightning', target: 'all_enemies', power: 190, cost: 35, anim: 'lightning', shield: 2,
     effects: [{ status: 'atkup', chance: 1, turns: 2, target: 'self' }],
     desc: 'Every coil on the Marigold screams at once. She is fine. The ship is not fine.' });
@@ -255,7 +255,7 @@
   sk({ id: 'field_dressing', name: 'Field Dressing', kind: 'heal', element: 'light', target: 'one_ally', power: 95, cost: 8, anim: 'heal',
     desc: 'Clean linen, steady hands, and a bad joke to distract from the sting.' });
   sk({ id: 'gladius_oathstrike', name: 'Gladius Oathstrike', kind: 'phys', weapon: 'sword', power: 170, cost: 14, anim: 'slash', shield: 2,
-    desc: 'The strike the Arena taught him. Fast, honest, and aimed at the armour, not the person.' });
+    desc: 'The strike the Arena taught him. Fast, honest, and aimed at the armor, not the person.' });
   sk({ id: 'unbroken_line', name: 'Unbroken Line', kind: 'buff', target: 'self', cost: 12, anim: 'buff',
     effects: [{ status: 'defup', chance: 1, turns: 3, target: 'self' }, { status: 'taunt', chance: 1, turns: 2, target: 'self' }],
     desc: 'He becomes the wall, and says so, loudly. Guard up and taunting for a short while.' });
@@ -388,7 +388,7 @@
     desc: 'The whelp inhales, looks pleased with itself, and exhales a small sunrise.' });
   sk({ id: 'e_bone_bash', name: 'Bone Bash', kind: 'phys', power: 110, anim: 'blunt', desc: 'Old bones, rattling with purpose.' });
   sk({ id: 'e_bone_rattle', name: 'Bone Rattle', kind: 'debuff', power: 0, target: 'all_enemies', anim: 'debuff',
-    effects: [{ status: 'defdown', chance: 0.6, turns: 2, target: 'target' }], desc: 'A sound that makes armour feel less certain.' });
+    effects: [{ status: 'defdown', chance: 0.6, turns: 2, target: 'target' }], desc: 'A sound that makes armor feel less certain.' });
   sk({ id: 'e_champion_cleave', name: 'Champion\'s Cleave', kind: 'phys', power: 190, anim: 'slash', shield: 2,
     desc: 'The crowd goes quiet. Then the axe goes down.' });
   sk({ id: 'e_crowd_roar', name: 'Crowd Roar', kind: 'buff', target: 'self', anim: 'buff',
@@ -654,7 +654,7 @@
   gift('lavender_sachet', 'Lavender Sachet', 50, 'A little pouch that makes a dull room feel like a garden.');
   gift('ember_wine', 'Ember Wine', 150, 'Red, peppery and dangerously warm. Do not drink it on a ship.');
   gift('star_chart', 'Star Chart', 200, 'Hand-drawn constellations, annotated with a lot of opinions.');
-  gift('ribbon', 'Silk Ribbon', 70, 'Soft, bright and very much the wrong colour for a battlefield.');
+  gift('ribbon', 'Silk Ribbon', 70, 'Soft, bright and very much the wrong color for a battlefield.');
   gift('whetstone', 'Whetstone', 90, 'Honed to a hungry edge. A thoughtful, slightly dangerous present.');
   gift('moonpetal', 'Moonpetal', 180, 'A silver flower that opens only at night. It hums very quietly.');
   gift('sweet_bun', 'Sweet Bun', 40, 'Warm, sugared, and still in the paper. A perfectly honest gift.');
@@ -1150,9 +1150,6 @@
     P.removeItem(itemId, 1);
     return true;
   };
-
-  // ================================================================ DATA HELPERS (exposed)
-  D.actorStats = P.calcStats;
 
   // ================================================================ SCRIPT COMMANDS
   const DEFINE = (name, fn) => { if (G.script && G.script.define) G.script.define(name, fn); };
